@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Medication - Step 3: Duration &amp; Reminders</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#f2f4f6",
+                        "tertiary": "#b61722",
+                        "on-surface": "#191c1e",
+                        "surface-container-high": "#e6e8ea",
+                        "secondary": "#006e2f",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-surface": "#2d3133",
+                        "outline-variant": "#bcc9c6",
+                        "on-surface-variant": "#3d4947",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#4ae176",
+                        "primary-container": "#008378",
+                        "on-background": "#191c1e",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#da3437",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#005321",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "on-secondary-fixed": "#002109",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-fixed": "#410004",
+                        "on-primary-fixed": "#00201d",
+                        "outline": "#6d7a77",
+                        "on-primary-fixed-variant": "#005049",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-primary-container": "#f4fffc",
+                        "surface": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#930013",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-container": "#007432",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "primary": "#00685f",
+                        "error": "#ba1a1a",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#6bff8f",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006a61",
+                        "tertiary-fixed": "#ffdad7",
+                        "secondary-fixed": "#6bff8f",
+                        "inverse-primary": "#6bd8cb",
+                        "primary-fixed": "#89f5e7",
+                        "on-tertiary-container": "#fffbff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "2xl": "48px",
+                        "gutter": "16px",
+                        "margin-desktop": "64px",
+                        "xs": "4px",
+                        "margin-mobile": "16px",
+                        "sm": "8px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "baseline": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface h-full flex flex-col font-body-md">
+<!-- Top App Bar (Modified for transactional flow) -->
+<header class="w-full top-0 sticky bg-surface shadow-sm z-50">
+<div class="flex justify-between items-center px-margin-mobile py-sm w-full md:px-margin-desktop md:py-md">
+<button class="text-primary hover:bg-surface-container-high transition-colors p-2 rounded-full flex items-center justify-center active:scale-95 duration-100 ease-in-out">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-primary">Add Medication</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full flex items-center justify-center active:scale-95 duration-100 ease-in-out opacity-0 pointer-events-none">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</header>
+<main class="flex-1 overflow-y-auto px-margin-mobile py-lg md:px-margin-desktop w-full max-w-3xl mx-auto">
+<!-- Progress Indicator -->
+<div class="mb-xl flex items-center justify-center space-x-4">
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md">1</div>
+<div class="w-8 h-1 bg-surface-container-highest rounded-full hidden md:block"></div>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md">2</div>
+<div class="w-8 h-1 bg-primary rounded-full hidden md:block"></div>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md">3</div>
+<div class="w-8 h-1 bg-surface-container-highest rounded-full hidden md:block"></div>
+</div>
+<div class="flex items-center space-x-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-md">4</div>
+</div>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-lg">Duration &amp; Reminders</h2>
+<div class="space-y-xl">
+<!-- Duration Section -->
+<section class="bg-surface-container-lowest p-md rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-variant">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined">calendar_month</span> Duration
+                </h3>
+<div class="flex items-center justify-between mb-md bg-surface-container p-3 rounded-lg">
+<label class="font-label-md text-label-md text-on-surface cursor-pointer" for="ongoing-toggle">Ongoing Medication</label>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out peer checked:translate-x-6 checked:border-primary" id="ongoing-toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer peer-checked:bg-primary-container transition-colors duration-200 ease-in-out" for="ongoing-toggle"></label>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Start Date</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg p-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" type="date" value="2023-10-27"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">End Date</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg p-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors disabled:bg-surface-container disabled:text-on-surface-variant" type="date"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Reminder Settings Section -->
+<section class="bg-surface-container-lowest p-md rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-variant">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined">notifications_active</span> Reminder Settings
+                </h3>
+<div class="flex items-center justify-between mb-md bg-error-container/30 p-3 rounded-lg border border-error-container">
+<div class="flex flex-col">
+<label class="font-label-md text-label-md text-on-surface cursor-pointer" for="priority-toggle">High Priority Alarm</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Bypasses silent mode for critical doses.</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-surface-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out peer checked:translate-x-6 checked:border-tertiary" id="priority-toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer peer-checked:bg-tertiary-container transition-colors duration-200 ease-in-out" for="priority-toggle"></label>
+</div>
+</div>
+<div class="flex flex-col gap-xs mb-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Alarm Sound</label>
+<select class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg p-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none">
+<option>Chime (Default)</option>
+<option selected="">Classic Alarm</option>
+<option>Gentle Beep</option>
+<option>Vibrate Only</option>
+</select>
+</div>
+</section>
+<!-- Optional Details Section -->
+<section class="bg-surface-container-lowest p-md rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-variant">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-md flex items-center gap-2">
+<span class="material-symbols-outlined">note_add</span> Optional Details
+                </h3>
+<div class="flex flex-col gap-xs mb-md">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Prescribing Doctor</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3 text-on-surface-variant">stethoscope</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg p-3 pl-10 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors" placeholder="Dr. Smith" type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-xs">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Notes / Instructions</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant text-on-surface rounded-lg p-3 font-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-none" placeholder="Take with food, avoid grapefruit..." rows="3"></textarea>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Action Bar (Transactional) -->
+<div class="bg-surface-container-lowest p-md border-t border-surface-variant shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] z-50 sticky bottom-0 w-full">
+<div class="max-w-3xl mx-auto flex justify-between items-center gap-4">
+<button class="flex-1 py-3 px-4 rounded-full border border-outline-variant text-primary font-label-md text-label-md text-center hover:bg-surface-container transition-colors active:scale-95 duration-150">
+                Back
+            </button>
+<button class="flex-[2] py-3 px-4 rounded-full bg-primary text-on-primary font-label-md text-label-md text-center hover:bg-surface-tint transition-colors shadow-sm active:scale-95 duration-150">
+                Review Medication
+            </button>
+</div>
+</div>
+<script>
+        // Simple logic to disable end date when 'ongoing' is checked
+        const ongoingToggle = document.getElementById('ongoing-toggle');
+        const endDateInput = document.querySelector('input[type="date"]:last-of-type');
+
+        ongoingToggle.addEventListener('change', function() {
+            endDateInput.disabled = this.checked;
+        });
+    </script>
+</body></html>

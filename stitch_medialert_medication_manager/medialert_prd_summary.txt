@@ -1,0 +1,27 @@
+# MEDIALERT PRODUCT REQUIREMENTS DOCUMENT
+
+## 1. Executive Summary
+MediAlert is an offline-first mobile application designed for medication scheduling, image-based intake guidance, and alarm reminders.
+
+## 2. Core Features
+- Dashboard (Today's Timeline)
+- Add/Edit Medication (with photo & schedule)
+- Alarm Screen (Full-screen visual alert)
+- History & Calendar (Adherence tracking)
+- Reports & Analytics (Visual charts)
+- Emergency Contacts
+- Settings (PIN/Biometric lock)
+
+## 3. Design Principles
+- **Clean and Attractive**: Modern, uncluttered UI.
+- **Easy to Use**: Large text, high-contrast buttons, clear visual cues.
+- **Accessible**: Target users include elderly and chronically ill patients.
+
+## 4. Navigation Flow (Proposed)
+- Splash Screen
+- Onboarding (Value proposition)
+- Home / Dashboard
+- Add Medication Flow
+- Active Alarm
+- History/Reports
+- Settings

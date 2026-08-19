@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediAlert - App Theme</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary": "#ffffff",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "surface-container": "#eceef0",
+                      "secondary-container": "#6bff8f",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "secondary": "#006e2f",
+                      "on-primary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "surface-bright": "#f7f9fb",
+                      "on-surface-variant": "#3d4947",
+                      "on-primary-container": "#f4fffc",
+                      "background": "#f7f9fb",
+                      "surface-tint": "#006a61",
+                      "outline": "#6d7a77",
+                      "on-secondary-fixed-variant": "#005321",
+                      "on-surface": "#191c1e",
+                      "on-background": "#191c1e",
+                      "inverse-primary": "#6bd8cb",
+                      "surface-container-highest": "#e0e3e5",
+                      "outline-variant": "#bcc9c6",
+                      "secondary-fixed-dim": "#4ae176",
+                      "on-secondary-fixed": "#002109",
+                      "on-secondary-container": "#007432",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary-container": "#fffbff",
+                      "surface": "#f7f9fb",
+                      "on-primary-fixed": "#00201d",
+                      "surface-variant": "#e0e3e5",
+                      "on-primary-fixed-variant": "#005049",
+                      "surface-dim": "#d8dadc",
+                      "secondary-fixed": "#6bff8f",
+                      "on-error": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "primary": "#00685f",
+                      "on-tertiary-fixed": "#410004",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#da3437",
+                      "tertiary-fixed": "#ffdad7",
+                      "surface-container-low": "#f2f4f6",
+                      "tertiary": "#b61722",
+                      "surface-container-high": "#e6e8ea",
+                      "primary-fixed": "#89f5e7",
+                      "on-tertiary-fixed-variant": "#930013",
+                      "primary-container": "#008378"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "64px",
+                      "sm": "8px",
+                      "md": "16px",
+                      "xs": "4px",
+                      "gutter": "16px",
+                      "xl": "32px",
+                      "baseline": "4px",
+                      "2xl": "48px",
+                      "lg": "24px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        /* Custom radio button styles to match brand colors */
+        input[type='radio']:checked {
+            background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3ccircle cx='8' cy='8' r='3'/%3e%3c/svg%3e");
+            border-color: #00685f; /* primary color */
+            background-color: #00685f;
+        }
+        
+        .theme-card-selected {
+            border: 2px solid #00685f;
+            background-color: #f4fffc; /* on-primary-container */
+        }
+        
+        .dark .theme-card-selected {
+             background-color: #005049; /* on-primary-fixed-variant approximation for dark mode */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col pb-24 selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar (Modified for Sub-page: Back button instead of menu) -->
+<header class="bg-surface shadow-sm sticky top-0 z-40">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-sm h-16">
+<button class="text-primary hover:bg-surface-container-low active:scale-95 duration-100 p-2 rounded-full flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+<span class="sr-only">Go back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-surface flex-1 text-center">App Theme</h1>
+<div class="w-10 h-10"></div> <!-- Spacer to balance flex layout -->
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-margin-mobile md:px-margin-desktop py-lg max-w-3xl mx-auto w-full">
+<!-- Header Text -->
+<section class="mb-lg">
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+                Choose how MediAlert appears on your device. Dark mode can help reduce eye strain in low-light conditions.
+            </p>
+</section>
+<!-- Theme Selection Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-md mb-xl">
+<!-- Light Mode Option -->
+<label class="cursor-pointer group">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.05)] h-full flex flex-col transition-all duration-200 theme-card-selected relative overflow-hidden">
+<div class="flex items-center justify-between mb-md z-10">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">light_mode</span>
+<span class="font-label-md text-label-md text-on-surface">Light Mode</span>
+</div>
+<input checked="" class="w-5 h-5 text-primary focus:ring-primary border-outline-variant bg-surface-container-lowest cursor-pointer" name="app-theme" type="radio" value="light"/>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-md flex-1 z-10">
+                        Clean, high-contrast clinical look.
+                    </p>
+<!-- Mini Preview -->
+<div class="bg-surface-container-low rounded-lg p-sm border border-outline-variant/30 mt-auto opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none select-none z-10">
+<div class="flex items-center gap-xs mb-xs">
+<div class="w-4 h-4 rounded-full bg-primary flex-shrink-0"></div>
+<div class="h-2 w-16 bg-outline-variant rounded"></div>
+</div>
+<div class="h-8 bg-surface-container-lowest rounded-md shadow-sm border border-surface-variant flex items-center px-xs">
+<div class="h-1.5 w-1/2 bg-surface-dim rounded"></div>
+</div>
+</div>
+</div>
+</label>
+<!-- Dark Mode Option -->
+<label class="cursor-pointer group">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-transparent hover:border-primary/30 h-full flex flex-col transition-all duration-200 relative overflow-hidden">
+<div class="flex items-center justify-between mb-md z-10">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">dark_mode</span>
+<span class="font-label-md text-label-md text-on-surface">Dark Mode</span>
+</div>
+<input class="w-5 h-5 text-primary focus:ring-primary border-outline-variant bg-surface-container-lowest cursor-pointer" name="app-theme" type="radio" value="dark"/>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-md flex-1 z-10">
+                        Deep teal and dark gray palette for night use.
+                    </p>
+<!-- Mini Preview (Dark) -->
+<div class="bg-[#191c1e] rounded-lg p-sm border border-[#3d4947] mt-auto opacity-70 group-hover:opacity-100 transition-opacity pointer-events-none select-none z-10">
+<div class="flex items-center gap-xs mb-xs">
+<div class="w-4 h-4 rounded-full bg-[#89f5e7] flex-shrink-0"></div> <!-- primary-fixed approximate -->
+<div class="h-2 w-16 bg-[#6d7a77] rounded"></div>
+</div>
+<div class="h-8 bg-[#2d3133] rounded-md shadow-sm border border-[#3d4947] flex items-center px-xs">
+<div class="h-1.5 w-1/2 bg-[#3d4947] rounded"></div>
+</div>
+</div>
+</div>
+</label>
+<!-- System Default Option -->
+<label class="cursor-pointer group">
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-transparent hover:border-primary/30 h-full flex flex-col transition-all duration-200">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">settings_brightness</span>
+<span class="font-label-md text-label-md text-on-surface">System Default</span>
+</div>
+<input class="w-5 h-5 text-primary focus:ring-primary border-outline-variant bg-surface-container-lowest cursor-pointer" name="app-theme" type="radio" value="system"/>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-md flex-1">
+                        Automatically matches your device settings.
+                    </p>
+<div class="h-[74px] flex items-center justify-center bg-surface-container-low rounded-lg mt-auto text-on-surface-variant">
+<span class="material-symbols-outlined text-[32px] opacity-50">smartphone</span>
+</div>
+</div>
+</label>
+</section>
+</main>
+<!-- Javascript for simple interactions (Optional based on requirements, but adds to "UI designer" feel) -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const radioButtons = document.querySelectorAll('input[name="app-theme"]');
+            
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    // Remove selected class from all cards
+                    document.querySelectorAll('input[name="app-theme"]').forEach(r => {
+                        const card = r.closest('.rounded-xl');
+                        card.classList.remove('theme-card-selected');
+                        card.classList.remove('border-transparent');
+                        card.classList.add('border-transparent'); // reset
+                        
+                        // Update icon styling for unselected
+                        const icon = card.querySelector('.material-symbols-outlined');
+                        if(icon && r.value !== 'system') {
+                             icon.style.fontVariationSettings = "'FILL' 0";
+                             icon.classList.remove('text-primary');
+                             icon.classList.add('text-on-surface-variant');
+                        }
+                    });
+
+                    // Add selected class to chosen card
+                    if (e.target.checked) {
+                        const selectedCard = e.target.closest('.rounded-xl');
+                        selectedCard.classList.remove('border-transparent');
+                        selectedCard.classList.add('theme-card-selected');
+                        
+                        // Update icon styling for selected
+                        const icon = selectedCard.querySelector('.material-symbols-outlined');
+                        if(icon) {
+                             icon.style.fontVariationSettings = "'FILL' 1";
+                             icon.classList.remove('text-on-surface-variant');
+                             icon.classList.add('text-primary');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body></html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediAlert - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#930013",
+                        "on-background": "#191c1e",
+                        "on-secondary-fixed": "#002109",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#006a61",
+                        "primary-fixed": "#89f5e7",
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#008378",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#4ae176",
+                        "outline": "#6d7a77",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-dim": "#d8dadc",
+                        "on-surface-variant": "#3d4947",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "primary": "#00685f",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#007432",
+                        "tertiary-container": "#da3437",
+                        "inverse-primary": "#6bd8cb",
+                        "on-primary-fixed-variant": "#005049",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#f4fffc",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e6e8ea",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#410004",
+                        "on-tertiary-container": "#fffbff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-fixed": "#ffdad7",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#6bff8f",
+                        "on-primary-fixed": "#00201d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#005321",
+                        "secondary-fixed": "#6bff8f",
+                        "secondary": "#006e2f",
+                        "tertiary": "#b61722",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "margin-desktop": "64px",
+                        "baseline": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .carousel-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        .carousel-container::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+        .carousel-slide {
+            scroll-snap-align: center;
+            flex: 0 0 100%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface h-screen flex flex-col antialiased">
+<!-- Content Area (Carousel) -->
+<main class="flex-1 relative overflow-hidden flex flex-col justify-center">
+<div class="carousel-container h-full w-full" id="onboarding-carousel">
+<!-- Step 1 -->
+<div class="carousel-slide flex flex-col items-center justify-center p-margin-mobile h-full w-full text-center">
+<div class="w-full max-w-sm mb-lg rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] bg-surface-container-lowest p-md">
+<img class="w-full h-64 object-contain mb-md rounded-lg" data-alt="A clean, modern 3D illustration of a smartphone ringing with a prominent notification bubble displaying a pill icon. The phone is floating slightly, casting a soft shadow on a pristine white background. The color palette features a crisp white backdrop with vibrant accents of teal (#00685f) and subtle green (#6bff8f) for the notification, creating a clinical yet approachable and supportive atmosphere. The lighting is bright and even, reflecting a high-quality light-mode corporate healthcare aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdfIsiLXiKpB58511Ec5WZ_dC-hGGVyXI21X9Hke9ZB91Ok6smtiFq_kZd4Y-9dyWQaV2g0AzMWOVGJIS4_XktJfdqfztvXtT-RjWV4wlv98sHy7lJIz414NiRh8uub1EAwu6kK6mBDjlExlxIEMFQKXq-bQ4eTSyZXJ3hLRG9LjSKUKVkhrJ_KFSWU6e1SEe33iJzNm4rbonIeoBX1j-B7ZqUgrEC5pE4fWVfhJjjStUaio_nEngl"/>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary mb-sm">Never Miss a Dose</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm">
+                    Receive timely, prominent alerts directly to your device so your medication schedule is always on track.
+                </p>
+</div>
+<!-- Step 2 -->
+<div class="carousel-slide flex flex-col items-center justify-center p-margin-mobile h-full w-full text-center">
+<div class="w-full max-w-sm mb-lg rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] bg-surface-container-lowest p-md">
+<img class="w-full h-64 object-contain mb-md rounded-lg" data-alt="A highly detailed, photorealistic close-up of a distinct blue and white capsule pill resting on a smooth, slightly reflective light grey surface. Next to the pill is a clean, modern digital interface card floating softly, displaying the dosage '50mg' in crisp typography. The overall color scheme is predominantly light and airy, utilizing soft whites and subtle clinical teal (#00685f) accents. The lighting is soft and diffused, conveying safety, clarity, and precision in a modern healthcare context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuARfLE_3eEAadbeSBB58I4I7IX0M0fvrzbcpSupWp1iz5S-HpoIEOHIahHFpCnoGBV8RFPgtcVNMf0Q96ssVmhuJI_BhnTdY_w7VgRr5E5DzOZYRg0HkAwxBtKwrW-HWHDGJNMaOD2P5ybsGD6pjACzBhAKXT_BLycAQHy6vsWMJrpKIKna_gOcznyRmkm_ga5txBEvN6kl_I8Klrhu90fc_PzskIfXeX-fl5fC4nmnNBQT8XSEPSK1"/>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary mb-sm">Visual Identification</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm">
+                    Clear images and exact dosage information ensure you are taking the right medication every single time.
+                </p>
+</div>
+<!-- Step 3 -->
+<div class="carousel-slide flex flex-col items-center justify-center p-margin-mobile h-full w-full text-center">
+<div class="w-full max-w-sm mb-lg rounded-xl overflow-hidden shadow-[0px_4px_20px_rgba(0,0,0,0.05)] bg-surface-container-lowest p-md">
+<img class="w-full h-64 object-contain mb-md rounded-lg" data-alt="A sleek, modern data visualization graphic showing a circular progress ring chart nearing completion, overlaid on a soft white background. The ring is a vibrant success green (#6bff8f) with subtle teal (#00685f) secondary elements. The design is minimalist, employing ample whitespace, soft rounded corners, and a clinical yet warm aesthetic. The lighting creates a gentle, supportive mood, emphasizing progress and positive health outcomes in a light-mode corporate modern style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAquL0st9RO8Qvh0c8l45I9egFiNseSruKKn93qtdRYpq9L5z4CFiWYJlFIugT4CHfbsfNBq7jpLOpK89V5qfCTTVaH7w3ARHnsGToI3JUx9l8HkTmZbgvLG-vMzMPRvJBr45N7AvA4niXXliXLCfY1S6C6D00yX_kvsciONiY9XQImjT3uz1kYOzMdVrtN-ZiD7awikypkgMAhdpovXcquhBj6vC5QzIUs6Ya2NOUY-NKNM-oc8JKO"/>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary mb-sm">Track Your Health</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-sm">
+                    Monitor your adherence over time with easy-to-read charts that help you and your care team stay informed.
+                </p>
+</div>
+</div>
+</main>
+<!-- Bottom Action Area -->
+<footer class="w-full p-margin-mobile bg-surface pt-0 pb-margin-desktop flex flex-col items-center justify-center">
+<!-- Progress Indicators -->
+<div class="flex space-x-2 mb-lg" id="carousel-indicators">
+<div class="w-3 h-3 rounded-full bg-primary transition-all duration-300" id="indicator-0"></div>
+<div class="w-3 h-3 rounded-full bg-surface-variant transition-all duration-300" id="indicator-1"></div>
+<div class="w-3 h-3 rounded-full bg-surface-variant transition-all duration-300" id="indicator-2"></div>
+</div>
+<!-- Action Buttons -->
+<div class="w-full max-w-md flex flex-col gap-sm">
+<button class="w-full bg-primary text-on-primary font-headline-sm text-headline-sm py-md rounded-full shadow-sm hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2 min-h-[48px]" id="next-btn">
+                Next <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+<button class="hidden w-full bg-primary text-on-primary font-headline-sm text-headline-sm py-md rounded-full shadow-sm hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2 min-h-[48px]" id="get-started-btn">
+                Get Started
+            </button>
+<button class="w-full text-primary font-label-md text-label-md py-sm mt-xs hover:bg-surface-container-low rounded-full transition-colors min-h-[48px]" id="skip-btn">
+                Skip
+            </button>
+</div>
+</footer>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('onboarding-carousel');
+            const indicators = [
+                document.getElementById('indicator-0'),
+                document.getElementById('indicator-1'),
+                document.getElementById('indicator-2')
+            ];
+            const nextBtn = document.getElementById('next-btn');
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const skipBtn = document.getElementById('skip-btn');
+            const totalSlides = 3;
+            let currentSlide = 0;
+
+            const updateUI = (index) => {
+                // Update Indicators
+                indicators.forEach((ind, i) => {
+                    if (i === index) {
+                        ind.classList.remove('bg-surface-variant');
+                        ind.classList.add('bg-primary');
+                        ind.classList.add('w-6'); // Active indicator wider
+                    } else {
+                        ind.classList.remove('bg-primary', 'w-6');
+                        ind.classList.add('bg-surface-variant');
+                    }
+                });
+
+                // Update Buttons
+                if (index === totalSlides - 1) {
+                    nextBtn.classList.add('hidden');
+                    skipBtn.classList.add('hidden');
+                    getStartedBtn.classList.remove('hidden');
+                } else {
+                    nextBtn.classList.remove('hidden');
+                    skipBtn.classList.remove('hidden');
+                    getStartedBtn.classList.add('hidden');
+                }
+            };
+
+            // Listen to scroll events to update indicators manually if user swipes
+            carousel.addEventListener('scroll', () => {
+                const scrollLeft = carousel.scrollLeft;
+                const slideWidth = carousel.clientWidth;
+                const newIndex = Math.round(scrollLeft / slideWidth);
+                if (newIndex !== currentSlide) {
+                    currentSlide = newIndex;
+                    updateUI(currentSlide);
+                }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    carousel.scrollTo({
+                        left: carousel.clientWidth * currentSlide,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+
+            // Initial UI Setup
+            updateUI(0);
+            indicators[0].classList.add('w-6');
+        });
+    </script>
+</body></html>

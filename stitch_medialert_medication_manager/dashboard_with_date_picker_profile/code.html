@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediAlert - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#930013",
+                      "on-background": "#191c1e",
+                      "on-secondary-fixed": "#002109",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "on-secondary": "#ffffff",
+                      "surface-tint": "#006a61",
+                      "primary-fixed": "#89f5e7",
+                      "surface-bright": "#f7f9fb",
+                      "primary-container": "#008378",
+                      "on-error-container": "#93000a",
+                      "secondary-fixed-dim": "#4ae176",
+                      "outline": "#6d7a77",
+                      "surface-container-highest": "#e0e3e5",
+                      "surface-dim": "#d8dadc",
+                      "on-surface-variant": "#3d4947",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "primary": "#00685f",
+                      "on-surface": "#191c1e",
+                      "on-secondary-container": "#007432",
+                      "tertiary-container": "#da3437",
+                      "inverse-primary": "#6bd8cb",
+                      "on-primary-fixed-variant": "#005049",
+                      "surface-container": "#eceef0",
+                      "on-primary-container": "#f4fffc",
+                      "error": "#ba1a1a",
+                      "surface-container-high": "#e6e8ea",
+                      "error-container": "#ffdad6",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-variant": "#e0e3e5",
+                      "inverse-on-surface": "#eff1f3",
+                      "inverse-surface": "#2d3133",
+                      "on-error": "#ffffff",
+                      "on-tertiary-fixed": "#410004",
+                      "on-tertiary-container": "#fffbff",
+                      "outline-variant": "#bcc9c6",
+                      "tertiary-fixed": "#ffdad7",
+                      "background": "#f7f9fb",
+                      "secondary-container": "#6bff8f",
+                      "on-primary-fixed": "#00201d",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-fixed-variant": "#005321",
+                      "secondary-fixed": "#6bff8f",
+                      "secondary": "#006e2f",
+                      "tertiary": "#b61722",
+                      "on-primary": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "surface": "#f7f9fb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "2xl": "48px",
+                      "lg": "24px",
+                      "margin-desktop": "64px",
+                      "baseline": "4px",
+                      "md": "16px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "gutter": "16px",
+                      "xs": "4px"
+              },
+              "fontFamily": {
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-[80px]">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface dark:bg-surface-dim shadow-sm z-40">
+<div class="flex justify-between items-center px-margin-mobile py-sm w-full">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-full p-2 active:scale-95 duration-100 ease-in-out">
+<span class="material-symbols-outlined block">medical_services</span>
+</button>
+<h1 class="font-display-lg text-display-lg font-bold text-primary dark:text-primary-fixed-dim">MediAlert</h1>
+<button class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/20 active:scale-95 transition-transform">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxRq52CG7eGb98DPZU5tbJUtr1UCy3KGX4GeCdIWoqxLwI9UlXt_DL6j9zSf2n4IFW-bhmAaIXAyIuQVFVwfSth45sYDdYBxqj4cyzaIsmbkpMPj6PJN8xszmNBhWMwzdqOJRiZnltCf-_nLp_O8PhGQLmR2rUGBW7Rm1VpyXD6Hnmnc8VXOtozCt1jdaLBwWluiePtZEoeRFGg0C_il3K39huccW6s7-OL4J4x1x-wHaNXqSaz_IP"/>
+</button>
+</div>
+</header>
+<main class="px-margin-mobile md:px-margin-desktop py-lg max-w-4xl mx-auto space-y-xl"><section class="-mx-margin-mobile px-margin-mobile overflow-x-auto no-scrollbar">
+<div class="flex gap-sm pb-2">
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Sun</span>
+<span class="text-headline-sm">22</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-primary text-on-primary shadow-md">
+<span class="text-label-sm font-medium">Mon</span>
+<span class="text-headline-sm">23</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Tue</span>
+<span class="text-headline-sm">24</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Wed</span>
+<span class="text-headline-sm">25</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Thu</span>
+<span class="text-headline-sm">26</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Fri</span>
+<span class="text-headline-sm">27</span>
+</div>
+<div class="flex flex-col items-center justify-center min-w-[56px] py-3 rounded-xl bg-surface-container-high text-on-surface-variant">
+<span class="text-label-sm font-medium">Sat</span>
+<span class="text-headline-sm">28</span>
+</div>
+</div>
+</section>
+<!-- Progress Summary -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] p-md flex items-center justify-between shadow-lg"><div class="flex flex-col gap-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Today's Adherence</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">You've taken <span class="font-bold text-primary">2 of 4</span> doses today</p>
+</div>
+<div class="relative w-20 h-20">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<circle class="text-surface-variant stroke-current" cx="50" cy="50" fill="transparent" r="42" stroke-width="8"></circle>
+<circle class="text-primary stroke-current progress-ring__circle" cx="50" cy="50" fill="transparent" r="42" stroke-dasharray="263.89" stroke-dashoffset="131.95" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">50%</span>
+</div>
+</div></section>
+<!-- Timeline: Morning -->
+<section class="space-y-md">
+<div class="flex items-center gap-sm"><div class="flex items-center gap-sm py-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">wb_sunny</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Morning</h3>
+<div class="h-px flex-1 bg-surface-variant ml-sm"></div>
+</div></div>
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border-l-4 border-secondary flex flex-col md:flex-row">
+<div class="p-md flex gap-md flex-1">
+<div class="w-14 h-14 bg-secondary-container rounded-xl flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container text-2xl">medication</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Amoxicillin 500mg</h4>
+<span class="inline-block bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-2 py-0.5 rounded mt-xs">Prescription</span>
+</div>
+<div class="text-right">
+<span class="block font-label-md text-label-md text-on-surface-variant">08:00 AM</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm">Take 1 pill after meal</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-md flex items-center justify-end md:w-32 md:justify-center border-t md:border-t-0 md:border-l border-surface-variant">
+<span class="font-label-md text-label-md text-secondary flex items-center gap-xs bg-secondary/10 px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+Taken
+</span>
+</div>
+</div>
+</section>
+<!-- Timeline: Afternoon -->
+<section class="space-y-md">
+<div class="flex items-center gap-sm"><div class="flex items-center gap-sm py-sm">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">partly_cloudy_day</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface tracking-tight">Afternoon</h3>
+<div class="h-px flex-1 bg-surface-variant ml-sm"></div>
+</div></div>
+<div class="bg-surface-container-lowest rounded-xl shadow-lg overflow-hidden border-l-4 border-primary relative">
+<div class="absolute top-3 right-3 flex items-center gap-xs bg-error text-on-error font-label-sm text-label-sm px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">priority_high</span>
+Urgent
+</div>
+<div class="p-md flex gap-md flex-1">
+<div class="w-14 h-14 bg-primary-container rounded-xl flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-2xl">prescriptions</span>
+</div>
+<div class="flex-1 pr-16">
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Lisinopril 10mg</h4>
+<span class="inline-block bg-primary/10 text-primary font-label-sm text-label-sm px-2 py-0.5 rounded mt-xs">Blood Pressure</span>
+</div>
+<span class="font-label-md text-label-md text-primary font-bold">01:00 PM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-sm">Take 1 pill with water</p>
+</div>
+</div>
+<div class="p-md flex gap-md border-t border-surface-variant bg-surface-container-low">
+<button class="flex-1 bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md py-3 rounded-xl transition-all active:scale-95">Skip</button>
+<button class="flex-[2] bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-3 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-sm shadow-sm">
+<span class="material-symbols-outlined text-[20px]">task_alt</span>
+Take Dose
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-[88px] right-margin-mobile md:right-margin-desktop w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 transition-transform active:scale-95 z-40 ring-4 ring-primary/20">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]">
+<div class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 bg-surface-container-lowest shadow-[0px_-4px_20px_rgba(0,0,0,0.05)]">
+<!-- Active: Dashboard -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-5 py-1 active:scale-90 duration-150 ease-out">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all px-5 py-1 rounded-lg active:scale-90 duration-150 ease-out">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-sm text-label-sm mt-1">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all px-5 py-1 rounded-lg active:scale-90 duration-150 ease-out">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-sm text-label-sm mt-1">Reports</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-all px-5 py-1 rounded-lg active:scale-90 duration-150 ease-out">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-sm text-label-sm mt-1">Settings</span>
+</button>
+</div>
+</nav>
+</body></html>

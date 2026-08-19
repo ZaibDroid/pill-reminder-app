@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MediAlert - History</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#6d7a77",
+                    "on-tertiary-container": "#fffbff",
+                    "tertiary-container": "#da3437",
+                    "tertiary-fixed-dim": "#ffb3ad",
+                    "error": "#ba1a1a",
+                    "on-primary-fixed-variant": "#005049",
+                    "primary-container": "#008378",
+                    "secondary-fixed-dim": "#4ae176",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-variant": "#e0e3e5",
+                    "surface-bright": "#f7f9fb",
+                    "surface-dim": "#d8dadc",
+                    "primary-fixed-dim": "#6bd8cb",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#930013",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#191c1e",
+                    "inverse-surface": "#2d3133",
+                    "primary": "#00685f",
+                    "on-primary-container": "#f4fffc",
+                    "primary-fixed": "#89f5e7",
+                    "on-surface-variant": "#3d4947",
+                    "on-secondary-container": "#007432",
+                    "surface-container-highest": "#e0e3e5",
+                    "inverse-primary": "#6bd8cb",
+                    "on-secondary-fixed": "#002109",
+                    "surface-tint": "#006a61",
+                    "surface-container-high": "#e6e8ea",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#00201d",
+                    "on-secondary-fixed-variant": "#005321",
+                    "outline-variant": "#bcc9c6",
+                    "on-error-container": "#93000a",
+                    "on-surface": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "surface-container-low": "#f2f4f6",
+                    "secondary": "#006e2f",
+                    "on-tertiary": "#ffffff",
+                    "secondary-container": "#6bff8f",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#6bff8f",
+                    "background": "#f7f9fb",
+                    "tertiary": "#b61722",
+                    "tertiary-fixed": "#ffdad7",
+                    "surface-container": "#eceef0",
+                    "on-tertiary-fixed": "#410004",
+                    "on-primary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "baseline": "4px",
+                    "2xl": "48px",
+                    "xl": "32px",
+                    "md": "16px",
+                    "sm": "8px",
+                    "margin-desktop": "64px",
+                    "lg": "24px",
+                    "margin-mobile": "16px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg-mobile": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Hide scrollbar for clean calendar strip */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col items-center">
+<!-- Desktop Wrapper to constrain width and mimic app feel -->
+<div class="w-full max-w-lg min-h-screen flex flex-col relative bg-surface shadow-sm">
+<!-- TopAppBar -->
+<header class="bg-surface text-primary shadow-sm docked full-width top-0 z-40 sticky">
+<div class="flex justify-between items-center w-full px-margin-mobile py-sm h-[64px]">
+<button aria-label="Menu" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 duration-100 transition-colors text-primary">
+<span class="material-symbols-outlined text-[24px]">medical_services</span>
+</button>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">MediAlert</h1>
+<button aria-label="Emergency" class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-low active:scale-95 duration-100 transition-colors text-primary">
+<span class="material-symbols-outlined text-[24px]">emergency</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col px-margin-mobile py-lg gap-lg pb-[100px] overflow-y-auto">
+<!-- Header Title -->
+<div class="flex flex-col gap-xs">
+<h2 class="font-headline-md text-headline-md text-on-surface">Walk History</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Review your recent activity and adherence.</p>
+</div>
+<!-- Summary Card -->
+<section class="bg-surface-container-lowest rounded-xl p-md shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border border-surface-container-high flex items-center gap-md relative overflow-hidden">
+<!-- Decorative subtle background -->
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-primary-container opacity-20 rounded-full blur-xl"></div>
+<div class="relative w-16 h-16 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-high" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3"></path>
+<path class="text-secondary" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="75, 100" stroke-linecap="round" stroke-width="3"></path>
+</svg>
+<span class="absolute font-label-md text-label-md text-on-surface">75%</span>
+</div>
+<div class="flex flex-col flex-1 z-10">
+<h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest">Daily Adherence</h3>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-xs">Great job today!</p>
+</div>
+</section>
+<!-- Calendar Strip -->
+<section class="flex flex-col gap-sm">
+<div class="flex justify-between items-center px-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">October 2023</span>
+<button class="font-label-sm text-label-sm text-primary flex items-center gap-xs">
+                        Today <span class="material-symbols-outlined text-[16px]">calendar_today</span>
+</button>
+</div>
+<div class="flex gap-sm overflow-x-auto no-scrollbar pb-xs snap-x">
+<!-- Day Items -->
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-transparent text-on-surface-variant border border-transparent hover:bg-surface-container-low transition-colors">
+<span class="font-label-sm text-label-sm">Mon</span>
+<span class="font-headline-sm text-headline-sm mt-xs">16</span>
+</button>
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-transparent text-on-surface-variant border border-transparent hover:bg-surface-container-low transition-colors">
+<span class="font-label-sm text-label-sm">Tue</span>
+<span class="font-headline-sm text-headline-sm mt-xs">17</span>
+</button>
+<!-- Selected Day -->
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-primary text-on-primary shadow-sm border border-transparent">
+<span class="font-label-sm text-label-sm opacity-90">Wed</span>
+<span class="font-headline-sm text-headline-sm mt-xs">18</span>
+</button>
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-transparent text-on-surface-variant border border-transparent hover:bg-surface-container-low transition-colors">
+<span class="font-label-sm text-label-sm">Thu</span>
+<span class="font-headline-sm text-headline-sm mt-xs">19</span>
+</button>
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-transparent text-on-surface-variant border border-transparent hover:bg-surface-container-low transition-colors">
+<span class="font-label-sm text-label-sm">Fri</span>
+<span class="font-headline-sm text-headline-sm mt-xs">20</span>
+</button>
+<button class="snap-center flex-shrink-0 flex flex-col items-center justify-center w-[56px] h-[72px] rounded-xl bg-transparent text-on-surface-variant border border-transparent hover:bg-surface-container-low transition-colors">
+<span class="font-label-sm text-label-sm">Sat</span>
+<span class="font-headline-sm text-headline-sm mt-xs">21</span>
+</button>
+</div>
+</section>
+<!-- Medication List -->
+<section class="flex flex-col gap-md">
+<!-- Item: Taken (Success) -->
+<article class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-l-[6px] border-secondary overflow-hidden flex flex-row items-center p-md gap-md">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container rounded-full text-secondary">
+<span class="material-symbols-outlined text-[24px]">pill</span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Lisinopril</h4>
+<span class="font-label-sm text-label-sm text-on-surface-variant">8:00 AM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">10mg • Daily</p>
+<div class="flex items-center gap-xs mt-xs text-secondary">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-sm text-label-sm">Taken</span>
+</div>
+</div>
+</article>
+<!-- Item: Skipped (Neutral/Outline) -->
+<article class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-l-[6px] border-outline overflow-hidden flex flex-row items-center p-md gap-md opacity-80">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-surface-container rounded-full text-outline">
+<span class="material-symbols-outlined text-[24px]">vaccines</span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-sm text-headline-sm text-on-surface line-through decoration-outline-variant">Vitamin D3</h4>
+<span class="font-label-sm text-label-sm text-on-surface-variant">12:00 PM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">2000 IU • Supplement</p>
+<div class="flex items-center gap-xs mt-xs text-outline">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">do_not_disturb_on</span>
+<span class="font-label-sm text-label-sm">Skipped</span>
+</div>
+</div>
+</article>
+<!-- Item: Missed (Error) -->
+<article class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] border-l-[6px] border-error overflow-hidden flex flex-row items-center p-md gap-md">
+<div class="flex flex-col items-center justify-center w-12 h-12 bg-error-container rounded-full text-error">
+<span class="material-symbols-outlined text-[24px]">medication</span>
+</div>
+<div class="flex-1 flex flex-col">
+<div class="flex justify-between items-start">
+<h4 class="font-headline-sm text-headline-sm text-on-surface">Metformin</h4>
+<span class="font-label-sm text-label-sm text-error font-semibold">6:00 PM</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">500mg • With food</p>
+<div class="flex items-center gap-xs mt-xs text-error">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">cancel</span>
+<span class="font-label-sm text-label-sm font-semibold">Missed</span>
+</div>
+</div>
+</article>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter pb-md pt-sm bg-surface dark:bg-surface-container-lowest shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] max-w-lg mx-auto md:hidden left-1/2 -translate-x-1/2">
+<!-- Dashboard (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:bg-surface-container-high rounded-xl transition-transform duration-150 active:scale-90 group w-16">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">home_health</span>
+<span class="font-label-sm text-label-sm mt-1 group-hover:text-primary transition-colors">Dashboard</span>
+</button>
+<!-- History (Active) -->
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-xl px-4 py-2 active:scale-90 transition-transform duration-150 w-20">
+<span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">history</span>
+<span class="font-label-sm text-label-sm mt-1 font-bold">History</span>
+</button>
+<!-- Reports (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:bg-surface-container-high rounded-xl transition-transform duration-150 active:scale-90 group w-16">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">assessment</span>
+<span class="font-label-sm text-label-sm mt-1 group-hover:text-primary transition-colors">Reports</span>
+</button>
+<!-- Settings (Inactive) -->
+<button class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-2 hover:bg-surface-container-high rounded-xl transition-transform duration-150 active:scale-90 group w-16">
+<span class="material-symbols-outlined text-[24px] group-hover:text-primary transition-colors">settings</span>
+<span class="font-label-sm text-label-sm mt-1 group-hover:text-primary transition-colors">Settings</span>
+</button>
+</nav>
+<!-- Desktop Spacer for Nav (if viewed on larger screen but kept mobile layout) -->
+<div class="h-[80px] hidden md:block"></div>
+</div>
+</body></html>

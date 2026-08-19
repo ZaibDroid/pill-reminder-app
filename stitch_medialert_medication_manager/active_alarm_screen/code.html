@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Active Alarm - MediAlert</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#930013",
+                        "on-background": "#191c1e",
+                        "on-secondary-fixed": "#002109",
+                        "tertiary-fixed-dim": "#ffb3ad",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#006a61",
+                        "primary-fixed": "#89f5e7",
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#008378",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#4ae176",
+                        "outline": "#6d7a77",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-dim": "#d8dadc",
+                        "on-surface-variant": "#3d4947",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "primary": "#00685f",
+                        "on-surface": "#191c1e",
+                        "on-secondary-container": "#007432",
+                        "tertiary-container": "#da3437",
+                        "inverse-primary": "#6bd8cb",
+                        "on-primary-fixed-variant": "#005049",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#f4fffc",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e6e8ea",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "on-tertiary-fixed": "#410004",
+                        "on-tertiary-container": "#fffbff",
+                        "outline-variant": "#bcc9c6",
+                        "tertiary-fixed": "#ffdad7",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#6bff8f",
+                        "on-primary-fixed": "#00201d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed-variant": "#005321",
+                        "secondary-fixed": "#6bff8f",
+                        "secondary": "#006e2f",
+                        "tertiary": "#b61722",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface": "#f7f9fb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "2xl": "48px",
+                        "lg": "24px",
+                        "margin-desktop": "64px",
+                        "baseline": "4px",
+                        "md": "16px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "16px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        @keyframes pulse-bg {
+            0%, 100% { background-color: rgba(0, 104, 95, 0.05); }
+            50% { background-color: rgba(0, 104, 95, 0.15); }
+        }
+        .urgent-pulse {
+            animation: pulse-bg 2s infinite ease-in-out;
+        }
+        @keyframes slide-up {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-up {
+            animation: slide-up 0.5s ease-out forwards;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background h-full text-on-surface flex flex-col items-center justify-center urgent-pulse font-body-md overflow-hidden antialiased">
+<!-- Main Alarm Card -->
+<main class="w-full max-w-md mx-auto px-margin-mobile flex flex-col h-full justify-between py-2xl animate-slide-up">
+<!-- Top Section: Image & Info -->
+<div class="flex flex-col items-center text-center space-y-lg mt-xl">
+<!-- Medication Image -->
+<div class="relative w-48 h-48 rounded-full overflow-hidden shadow-[0px_10px_30px_rgba(0,0,0,0.1)] border-4 border-surface-container-lowest">
+<img alt="Medication Photo" class="w-full h-full object-cover" data-alt="A clear, macro photograph of a single oval white pill (Amoxicillin) resting on a clean white surface. The lighting is soft and clinical, highlighting the texture and imprint on the medication. The background is a stark, modern white, consistent with a healthcare aesthetic, conveying safety and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-ImpoijQMONRwF5TdhZ5_Olhs5_G4MPAu3JKOcZtWjiq6Bu5DnYjn714w1xMp3gcroJdRJBVsEgwgJ9UFh6Wdmbm37rCU6jNcKR8CaKoJS1Ql0CC8tI9C99RlUCwhT_ew9c3yNrwJGXQIiW2ujIAxo1UTVrJyba3fXcDjgUOoTitODpwgIlQjdV1_wYdCRuD6LuCVAOtLV2ZBq9aabswGXjxX2rhzCqiGfFHqZxaEoh68BqdiuoO_"/>
+</div>
+<!-- Text Details -->
+<div class="space-y-sm">
+<div class="flex items-center justify-center space-x-2 text-error">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<span class="font-label-md text-label-md uppercase tracking-wider">Alarm</span>
+</div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface md:font-display-lg md:text-display-lg">
+                    Time for Your Medication
+                </h1>
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-sm border border-surface-variant mt-md">
+<h2 class="font-headline-md text-headline-md text-primary mb-xs">Amoxicillin 500mg</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">1 Tablet</p>
+<div class="flex items-center justify-center mt-md space-x-2 text-on-surface bg-surface-container rounded-lg p-sm">
+<span class="material-symbols-outlined text-primary">restaurant</span>
+<p class="font-label-md text-label-md">Take after meal with water</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Actions -->
+<div class="w-full space-y-md mt-2xl pb-xl">
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary py-4 rounded-full font-headline-sm text-headline-sm shadow-md hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center space-x-2 active:scale-95 duration-100 min-h-[64px]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Mark as Taken</span>
+</button>
+<!-- Secondary Actions Row -->
+<div class="flex space-x-md w-full">
+<button class="flex-1 bg-surface-container-highest text-on-surface-variant py-3 rounded-full font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center justify-center space-x-2 active:scale-95 duration-100 min-h-[56px]">
+<span class="material-symbols-outlined">snooze</span>
+<span>Snooze (10m)</span>
+</button>
+<button class="flex-1 border border-outline text-on-surface-variant py-3 rounded-full font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center space-x-2 active:scale-95 duration-100 min-h-[56px]">
+<span class="material-symbols-outlined">skip_next</span>
+<span>Skip</span>
+</button>
+</div>
+</div>
+</main>
+</body></html>

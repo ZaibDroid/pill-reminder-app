@@ -1,0 +1,356 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Settings - MediAlert</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-container-high": "#e6e8ea",
+                            "on-tertiary": "#ffffff",
+                            "on-secondary-container": "#007432",
+                            "on-secondary-fixed-variant": "#005321",
+                            "error": "#ba1a1a",
+                            "outline": "#6d7a77",
+                            "primary-container": "#008378",
+                            "on-surface": "#191c1e",
+                            "inverse-on-surface": "#eff1f3",
+                            "error-container": "#ffdad6",
+                            "primary": "#00685f",
+                            "on-background": "#191c1e",
+                            "secondary": "#006e2f",
+                            "secondary-fixed-dim": "#4ae176",
+                            "primary-fixed-dim": "#6bd8cb",
+                            "inverse-primary": "#6bd8cb",
+                            "on-primary-fixed-variant": "#005049",
+                            "surface-container": "#eceef0",
+                            "tertiary-fixed": "#ffdad7",
+                            "primary-fixed": "#89f5e7",
+                            "tertiary": "#b61722",
+                            "outline-variant": "#bcc9c6",
+                            "on-error-container": "#93000a",
+                            "on-tertiary-fixed": "#410004",
+                            "on-secondary-fixed": "#002109",
+                            "on-primary-container": "#f4fffc",
+                            "tertiary-fixed-dim": "#ffb3ad",
+                            "secondary-container": "#6bff8f",
+                            "surface-dim": "#d8dadc",
+                            "surface-variant": "#e0e3e5",
+                            "on-primary": "#ffffff",
+                            "inverse-surface": "#2d3133",
+                            "surface-container-lowest": "#ffffff",
+                            "surface-tint": "#006a61",
+                            "on-secondary": "#ffffff",
+                            "surface-container-highest": "#e0e3e5",
+                            "tertiary-container": "#da3437",
+                            "surface-container-low": "#f2f4f6",
+                            "on-primary-fixed": "#00201d",
+                            "surface": "#f7f9fb",
+                            "on-surface-variant": "#3d4947",
+                            "background": "#f7f9fb",
+                            "surface-bright": "#f7f9fb",
+                            "secondary-fixed": "#6bff8f",
+                            "on-tertiary-container": "#fffbff",
+                            "on-tertiary-fixed-variant": "#930013",
+                            "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                    },
+                    "spacing": {
+                            "md": "16px",
+                            "xs": "4px",
+                            "baseline": "4px",
+                            "sm": "8px",
+                            "xl": "32px",
+                            "margin-desktop": "64px",
+                            "2xl": "48px",
+                            "lg": "24px",
+                            "gutter": "16px",
+                            "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                            "label-md": ["Inter"],
+                            "label-sm": ["Inter"],
+                            "body-lg": ["Inter"],
+                            "headline-md": ["Inter"],
+                            "headline-sm": ["Inter"],
+                            "display-lg": ["Inter"],
+                            "headline-lg-mobile": ["Inter"],
+                            "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                            "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                            "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                            "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                            "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: theme('colors.primary');
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: theme('colors.primary');
+        }
+        .toggle-checkbox {
+            right: 0;
+            z-index: 1;
+            border-color: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .toggle-label {
+            width: 3rem;
+            height: 1.5rem;
+            background-color: theme('colors.surface-variant');
+            border-radius: 9999px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .toggle-label::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.25rem;
+            height: 1.25rem;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .toggle-checkbox:checked + .toggle-label::after {
+            transform: translateX(1.5rem);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md bg-background overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-surface-dim shadow-sm">
+<div class="flex justify-between items-center px-margin-mobile py-sm w-full md:px-margin-desktop md:py-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<div class="text-center flex-1">
+<h1 class="font-display-lg text-display-lg font-bold text-primary dark:text-primary-fixed-dim">MediAlert</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" style="font-variation-settings: 'FILL' 1;">emergency</span>
+</div>
+</div>
+<!-- Desktop Navigation Embedded in TopAppBar -->
+<nav class="hidden md:flex justify-center items-center gap-lg py-sm bg-surface-container-lowest border-t border-surface-variant">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 duration-100 ease-in-out">dashboard</span>
+<span class="font-label-sm text-label-sm">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 duration-100 ease-in-out">history</span>
+<span class="font-label-sm text-label-sm">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 duration-100 ease-in-out">analytics</span>
+<span class="font-label-sm text-label-sm">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-xl px-5 py-1 transition-colors group" href="#">
+<span class="material-symbols-outlined mb-1 group-active:scale-95 duration-100 ease-in-out" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-sm text-label-sm font-semibold">Settings</span>
+</a>
+</nav>
+</header>
+<main class="flex-1 w-full max-w-4xl mx-auto px-margin-mobile md:px-margin-desktop py-lg pb-32">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Settings</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your account and clinical preferences.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Left Column / Main Content -->
+<div class="col-span-1 md:col-span-8 flex flex-col gap-lg">
+<!-- Profile Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="p-md flex items-center gap-md border-b border-surface-container-high">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center overflow-hidden flex-shrink-0">
+<img alt="User Profile" class="object-cover w-full h-full" data-alt="A clinical, professional portrait avatar placeholder in a medical software interface. Clean, light background with soft, diffused white lighting. Corporate modern aesthetic, evoking trust and clarity. Minimalist composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-3kB_icOWP1L80ecQ0OLmcj7znTiEhlJSJt1n_2wNFbbM01vXeeXYdmGXvFwZb7yHssewdX_GMmpdnW3mlbvjNuaBWwuwAZ3UqWUpGcdHqG08n3UsUm6zR1sy55ZDM8kC2L5EaSSFZDqUK2Kpk3Da2qczc8-FALfmHqa5keifdQSkPGusnktgn_El4Cjlo4FiNYTPnmjd_VwGKYeSp9QVnMFYm7N-PGc6HOXWLeJFH94CaB-jc1Sr">
+</div>
+<div class="flex-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Eleanor Vance</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Patient ID: #MA-9482</p>
+</div>
+<button class="text-primary font-label-md text-label-md px-sm py-xs hover:bg-surface-container transition-colors rounded">Edit</button>
+</div>
+</section>
+<!-- Notification Settings -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-md py-sm bg-surface-container border-b border-surface-container-high">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Notifications &amp; Alerts</h4>
+</div>
+<ul class="divide-y divide-surface-container-high">
+<li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">High-Priority Alarms</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Override silent mode for critical doses</p>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="high-priority-toggle" name="toggle" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="high-priority-toggle"></label>
+</div>
+</li>
+<li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors cursor-pointer">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">volume_up</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">Alarm Sound</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Clinical Chime</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</li><li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors cursor-pointer">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">palette</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">App Theme</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Light, Dark, or System</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</li>
+</ul>
+</section>
+<!-- Security Section -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-md py-sm bg-surface-container border-b border-surface-container-high">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Security &amp; Privacy</h4>
+</div>
+<ul class="divide-y divide-surface-container-high">
+<li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">pin</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">App PIN Lock</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Require PIN on launch</p>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="pin-toggle" name="toggle" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="pin-toggle"></label>
+</div>
+</li>
+<li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">fingerprint</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">Biometric Unlock</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Use FaceID or TouchID</p>
+</div>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" id="bio-toggle" name="toggle" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer" for="bio-toggle"></label>
+</div>
+</li>
+</ul>
+</section>
+</div>
+<!-- Right Column / Sidecar -->
+<div class="col-span-1 md:col-span-4 flex flex-col gap-lg">
+<!-- Data Management -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-md py-sm bg-surface-container border-b border-surface-container-high">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Data</h4>
+</div>
+<ul class="divide-y divide-surface-container-high">
+<li class="p-md hover:bg-surface-bright transition-colors cursor-pointer flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">download</span>
+<span class="font-body-lg text-body-lg text-on-surface">Export Data (JSON)</span>
+</li>
+<li class="p-md hover:bg-surface-bright transition-colors cursor-pointer flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">backup</span>
+<span class="font-body-lg text-body-lg text-on-surface">Backup to Cloud</span>
+</li>
+</ul>
+</section>
+<!-- Support & About -->
+<section class="bg-surface-container-lowest rounded-xl shadow-[0px_4px_20px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-md py-sm bg-surface-container border-b border-surface-container-high">
+<h4 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Support</h4>
+</div>
+<ul class="divide-y divide-surface-container-high">
+<li class="p-md hover:bg-surface-bright transition-colors cursor-pointer flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">help</span>
+<span class="font-body-lg text-body-lg text-on-surface">Help Center</span>
+</li>
+<li class="p-md hover:bg-surface-bright transition-colors cursor-pointer flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">info</span>
+<span class="font-body-lg text-body-lg text-on-surface">About MediAlert</span>
+</li><li class="p-md flex justify-between items-center hover:bg-surface-bright transition-colors cursor-pointer">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary">palette</span>
+<div>
+<p class="font-body-lg text-body-lg text-on-surface">App Theme</p>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Light, Dark, or System</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline">chevron_right</span>
+</li>
+<li class="p-md hover:bg-surface-bright transition-colors cursor-pointer flex items-center gap-sm text-error">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-body-lg text-body-lg">Sign Out</span>
+</li>
+</ul>
+</section>
+<div class="text-center mt-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant">Version 4.2.1 (Clinical Build)</p>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container-lowest dark:bg-surface-container-lowest shadow-[0px_-4px_20px_rgba(0,0,0,0.05)] flex justify-around items-center px-4 py-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90 duration-150 ease-out group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-sm text-label-sm mt-1">Dashboard</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90 duration-150 ease-out group" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-sm text-label-sm mt-1">History</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90 duration-150 ease-out group" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-label-sm text-label-sm mt-1">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-5 py-1 hover:bg-surface-container-high dark:hover:bg-surface-container-highest transition-all active:scale-90 duration-150 ease-out group" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-sm text-label-sm mt-1">Settings</span>
+</a>
+</nav>
+
+
+</body></html>

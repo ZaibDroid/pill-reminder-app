@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monthly Health Summary - MediAlert</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error-container": "#ffdad6",
+                      "surface-tint": "#006a61",
+                      "on-surface": "#191c1e",
+                      "on-primary-fixed-variant": "#005049",
+                      "on-error": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "primary-container": "#008378",
+                      "outline": "#6d7a77",
+                      "on-primary-fixed": "#00201d",
+                      "surface-variant": "#e0e3e5",
+                      "inverse-surface": "#2d3133",
+                      "on-tertiary-fixed-variant": "#930013",
+                      "on-secondary-fixed": "#002109",
+                      "on-primary": "#ffffff",
+                      "on-background": "#191c1e",
+                      "surface-bright": "#f7f9fb",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary-container": "#6bff8f",
+                      "primary": "#00685f",
+                      "surface-dim": "#d8dadc",
+                      "surface-container-highest": "#e0e3e5",
+                      "secondary-fixed-dim": "#4ae176",
+                      "tertiary": "#b61722",
+                      "surface-container": "#eceef0",
+                      "on-secondary-fixed-variant": "#005321",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#3d4947",
+                      "inverse-primary": "#6bd8cb",
+                      "primary-fixed": "#89f5e7",
+                      "on-secondary-container": "#007432",
+                      "inverse-on-surface": "#eff1f3",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "on-primary-container": "#f4fffc",
+                      "surface-container-high": "#e6e8ea",
+                      "secondary": "#006e2f",
+                      "tertiary-container": "#da3437",
+                      "error": "#ba1a1a",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "secondary-fixed": "#6bff8f",
+                      "on-tertiary-container": "#fffbff",
+                      "on-tertiary": "#ffffff",
+                      "surface": "#f7f9fb",
+                      "outline-variant": "#bcc9c6",
+                      "surface-container-low": "#f2f4f6",
+                      "background": "#f7f9fb",
+                      "tertiary-fixed": "#ffdad7",
+                      "on-tertiary-fixed": "#410004"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "sm": "8px",
+                      "2xl": "48px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "64px",
+                      "xs": "4px",
+                      "lg": "24px",
+                      "baseline": "4px",
+                      "gutter": "16px",
+                      "xl": "32px"
+              },
+              "fontFamily": {
+                      "headline-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"]
+              },
+              "fontSize": {
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        body { background-color: #f7f9fb; } /* background */
+        @media print {
+            body { background-color: white; margin: 0; padding: 0; }
+            .print-hidden { display: none !important; }
+            .page-break { page-break-before: always; }
+            .report-container { box-shadow: none !important; margin: 0 !important; width: 100% !important; max-width: none !important; padding: 0 !important; }
+        }
+        
+        /* Custom Circular Progress */
+        .progress-ring__circle {
+            transition: stroke-dashoffset 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body-md min-h-screen pb-24 md:pb-8 flex justify-center">
+<!-- Top App Bar (Mobile Nav) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-16 bg-surface shadow-sm print-hidden md:hidden">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full active:scale-95 transition-transform duration-100 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm font-bold text-primary">Export Health Report</h1>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-colors p-2 rounded-full active:scale-95 transition-transform duration-100 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">more_vert</span>
+</button>
+</header>
+<!-- Main Report Container (A4 Proportions approx for screen) -->
+<main class="report-container w-full max-w-[800px] bg-surface-container-lowest mt-20 md:mt-8 mb-8 mx-auto p-8 md:p-12 shadow-[0px_4px_20px_rgba(0,0,0,0.05)] rounded-xl print:rounded-none">
+<!-- Header Section -->
+<div class="border-b-2 border-primary pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<div class="bg-primary-container text-on-primary-container p-2 rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+</div>
+<h2 class="font-display-lg text-display-lg text-primary tracking-tight">MediAlert</h2>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface-variant">Monthly Health Summary</h3>
+</div>
+<div class="text-right w-full md:w-auto">
+<div class="bg-surface-container-low p-4 rounded-lg inline-block w-full md:w-auto text-left md:text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Patient Information</p>
+<p class="font-headline-md text-headline-md text-on-surface mb-0.5">Eleanor Vance</p>
+<p class="font-body-md text-body-md text-on-surface-variant">ID: PT-8472-EV</p>
+<p class="font-label-md text-label-md text-primary mt-2">Generated: Oct 24, 2023</p>
+</div>
+</div>
+</div>
+<!-- Content Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Left Column / Section 1 & 4 -->
+<div class="col-span-1 md:col-span-5 flex flex-col gap-8">
+<!-- Section 1: Overall Adherence -->
+<section class="bg-surface-bright border border-surface-container-high rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary"></div>
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                        Overall Adherence
+                    </h4>
+<div class="flex flex-col items-center justify-center">
+<div class="relative w-40 h-40 flex items-center justify-center mb-4">
+<!-- SVG Progress Ring -->
+<svg class="w-full h-full" viewbox="0 0 120 120">
+<circle class="text-surface-container-highest" cx="60" cy="60" fill="transparent" r="52" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary progress-ring__circle" cx="60" cy="60" fill="transparent" r="52" stroke="currentColor" stroke-dasharray="326.72" stroke-dashoffset="19.60" stroke-linecap="round" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="font-display-lg text-display-lg text-on-surface">94%</span>
+</div>
+</div>
+<span class="bg-secondary-container text-on-secondary-container font-label-md text-label-md px-4 py-1.5 rounded-full inline-block font-semibold">High Adherence</span>
+<p class="text-center font-body-md text-body-md text-on-surface-variant mt-4">Excellent consistency across all prescribed treatments this month.</p>
+</div>
+</section>
+<!-- Section 4: Clinical Notes -->
+<section class="bg-surface border border-outline-variant rounded-xl p-6 flex-grow">
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2 border-b border-surface-container-high pb-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+                        Clinical Notes
+                    </h4>
+<div class="space-y-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Oct 15, 2023 - Dr. Aris</p>
+<p class="font-body-md text-body-md text-on-surface italic leading-relaxed text-sm bg-surface-container-lowest p-3 rounded border border-surface-container-high border-l-4 border-l-primary-container">
+                                "Patient reports feeling significantly less fatigued during morning walks. Blood pressure readings are stabilizing well within target range. Continued current dosage of Lisinopril is recommended."
+                            </p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Oct 02, 2023 - Caregiver Sarah</p>
+<p class="font-body-md text-body-md text-on-surface italic leading-relaxed text-sm bg-surface-container-lowest p-3 rounded border border-surface-container-high border-l-4 border-l-surface-variant">
+                                "Eleanor experienced mild dizziness upon waking, but it subsided after breakfast. We will monitor hydration levels closely this week."
+                            </p>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column / Section 2 & 3 -->
+<div class="col-span-1 md:col-span-7 flex flex-col gap-8">
+<!-- Section 2: Vital Trends -->
+<section class="bg-surface-bright border border-surface-container-high rounded-xl p-6">
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">monitor_heart</span>
+                        Vital Trends (30 Days)
+                    </h4>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-container text-center shadow-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Avg Blood Pressure</p>
+<p class="font-headline-md text-headline-md text-on-surface">118/76 <span class="text-sm font-normal text-on-surface-variant">mmHg</span></p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-lg border border-surface-container text-center shadow-sm">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Avg Resting Pulse</p>
+<p class="font-headline-md text-headline-md text-on-surface">72 <span class="text-sm font-normal text-on-surface-variant">bpm</span></p>
+</div>
+</div>
+<!-- Faux Chart Area -->
+<div class="w-full h-48 bg-surface-container-lowest rounded-lg border border-surface-container-high relative p-4 flex flex-col justify-end"><!-- Y-axis labels -->
+<div class="absolute left-2 top-4 bottom-8 flex flex-col justify-between text-[10px] text-on-surface-variant font-medium h-[120px]">
+<span>140</span>
+<span>120</span>
+<span>100</span>
+<span>80</span>
+</div>
+<!-- Grid lines -->
+<div class="absolute left-8 right-4 top-6 border-t border-surface-container-high opacity-30"></div>
+<div class="absolute left-8 right-4 top-[56px] border-t border-surface-container-high opacity-30"></div>
+<div class="absolute left-8 right-4 top-[86px] border-t border-surface-container-high opacity-30"></div>
+<div class="absolute left-8 right-4 top-[116px] border-t border-surface-container-high opacity-30"></div>
+<div class="absolute left-8 right-4 top-[146px] border-t border-solid border-surface-container-high"></div>
+<!-- SVG Line Chart -->
+<svg class="absolute left-8 right-4 top-6 bottom-8 w-[calc(100%-3rem)] h-[120px] overflow-visible" preserveaspectratio="none" viewbox="0 0 400 120">
+<!-- Systolic Curve (Deep Teal) -->
+<path d="M 0 40 C 50 35, 150 50, 200 60 S 350 65, 400 62" fill="none" stroke="#0d9488" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Diastolic Curve (Soft Green) -->
+<path d="M 0 90 C 50 85, 150 95, 200 100 S 350 105, 400 102" fill="none" stroke="#4ae176" stroke-linecap="round" stroke-width="2.5"></path>
+<!-- Data Points (Systolic) -->
+<circle cx="0" cy="40" fill="#0d9488" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="100" cy="45" fill="#0d9488" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="200" cy="60" fill="#0d9488" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="300" cy="64" fill="#0d9488" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="400" cy="62" fill="#0d9488" r="3" stroke="white" stroke-width="1"></circle>
+<!-- Data Points (Diastolic) -->
+<circle cx="0" cy="90" fill="#4ae176" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="100" cy="88" fill="#4ae176" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="200" cy="100" fill="#4ae176" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="300" cy="104" fill="#4ae176" r="3" stroke="white" stroke-width="1"></circle>
+<circle cx="400" cy="102" fill="#4ae176" r="3" stroke="white" stroke-width="1"></circle>
+</svg>
+<!-- X-axis labels -->
+<div class="ml-8 flex justify-between text-[10px] text-on-surface-variant mt-2 w-[calc(100%-2rem)] font-medium relative z-10">
+<span>Wk 1</span>
+<span>Wk 2</span>
+<span>Wk 3</span>
+<span>Wk 4</span>
+<span>Wk 5</span>
+</div>
+<!-- Legend -->
+<div class="absolute top-2 right-4 flex gap-3 text-[10px] font-medium text-on-surface-variant bg-surface/80 px-2 py-1 rounded backdrop-blur-sm">
+<div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full" style="background-color: #0d9488;"></div>Systolic</div>
+<div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full" style="background-color: #4ae176;"></div>Diastolic</div>
+</div></div>
+</section>
+<!-- Section 3: Medication Compliance -->
+<section class="bg-surface border border-outline-variant rounded-xl p-6">
+<h4 class="font-headline-sm text-headline-sm text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">prescriptions</span>
+                        Medication Compliance
+                    </h4>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-2 border-surface-container-high">
+<th class="py-3 px-2 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Medication</th>
+<th class="py-3 px-2 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Adherence</th>
+<th class="py-3 px-2 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-center w-24">Status</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-4 px-2">
+<p class="font-headline-sm text-headline-sm text-on-surface text-base">Lisinopril</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">10mg • Daily AM</p>
+</td>
+<td class="py-4 px-2 text-right">
+<p class="font-body-md text-body-md text-on-surface font-semibold">100%</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">30/30 doses</p>
+</td>
+<td class="py-4 px-2 text-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-4 px-2">
+<p class="font-headline-sm text-headline-sm text-on-surface text-base">Metformin</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">500mg • Twice Daily</p>
+</td>
+<td class="py-4 px-2 text-right">
+<p class="font-body-md text-body-md text-on-surface font-semibold">92%</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">55/60 doses</p>
+</td>
+<td class="py-4 px-2 text-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-4 px-2">
+<p class="font-headline-sm text-headline-sm text-on-surface text-base">Atorvastatin</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">20mg • Daily PM</p>
+</td>
+<td class="py-4 px-2 text-right">
+<p class="font-body-md text-body-md text-on-surface font-semibold">87%</p>
+<p class="font-label-sm text-label-sm text-error">26/30 doses</p>
+</td>
+<td class="py-4 px-2 text-center">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">warning</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer -->
+<footer class="mt-12 pt-6 border-t border-surface-container-highest flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+<p class="font-label-sm text-label-sm text-on-surface-variant font-semibold uppercase tracking-widest text-xs">
+                Confidential Medical Record
+            </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant">
+                Generated by MediAlert System on 2023-10-24 14:32 UTC
+            </p>
+<p class="font-label-sm text-label-sm text-on-surface-variant font-medium">
+                Page 1 of 1
+            </p>
+</footer>
+</main>
+<!-- Bottom Nav Bar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface-container-lowest border-t border-outline-variant shadow-lg rounded-t-xl print-hidden md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">pill</span>
+<span class="font-label-sm text-label-sm">Meds</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-xl px-4 py-1 active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">description</span>
+<span class="font-label-sm text-label-sm">Reports</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:bg-surface-container-high rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>
