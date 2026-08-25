@@ -12,6 +12,8 @@ class DatabaseService {
 
   Isar? _isar;
 
+  /// Exposes the active [Isar] database instance.
+  /// Throws [StateError] if accessed before initialization.
   Isar get isar {
     if (_isar == null || !_isar!.isOpen) {
       log.e('@isar: Database accessed before initialization');
@@ -20,17 +22,30 @@ class DatabaseService {
     return _isar!;
   }
 
+  /// Returns true if the database instance is open and ready.
   bool get isOpen => _isar != null && _isar!.isOpen;
 
-  Future<void> init() async {
+  /// Initializes and opens the offline-first local Isar database.
+  Future<void> init({
+    String? directory,
+    String name = 'medialert_db',
+    bool inspector = true,
+  }) async {
     if (_isar != null && _isar!.isOpen) {
       log.d('@init: Isar database is already open');
       return;
     }
 
+    final existingInstance = Isar.getInstance(name);
+    if (existingInstance != null && existingInstance.isOpen) {
+      _isar = existingInstance;
+      log.d('@init: Reusing existing open Isar database instance');
+      return;
+    }
+
     try {
       log.i('@init: Initializing offline-first local Isar database...');
-      final dir = await getApplicationDocumentsDirectory();
+      final path = directory ?? (await getApplicationDocumentsDirectory()).path;
 
       _isar = await Isar.open(
         [
@@ -40,22 +55,23 @@ class DatabaseService {
           EmergencyContactSchema,
           UserSettingsSchema,
         ],
-        directory: dir.path,
-        name: 'medialert_db',
-        inspector: true,
+        directory: path,
+        name: name,
+        inspector: inspector,
       );
 
-      log.i('@init: Isar database initialized successfully at: ${dir.path}');
+      log.i('@init: Isar database initialized successfully at: $path');
     } catch (e, stackTrace) {
       log.e('@init: Failed to initialize Isar database', e, stackTrace);
       rethrow;
     }
   }
 
-  Future<void> close() async {
+  /// Closes the Isar database connection, optionally deleting the database files.
+  Future<void> close({bool deleteFromDisk = false}) async {
     if (_isar != null && _isar!.isOpen) {
-      log.i('@close: Closing Isar database');
-      await _isar!.close();
+      log.i('@close: Closing Isar database (deleteFromDisk: $deleteFromDisk)');
+      await _isar!.close(deleteFromDisk: deleteFromDisk);
       _isar = null;
     }
   }
