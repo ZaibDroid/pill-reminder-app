@@ -9,6 +9,7 @@ import '../core/repositories/reminder_repository.dart';
 import '../core/repositories/dose_log_repository.dart';
 import '../core/repositories/emergency_contact_repository.dart';
 import '../core/repositories/user_settings_repository.dart';
+import '../ui/viewmodels/home_viewmodel.dart';
 
 final locator = GetIt.instance;
 
@@ -23,4 +24,8 @@ void setupLocator() {
   locator.registerLazySingleton(() => DoseLogRepository());
   locator.registerLazySingleton(() => EmergencyContactRepository());
   locator.registerLazySingleton(() => UserSettingsRepository());
+  locator.registerLazySingleton(() => const DoseScheduler());
+  locator.registerLazySingleton(() => const TimelineBuilder());
+  locator.registerLazySingleton(() => const AdherenceCalculator());
+  locator.registerFactory(() => HomeViewModel());
 }
