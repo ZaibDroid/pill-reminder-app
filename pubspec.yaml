@@ -42,6 +42,9 @@ dependencies:
   # Responsive UI
   flutter_screenutil: ^5.9.3
 
+  # Loading Spinners
+  flutter_spinkit: ^5.2.2
+
   # Local Database
   isar: ^3.1.0+1
   isar_flutter_libs: ^3.1.0+1

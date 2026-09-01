@@ -1,17 +1,74 @@
 import 'package:flutter/material.dart';
 
+/// Complete color palette extracted from Stitch "MediAlert Clinical Humanist" design tokens.
 class AppColors {
   AppColors._();
 
-  static const primary = Color(0xFF0D9488);
-  static const secondary = Color(0xFF22C55E);
-  static const error = Color(0xFFEF4444);
+  // Primary (Calm Teal)
+  static const Color primary = Color(0xFF00685F);
+  static const Color onPrimary = Color(0xFFFFFFFF);
+  static const Color primaryContainer = Color(0xFF008378);
+  static const Color onPrimaryContainer = Color(0xFFF4FFFC);
+  static const Color primaryFixed = Color(0xFF89F5E7);
+  static const Color primaryFixedDim = Color(0xFF6BD8CB);
+  static const Color onPrimaryFixed = Color(0xFF00201D);
+  static const Color onPrimaryFixedVariant = Color(0xFF005049);
+  static const Color inversePrimary = Color(0xFF6BD8CB);
 
-  static const background = Color(0xFFF8FAFC);
-  static const surface = Colors.white;
+  // Secondary (Success Green)
+  static const Color secondary = Color(0xFF006E2F);
+  static const Color onSecondary = Color(0xFFFFFFFF);
+  static const Color secondaryContainer = Color(0xFF6BFF8F);
+  static const Color onSecondaryContainer = Color(0xFF007432);
+  static const Color secondaryFixed = Color(0xFF6BFF8F);
+  static const Color secondaryFixedDim = Color(0xFF4AE176);
+  static const Color onSecondaryFixed = Color(0xFF002109);
+  static const Color onSecondaryFixedVariant = Color(0xFF005321);
 
-  static const textPrimary = Color(0xFF1F2937);
-  static const textSecondary = Color(0xFF6B7280);
+  // Tertiary (Warning / Critical Red)
+  static const Color tertiary = Color(0xFFB61722);
+  static const Color onTertiary = Color(0xFFFFFFFF);
+  static const Color tertiaryContainer = Color(0xFFDA3437);
+  static const Color onTertiaryContainer = Color(0xFFFFFBFF);
+  static const Color tertiaryFixed = Color(0xFFFFDAD7);
+  static const Color tertiaryFixedDim = Color(0xFFFFB3AD);
+  static const Color onTertiaryFixed = Color(0xFF410004);
+  static const Color onTertiaryFixedVariant = Color(0xFF930013);
 
-  static const border = Color(0xFFE5E7EB);
+  // Error
+  static const Color error = Color(0xFFBA1A1A);
+  static const Color onError = Color(0xFFFFFFFF);
+  static const Color errorContainer = Color(0xFFFFDAD6);
+  static const Color onErrorContainer = Color(0xFF93000A);
+
+  // Surface & Canvas
+  static const Color background = Color(0xFFF7F9FB);
+  static const Color onBackground = Color(0xFF191C1E);
+  static const Color surface = Color(0xFFF7F9FB);
+  static const Color surfaceDim = Color(0xFFD8DADC);
+  static const Color surfaceBright = Color(0xFFF7F9FB);
+  static const Color surfaceVariant = Color(0xFFE0E3E5);
+  static const Color onSurface = Color(0xFF191C1E);
+  static const Color onSurfaceVariant = Color(0xFF3D4947);
+
+  // Tiered Surface Containers
+  static const Color surfaceContainerLowest = Color(0xFFFFFFFF);
+  static const Color surfaceContainerLow = Color(0xFFF2F4F6);
+  static const Color surfaceContainer = Color(0xFFECEEF0);
+  static const Color surfaceContainerHigh = Color(0xFFE6E8EA);
+  static const Color surfaceContainerHighest = Color(0xFFE0E3E5);
+
+  // Inverse Surfaces
+  static const Color inverseSurface = Color(0xFF2D3133);
+  static const Color inverseOnSurface = Color(0xFFEFF1F3);
+
+  // Outlines & Borders
+  static const Color outline = Color(0xFF6D7A77);
+  static const Color outlineVariant = Color(0xFFBCC9C6);
+  static const Color surfaceTint = Color(0xFF006A61);
+
+  // Aliases for compatibility
+  static const Color border = Color(0xFFE0E3E5);
+  static const Color textPrimary = Color(0xFF191C1E);
+  static const Color textSecondary = Color(0xFF3D4947);
 }
