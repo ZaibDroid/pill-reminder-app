@@ -35,7 +35,7 @@ class EmergencyViewModel extends BaseViewModel {
     try {
       return _contacts.firstWhere((c) => c.isPrimary);
     } catch (_) {
-      return _contacts.isNotEmpty ? _contacts.first : null;
+      return null;
     }
   }
 
@@ -49,14 +49,16 @@ class EmergencyViewModel extends BaseViewModel {
       _contacts = await _emergencyContactRepository.getAllEmergencyContacts();
       final settings = await _userSettingsRepository.getOrCreateSettings();
       _showOnLockScreen = settings.isBiometricEnabled;
-      log.i('@loadContacts: Loaded ${_contacts.length} emergency contacts');
+      log.i('@loadContacts: Loaded ${_contacts.length} emergency contacts from database');
       setState(ViewState.idle);
     } catch (e, stackTrace) {
       _errorMessage = e.toString();
-      log.e('@loadContacts: Failed to load contacts', e, stackTrace);
+      log.e('@loadContacts: Failed to load emergency contacts', e, stackTrace);
       setState(ViewState.error);
     }
   }
+
+  Future<void> refresh() => loadContacts();
 
   Future<void> toggleShowOnLockScreen(bool value) async {
     _showOnLockScreen = value;
@@ -65,8 +67,19 @@ class EmergencyViewModel extends BaseViewModel {
       final settings = await _userSettingsRepository.getOrCreateSettings();
       settings.isBiometricEnabled = value;
       await _userSettingsRepository.saveUserSettings(settings);
-    } catch (e) {
-      log.e('@toggleShowOnLockScreen: Error persisting setting', e);
+      log.i('@toggleShowOnLockScreen: Updated lock screen emergency toggle to $value');
+    } catch (e, stackTrace) {
+      log.e('@toggleShowOnLockScreen: Error persisting lock screen setting', e, stackTrace);
+    }
+  }
+
+  void validateContactInput(String fullName, String phoneNumber) {
+    if (fullName.trim().isEmpty) {
+      throw ArgumentError('Contact full name cannot be empty.');
+    }
+    final digits = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    if (phoneNumber.trim().isEmpty || digits.length < 3) {
+      throw ArgumentError('A valid phone number is required.');
     }
   }
 
@@ -77,15 +90,17 @@ class EmergencyViewModel extends BaseViewModel {
     String? email,
     bool isPrimary = false,
   }) async {
+    validateContactInput(fullName, phoneNumber);
     try {
       final contact = EmergencyContact()
         ..fullName = fullName.trim()
         ..phoneNumber = phoneNumber.trim()
-        ..relationship = relationship?.trim()
-        ..email = email?.trim()
+        ..relationship = relationship?.trim().isEmpty == true ? null : relationship?.trim()
+        ..email = email?.trim().isEmpty == true ? null : email?.trim()
         ..isPrimary = isPrimary;
 
       await _emergencyContactRepository.saveEmergencyContact(contact);
+      log.i('@addContact: Added new emergency contact "${contact.fullName}"');
       await loadContacts();
     } catch (e, stackTrace) {
       log.e('@addContact: Error adding contact', e, stackTrace);
@@ -94,8 +109,15 @@ class EmergencyViewModel extends BaseViewModel {
   }
 
   Future<void> updateContact(EmergencyContact contact) async {
+    validateContactInput(contact.fullName, contact.phoneNumber);
     try {
+      contact.fullName = contact.fullName.trim();
+      contact.phoneNumber = contact.phoneNumber.trim();
+      contact.relationship = contact.relationship?.trim().isEmpty == true ? null : contact.relationship?.trim();
+      contact.email = contact.email?.trim().isEmpty == true ? null : contact.email?.trim();
+
       await _emergencyContactRepository.updateEmergencyContact(contact);
+      log.i('@updateContact: Updated emergency contact "${contact.fullName}" (id: ${contact.id})');
       await loadContacts();
     } catch (e, stackTrace) {
       log.e('@updateContact: Error updating contact', e, stackTrace);
@@ -106,6 +128,7 @@ class EmergencyViewModel extends BaseViewModel {
   Future<void> deleteContact(int contactId) async {
     try {
       await _emergencyContactRepository.deleteEmergencyContact(contactId);
+      log.i('@deleteContact: Deleted emergency contact with id: $contactId');
       _contacts.removeWhere((c) => c.id == contactId);
       notifyListeners();
     } catch (e, stackTrace) {
@@ -114,17 +137,65 @@ class EmergencyViewModel extends BaseViewModel {
     }
   }
 
-  Future<void> makePhoneCall(String phoneNumber) async {
+  Future<void> setPrimaryContact(int contactId) async {
+    try {
+      final contact = _contacts.firstWhere((c) => c.id == contactId);
+      contact.isPrimary = true;
+      await _emergencyContactRepository.updateEmergencyContact(contact);
+      log.i('@setPrimaryContact: Set "${contact.fullName}" as primary emergency contact');
+      await loadContacts();
+    } catch (e, stackTrace) {
+      log.e('@setPrimaryContact: Error setting primary contact', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<void> unsetPrimaryContact(int contactId) async {
+    try {
+      final contact = _contacts.firstWhere((c) => c.id == contactId);
+      contact.isPrimary = false;
+      await _emergencyContactRepository.updateEmergencyContact(contact);
+      log.i('@unsetPrimaryContact: Unset primary status for "${contact.fullName}"');
+      await loadContacts();
+    } catch (e, stackTrace) {
+      log.e('@unsetPrimaryContact: Error unsetting primary contact', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  Future<bool> makePhoneCall(String phoneNumber) async {
     final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
-    final uri = Uri.parse('tel:$cleanNumber');
+    final uri = Uri(scheme: 'tel', path: cleanNumber);
     try {
       if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
+        log.i('@makePhoneCall: Launching phone dialer for $cleanNumber');
+        return await launchUrl(uri);
       } else {
         log.w('@makePhoneCall: Could not launch $uri');
+        return false;
       }
-    } catch (e) {
-      log.e('@makePhoneCall: Error launching phone call', e);
+    } catch (e, stackTrace) {
+      log.e('@makePhoneCall: Error launching phone call for $cleanNumber', e, stackTrace);
+      return false;
+    }
+  }
+
+  Future<bool> sendEmergencySms(String phoneNumber, {String? message}) async {
+    final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+    final uri = message != null && message.isNotEmpty
+        ? Uri(scheme: 'sms', path: cleanNumber, queryParameters: {'body': message})
+        : Uri(scheme: 'sms', path: cleanNumber);
+    try {
+      if (await canLaunchUrl(uri)) {
+        log.i('@sendEmergencySms: Launching SMS app for $cleanNumber');
+        return await launchUrl(uri);
+      } else {
+        log.w('@sendEmergencySms: Could not launch SMS for $uri');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      log.e('@sendEmergencySms: Error launching SMS for $cleanNumber', e, stackTrace);
+      return false;
     }
   }
 }

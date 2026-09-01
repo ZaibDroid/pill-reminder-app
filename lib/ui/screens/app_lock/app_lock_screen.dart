@@ -144,21 +144,42 @@ class _AppLockContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
               ],
-              TextButton(
-                onPressed: viewModel.isLoading
-                    ? null
-                    : () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Default recovery PIN is 1234')),
-                        );
-                      },
-                child: Text(
-                  'Forgot PIN?',
-                  style: AppTextStyles.labelMd.copyWith(
-                    color: viewModel.isLoading ? AppColors.outline : AppColors.primary,
-                    fontSize: 14,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: viewModel.isLoading
+                        ? null
+                        : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Default recovery PIN is 1234')),
+                            );
+                          },
+                    child: Text(
+                      'Forgot PIN?',
+                      style: AppTextStyles.labelMd.copyWith(
+                        color: viewModel.isLoading ? AppColors.outline : AppColors.primary,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
-                ),
+                  TextButton.icon(
+                    onPressed: viewModel.isLoading
+                        ? null
+                        : () {
+                            Navigator.of(context).pushNamed('/emergency');
+                          },
+                    icon: const Icon(Icons.emergency, size: 16, color: AppColors.error),
+                    label: Text(
+                      'Emergency',
+                      style: AppTextStyles.labelMd.copyWith(
+                        color: viewModel.isLoading ? AppColors.outline : AppColors.error,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

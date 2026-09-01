@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
@@ -8,7 +9,7 @@ import '../../../custom_widgets/primary_button.dart';
 
 class AddEditContactDialog extends StatefulWidget {
   final EmergencyContact? contact;
-  final Function({
+  final FutureOr<void> Function({
     required String fullName,
     required String phoneNumber,
     String? relationship,
@@ -33,6 +34,7 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
   late TextEditingController _relationshipController;
   late TextEditingController _emailController;
   late bool _isPrimary;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -53,6 +55,28 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
     super.dispose();
   }
 
+  Future<void> _handleSave() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      setState(() => _isSaving = true);
+      try {
+        await widget.onSave(
+          fullName: _nameController.text,
+          phoneNumber: _phoneController.text,
+          relationship: _relationshipController.text,
+          email: _emailController.text,
+          isPrimary: _isPrimary,
+        );
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() => _isSaving = false);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.contact != null;
@@ -70,7 +94,7 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isEditing ? 'Edit Contact' : 'Add Emergency Contact',
+                  isEditing ? 'Edit Emergency Contact' : 'Add Emergency Contact',
                   style: AppTextStyles.headlineSm.copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 16),
@@ -78,7 +102,12 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                   label: 'Full Name',
                   hintText: 'e.g., Dr. Sarah Mitchell',
                   controller: _nameController,
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Name is required' : null,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Full name is required';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
@@ -86,7 +115,16 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                   hintText: 'e.g., +1 (555) 234-5678',
                   keyboardType: TextInputType.phone,
                   controller: _phoneController,
-                  validator: (val) => val == null || val.trim().isEmpty ? 'Phone is required' : null,
+                  validator: (val) {
+                    if (val == null || val.trim().isEmpty) {
+                      return 'Phone number is required';
+                    }
+                    final digits = val.replaceAll(RegExp(r'\D'), '');
+                    if (digits.length < 3) {
+                      return 'Please enter a valid phone number';
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
@@ -95,12 +133,20 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                   controller: _relationshipController,
                 ),
                 const SizedBox(height: 12),
+                CustomTextField(
+                  label: 'Email (Optional)',
+                  hintText: 'e.g., contact@example.com',
+                  keyboardType: TextInputType.emailAddress,
+                  controller: _emailController,
+                ),
+                const SizedBox(height: 12),
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Set as Primary Contact', style: TextStyle(fontWeight: FontWeight.w600)),
+                  title: const Text('Set as Primary Contact', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  subtitle: const Text('Highlighted for immediate emergency access', style: TextStyle(fontSize: 12)),
                   value: _isPrimary,
                   activeThumbColor: AppColors.primary,
-                  onChanged: (val) => setState(() => _isPrimary = val),
+                  onChanged: _isSaving ? null : (val) => setState(() => _isPrimary = val),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -113,7 +159,7 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                             borderRadius: BorderRadius.circular(AppRadius.full),
                           ),
                         ),
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
                         child: const Text('Cancel'),
                       ),
                     ),
@@ -122,18 +168,8 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                       child: PrimaryButton(
                         text: 'Save',
                         height: 48,
-                        onPressed: () {
-                          if (_formKey.currentState?.validate() ?? false) {
-                            widget.onSave(
-                              fullName: _nameController.text,
-                              phoneNumber: _phoneController.text,
-                              relationship: _relationshipController.text,
-                              email: _emailController.text,
-                              isPrimary: _isPrimary,
-                            );
-                            Navigator.of(context).pop();
-                          }
-                        },
+                        isLoading: _isSaving,
+                        onPressed: _isSaving ? null : _handleSave,
                       ),
                     ),
                   ],

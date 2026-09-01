@@ -7,15 +7,19 @@ import '../../../../core/models/emergency_contact.dart';
 class EmergencyContactCard extends StatelessWidget {
   final EmergencyContact contact;
   final VoidCallback onCall;
+  final VoidCallback? onSms;
   final VoidCallback onEdit;
   final VoidCallback onDelete;
+  final VoidCallback? onTogglePrimary;
 
   const EmergencyContactCard({
     super.key,
     required this.contact,
     required this.onCall,
+    this.onSms,
     required this.onEdit,
     required this.onDelete,
+    this.onTogglePrimary,
   });
 
   @override
@@ -27,11 +31,15 @@ class EmergencyContactCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surfaceContainerLowest,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(
+          color: isPrimary
+              ? AppColors.primary.withValues(alpha: 0.3)
+              : AppColors.surfaceContainerHigh,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -59,7 +67,7 @@ class EmergencyContactCard extends StatelessWidget {
                     height: 48,
                     decoration: BoxDecoration(
                       color: isPrimary
-                          ? AppColors.primaryContainer.withValues(alpha: 0.2)
+                          ? AppColors.primaryContainer.withValues(alpha: 0.25)
                           : AppColors.surfaceContainerHigh,
                       shape: BoxShape.circle,
                     ),
@@ -88,45 +96,84 @@ class EmergencyContactCard extends StatelessWidget {
                             ),
                             if (isPrimary) ...[
                               const SizedBox(width: 6),
-                              const Icon(
-                                Icons.verified,
-                                color: AppColors.primary,
-                                size: 18,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryContainer,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'PRIMARY',
+                                  style: AppTextStyles.labelSm.copyWith(
+                                    color: AppColors.primary,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
                               ),
                             ],
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: isPrimary
-                                ? AppColors.primaryContainer.withValues(alpha: 0.15)
-                                : AppColors.surfaceVariant,
-                            borderRadius: AppRadius.radiusFull,
-                          ),
-                          child: Text(
-                            contact.relationship ?? (isPrimary ? 'Primary Physician' : 'Contact'),
-                            style: AppTextStyles.labelSm.copyWith(
-                              color: isPrimary ? AppColors.primary : AppColors.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: isPrimary
+                                    ? AppColors.primaryContainer.withValues(alpha: 0.15)
+                                    : AppColors.surfaceVariant,
+                                borderRadius: AppRadius.radiusFull,
+                              ),
+                              child: Text(
+                                contact.relationship ?? (isPrimary ? 'Primary Physician' : 'Emergency Contact'),
+                                style: AppTextStyles.labelSm.copyWith(
+                                  color: isPrimary ? AppColors.primary : AppColors.onSurfaceVariant,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                         const SizedBox(height: 4),
                         Text(
                           contact.phoneNumber,
-                          style: AppTextStyles.bodyMd.copyWith(fontSize: 13),
+                          style: AppTextStyles.bodyMd.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.onSurface,
+                          ),
                         ),
+                        if (contact.email != null && contact.email!.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            contact.email!,
+                            style: AppTextStyles.labelSm.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
+                  if (onTogglePrimary != null)
+                    IconButton(
+                      icon: Icon(
+                        isPrimary ? Icons.star : Icons.star_border,
+                        color: isPrimary ? Colors.amber[700] : AppColors.outline,
+                        size: 22,
+                      ),
+                      tooltip: isPrimary ? 'Unset Primary' : 'Set as Primary',
+                      onPressed: onTogglePrimary,
+                    ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               Row(
                 children: [
                   Expanded(
+                    flex: 3,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isPrimary ? AppColors.tertiary : AppColors.primary,
@@ -141,29 +188,50 @@ class EmergencyContactCard extends StatelessWidget {
                       icon: const Icon(Icons.call, size: 18),
                       label: Text(
                         isPrimary ? 'Call Now' : 'Call',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  if (onSms != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.surfaceContainerHigh,
+                        foregroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                        ),
+                        padding: const EdgeInsets.all(12),
+                      ),
+                      icon: const Icon(Icons.message_outlined, size: 18),
+                      tooltip: 'Send SMS',
+                      onPressed: onSms,
+                    ),
+                  ],
+                  const SizedBox(width: 8),
                   IconButton(
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.surfaceContainerHigh,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
+                      padding: const EdgeInsets.all(12),
                     ),
-                    icon: const Icon(Icons.edit_outlined, size: 20),
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    tooltip: 'Edit Contact',
                     onPressed: onEdit,
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     style: IconButton.styleFrom(
                       backgroundColor: AppColors.surfaceContainerHigh,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
+                      padding: const EdgeInsets.all(12),
                     ),
-                    icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.error),
+                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    tooltip: 'Delete Contact',
                     onPressed: onDelete,
                   ),
                 ],
