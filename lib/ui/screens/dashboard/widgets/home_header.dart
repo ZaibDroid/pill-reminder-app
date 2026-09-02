@@ -14,17 +14,12 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SafeArea(
         bottom: false,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            IconButton(
-              icon: const Icon(Icons.medical_services, color: AppColors.primary),
-              onPressed: () {},
-              tooltip: 'MediAlert',
-            ),
             Text(
               'MediAlert',
               style: AppTextStyles.displayLg.copyWith(

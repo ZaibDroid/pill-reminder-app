@@ -25,18 +25,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     Widget? leftWidget = leading;
-    if (leftWidget == null) {
-      if (showBackButton) {
-        leftWidget = IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
-          onPressed: onBackButtonPressed ?? () => Navigator.of(context).pop(),
-        );
-      } else {
-        leftWidget = IconButton(
-          icon: const Icon(Icons.medical_services, color: AppColors.primary),
-          onPressed: () {},
-        );
-      }
+    if (leftWidget == null && showBackButton) {
+      leftWidget = IconButton(
+        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        onPressed: onBackButtonPressed ?? () => Navigator.of(context).pop(),
+      );
     }
 
     return AppBar(

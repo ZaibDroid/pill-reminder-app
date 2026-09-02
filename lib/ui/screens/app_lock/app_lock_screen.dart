@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app/locator.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_images.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../custom_widgets/loading_indicator.dart';
 import '../../custom_widgets/primary_button.dart';
@@ -52,16 +53,34 @@ class _AppLockContent extends StatelessWidget {
             children: [
               // Top Logo & Clinical Branding
               Container(
-                width: 48,
-                height: 48,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryContainer,
-                  shape: BoxShape.circle,
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withValues(alpha: 0.18),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-                child: const Icon(
-                  Icons.medical_services,
-                  color: AppColors.primary,
-                  size: 26,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: Image.asset(
+                    AppImages.appIcon,
+                    width: 72,
+                    height: 72,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppColors.primaryContainer,
+                      child: const Icon(
+                        Icons.medical_services,
+                        color: AppColors.primary,
+                        size: 36,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 6),

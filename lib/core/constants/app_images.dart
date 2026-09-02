@@ -3,6 +3,6 @@ class AppImages {
 
   static const String basePath = 'assets/images';
   
-  // Example
-  // static const String logo = '$_basePath/logo.png';
+  static const String appIcon = '$basePath/app_icon.png';
+  static const String logo = '$basePath/app_icon.png';
 }
