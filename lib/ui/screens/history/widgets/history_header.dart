@@ -6,6 +6,8 @@ class HistoryHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Column(
@@ -13,12 +15,17 @@ class HistoryHeader extends StatelessWidget {
         children: [
           Text(
             'Dose History',
-            style: AppTextStyles.headlineMd.copyWith(fontWeight: FontWeight.w700),
+            style: AppTextStyles.headlineMd.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             'Review your recent activity and adherence.',
-            style: AppTextStyles.bodyMd,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

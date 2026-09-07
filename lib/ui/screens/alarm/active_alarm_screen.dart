@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../app/locator.dart';
-import '../../../core/constants/app_colors.dart';
 import '../../../core/models/medicine.dart';
 import '../../viewmodels/alarm_viewmodel.dart';
 import 'widgets/alarm_action_buttons.dart';
@@ -29,7 +28,6 @@ class _ActiveAlarmContent extends StatelessWidget {
     final viewModel = context.watch<AlarmViewModel>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

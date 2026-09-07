@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -17,6 +16,7 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -26,8 +26,9 @@ class OnboardingPage extends StatelessWidget {
             width: double.infinity,
             height: 240,
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
+              color: theme.colorScheme.surface,
               borderRadius: AppRadius.radiusXl,
+              border: Border.all(color: theme.colorScheme.outlineVariant),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.05),
@@ -40,14 +41,14 @@ class OnboardingPage extends StatelessWidget {
               child: Container(
                 width: 100,
                 height: 100,
-                decoration: const BoxDecoration(
-                  color: AppColors.primaryContainer,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
                   size: 54,
-                  color: AppColors.onPrimaryContainer,
+                  color: theme.colorScheme.onPrimaryContainer,
                 ),
               ),
             ),
@@ -56,7 +57,7 @@ class OnboardingPage extends StatelessWidget {
           Text(
             title,
             style: AppTextStyles.displayLg.copyWith(
-              color: AppColors.primary,
+              color: theme.colorScheme.primary,
               fontSize: 26,
               fontWeight: FontWeight.w700,
             ),
@@ -66,7 +67,7 @@ class OnboardingPage extends StatelessWidget {
           Text(
             description,
             style: AppTextStyles.bodyLg.copyWith(
-              color: AppColors.onSurfaceVariant,
+              color: theme.colorScheme.onSurfaceVariant,
               fontSize: 16,
             ),
             textAlign: TextAlign.center,

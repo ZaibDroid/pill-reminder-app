@@ -5,6 +5,7 @@ import '../../custom_widgets/custom_app_bar.dart';
 import '../../custom_widgets/error_state_widget.dart';
 import '../../custom_widgets/loading_widget.dart';
 import '../../viewmodels/settings_viewmodel.dart';
+import 'widgets/edit_profile_dialog.dart';
 import 'widgets/settings_header.dart';
 import 'widgets/settings_navigation_tile.dart';
 import 'widgets/settings_profile_card.dart';
@@ -61,6 +62,8 @@ class _SettingsScreenContent extends StatelessWidget {
         SettingsProfileCard(
           userName: viewModel.userName,
           patientId: viewModel.patientId,
+          profileImagePath: viewModel.profileImagePath,
+          onEdit: () => _showEditProfileDialog(context, viewModel),
         ),
         const SizedBox(height: 8),
 
@@ -100,40 +103,46 @@ class _SettingsScreenContent extends StatelessWidget {
           ],
         ),
 
-        // Security & Privacy
+        // Data Management
         SettingsSectionCard(
-          title: 'Security & Privacy',
+          title: 'Data & Reports',
           children: [
-            SettingsSwitchTile(
-              icon: Icons.pin,
-              title: 'App PIN Lock',
-              subtitle: 'Require PIN on launch',
-              value: viewModel.isPinLockEnabled,
-              onChanged: (val) {
-                if (val) {
-                  _showSetPinDialog(context, viewModel);
-                } else {
-                  viewModel.setPin(null);
+            SettingsNavigationTile(
+              icon: Icons.share_rounded,
+              title: 'Share Health Report (PDF)',
+              subtitle: 'Share clinical PDF to WhatsApp, Email, & more',
+              onTap: () async {
+                try {
+                  await viewModel.shareHealthReportPdf();
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to share PDF report.')),
+                    );
+                  }
                 }
               },
             ),
-            SettingsSwitchTile(
-              icon: Icons.fingerprint,
-              title: 'Biometric Unlock',
-              subtitle: 'Use FaceID or TouchID',
-              value: viewModel.isBiometricEnabled,
-              onChanged: (val) => viewModel.setBiometric(val),
-            ),
-          ],
-        ),
-
-        // Data Management
-        SettingsSectionCard(
-          title: 'Data',
-          children: [
             SettingsNavigationTile(
-              icon: Icons.download,
-              title: 'Export Data (JSON)',
+              icon: Icons.picture_as_pdf_rounded,
+              title: 'Preview & Print Report (PDF)',
+              subtitle: 'Open formatted medical report for printing or saving',
+              onTap: () async {
+                try {
+                  await viewModel.previewOrPrintHealthReportPdf();
+                } catch (_) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Failed to generate PDF preview.')),
+                    );
+                  }
+                }
+              },
+            ),
+            SettingsNavigationTile(
+              icon: Icons.code_rounded,
+              title: 'Export Raw Data (JSON)',
+              subtitle: 'View raw offline medication and user data',
               onTap: () async {
                 final json = await viewModel.exportDataJson();
                 if (context.mounted) {
@@ -153,15 +162,6 @@ class _SettingsScreenContent extends StatelessWidget {
                     ),
                   );
                 }
-              },
-            ),
-            SettingsNavigationTile(
-              icon: Icons.backup,
-              title: 'Backup to Cloud',
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Offline data safely stored on device.')),
-                );
               },
             ),
           ],
@@ -214,35 +214,10 @@ class _SettingsScreenContent extends StatelessWidget {
     );
   }
 
-  void _showSetPinDialog(BuildContext context, SettingsViewModel viewModel) {
-    final controller = TextEditingController();
+  void _showEditProfileDialog(BuildContext context, SettingsViewModel viewModel) {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Set 4-Digit PIN'),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.number,
-          maxLength: 4,
-          obscureText: true,
-          decoration: const InputDecoration(hintText: 'Enter 4 digits'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (controller.text.length == 4) {
-                viewModel.setPin(controller.text);
-                Navigator.of(ctx).pop();
-              }
-            },
-            child: const Text('Set PIN'),
-          ),
-        ],
-      ),
+      builder: (ctx) => EditProfileDialog(viewModel: viewModel),
     );
   }
 }

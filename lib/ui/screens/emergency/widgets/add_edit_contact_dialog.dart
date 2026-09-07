@@ -81,9 +81,10 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
   Widget build(BuildContext context) {
     final isEditing = widget.contact != null;
 
+    final theme = Theme.of(context);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusXl),
-      backgroundColor: AppColors.surfaceContainerLowest,
+      backgroundColor: theme.colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -95,7 +96,10 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
               children: [
                 Text(
                   isEditing ? 'Edit Emergency Contact' : 'Add Emergency Contact',
-                  style: AppTextStyles.headlineSm.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.headlineSm.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(

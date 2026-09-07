@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -17,6 +16,8 @@ class StepProgressIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Column(
       children: [
         Padding(
@@ -30,8 +31,8 @@ class StepProgressIndicator extends StatelessWidget {
                   margin: EdgeInsets.only(right: index < totalSteps - 1 ? 6 : 0),
                   decoration: BoxDecoration(
                     color: isCompletedOrCurrent
-                        ? AppColors.primary
-                        : AppColors.surfaceVariant,
+                        ? theme.colorScheme.primary
+                        : theme.colorScheme.surfaceContainerHigh,
                     borderRadius: AppRadius.radiusFull,
                   ),
                 ),
@@ -43,7 +44,7 @@ class StepProgressIndicator extends StatelessWidget {
         Text(
           'Step ${currentStep + 1} of $totalSteps: $stepTitle',
           style: AppTextStyles.labelMd.copyWith(
-            color: AppColors.onSurfaceVariant,
+            color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),

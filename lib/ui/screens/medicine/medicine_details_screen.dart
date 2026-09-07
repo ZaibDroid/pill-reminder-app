@@ -99,22 +99,33 @@ class _MedicineDetailsContent extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLow,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.surfaceContainerHigh),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.note_alt, size: 20, color: AppColors.primary),
-                      SizedBox(width: 8),
-                      Text('Prescription Notes', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Icon(Icons.note_alt, size: 20, color: Theme.of(context).colorScheme.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Prescription Notes',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  Text(medicine.prescriptionNotes!),
+                  Text(
+                    medicine.prescriptionNotes!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
               ),
             ),

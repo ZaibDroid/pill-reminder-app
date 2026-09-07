@@ -171,5 +171,29 @@ void main() {
       await tester.tap(find.text('Reports'));
       expect(selectedTab, equals(2));
     });
+
+    testWidgets('Renders centered Floating Action Button (+) and triggers callback', (tester) async {
+      bool addPressed = false;
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (context, _) => MaterialApp(
+            home: Scaffold(
+              bottomNavigationBar: AppBottomNavBar(
+                currentIndex: 0,
+                onTabSelected: (_) {},
+                onAddPressed: () => addPressed = true,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.add_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.add_rounded));
+      expect(addPressed, isTrue);
+    });
   });
 }

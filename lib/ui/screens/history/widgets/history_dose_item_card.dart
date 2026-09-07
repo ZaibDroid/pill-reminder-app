@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/timeline_dose_item.dart';
@@ -15,6 +14,8 @@ class HistoryDoseItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isTaken = item.isTaken;
     final isSkipped = item.isSkipped;
     final isMissed = item.isMissed;
@@ -27,33 +28,33 @@ class HistoryDoseItemCard extends StatelessWidget {
     String statusText;
 
     if (isTaken) {
-      leftBorderColor = AppColors.secondary;
-      iconBgColor = AppColors.secondaryContainer.withValues(alpha: 0.35);
-      iconFgColor = AppColors.secondary;
-      statusFgColor = AppColors.secondary;
+      leftBorderColor = theme.colorScheme.secondary;
+      iconBgColor = theme.colorScheme.secondaryContainer.withValues(alpha: 0.5);
+      iconFgColor = theme.colorScheme.secondary;
+      statusFgColor = theme.colorScheme.secondary;
       statusIcon = Icons.check_circle;
       statusText = item.doseLog?.actualTakenDateTime != null
           ? 'Taken at ${DateFormat('hh:mm a').format(item.doseLog!.actualTakenDateTime!)}'
           : 'Taken';
     } else if (isMissed) {
-      leftBorderColor = AppColors.error;
-      iconBgColor = AppColors.errorContainer;
-      iconFgColor = AppColors.error;
-      statusFgColor = AppColors.error;
+      leftBorderColor = theme.colorScheme.error;
+      iconBgColor = theme.colorScheme.errorContainer;
+      iconFgColor = theme.colorScheme.error;
+      statusFgColor = theme.colorScheme.error;
       statusIcon = Icons.cancel;
       statusText = 'Missed';
     } else if (isSkipped) {
-      leftBorderColor = AppColors.outline;
-      iconBgColor = AppColors.surfaceContainer;
-      iconFgColor = AppColors.outline;
-      statusFgColor = AppColors.outline;
+      leftBorderColor = theme.colorScheme.outline;
+      iconBgColor = theme.colorScheme.surfaceContainerHigh;
+      iconFgColor = theme.colorScheme.outline;
+      statusFgColor = theme.colorScheme.outline;
       statusIcon = Icons.do_not_disturb_on;
       statusText = 'Skipped';
     } else {
-      leftBorderColor = AppColors.outlineVariant;
-      iconBgColor = AppColors.surfaceContainer;
-      iconFgColor = AppColors.onSurfaceVariant;
-      statusFgColor = AppColors.onSurfaceVariant;
+      leftBorderColor = theme.colorScheme.outlineVariant;
+      iconBgColor = theme.colorScheme.surfaceContainerHigh;
+      iconFgColor = theme.colorScheme.onSurfaceVariant;
+      statusFgColor = theme.colorScheme.onSurfaceVariant;
       statusIcon = Icons.schedule;
       statusText = 'Scheduled';
     }
@@ -61,12 +62,14 @@ class HistoryDoseItemCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -113,6 +116,7 @@ class HistoryDoseItemCard extends StatelessWidget {
                             style: AppTextStyles.headlineSm.copyWith(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.onSurface,
                               decoration: isSkipped ? TextDecoration.lineThrough : null,
                             ),
                           ),
@@ -120,7 +124,7 @@ class HistoryDoseItemCard extends StatelessWidget {
                         Text(
                           item.formattedTime,
                           style: AppTextStyles.labelSm.copyWith(
-                            color: isMissed ? AppColors.error : AppColors.onSurfaceVariant,
+                            color: isMissed ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
                             fontWeight: isMissed ? FontWeight.w700 : FontWeight.w500,
                           ),
                         ),
@@ -129,7 +133,10 @@ class HistoryDoseItemCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       '${item.medicine.dosageValue} ${item.medicine.dosageUnit} • ${item.medicine.frequency.name}',
-                      style: AppTextStyles.bodyMd.copyWith(fontSize: 14),
+                      style: AppTextStyles.bodyMd.copyWith(
+                        fontSize: 14,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 6),
                     Row(

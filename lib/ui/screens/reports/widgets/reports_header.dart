@@ -12,6 +12,7 @@ class ReportsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final monthStr = DateFormat('MMMM yyyy').format(currentMonth);
 
     return Padding(
@@ -21,12 +22,17 @@ class ReportsHeader extends StatelessWidget {
         children: [
           Text(
             'Monthly Overview',
-            style: AppTextStyles.headlineMd.copyWith(fontWeight: FontWeight.w700),
+            style: AppTextStyles.headlineMd.copyWith(
+              fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             monthStr,
-            style: AppTextStyles.bodyMd,
+            style: AppTextStyles.bodyMd.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../app/locator.dart';
 import '../../core/enums/frequency_type.dart';
 import '../../core/enums/meal_type.dart';
@@ -19,6 +20,7 @@ class AddMedicineViewModel extends BaseViewModel {
   final ReminderRepository _reminderRepository;
   final AlarmService _alarmService;
   final PermissionService _permissionService;
+  final ImagePicker _imagePicker = ImagePicker();
 
   int _currentStep = 0;
   final int totalSteps = 4;
@@ -30,6 +32,28 @@ class AddMedicineViewModel extends BaseViewModel {
   String formFactor = 'tablet';
   String? pillImageLocalPath;
   String colorHex = '#00685F';
+
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        pillImageLocalPath = pickedFile.path;
+        notifyListeners();
+      }
+    } catch (e) {
+      log.e('@pickImage: Error picking image', e);
+    }
+  }
+
+  void removeImage() {
+    pillImageLocalPath = null;
+    notifyListeners();
+  }
 
   // Step 2: Intake & Schedule
   MealType mealType = MealType.afterMeal;

@@ -10,6 +10,7 @@ import '../core/services/database_service.dart';
 import '../core/services/local_storage_service.dart';
 import '../core/services/notification_service.dart';
 import '../core/services/permission_service.dart';
+import '../core/services/theme_service.dart';
 import '../ui/viewmodels/alarm_viewmodel.dart';
 import '../ui/viewmodels/app_lock_viewmodel.dart';
 import '../ui/viewmodels/add_medicine_viewmodel.dart';
@@ -29,6 +30,7 @@ void setupLocator() {
   locator.registerLazySingleton(() => LocalStorageService());
   locator.registerLazySingleton(() => PermissionService());
   locator.registerLazySingleton(() => AlarmService());
+  locator.registerLazySingleton(() => ThemeService());
 
   // Repositories
   locator.registerLazySingleton(() => MedicineRepository());

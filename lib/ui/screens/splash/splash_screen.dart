@@ -46,9 +46,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         if (settings.isFirstTimeUser) {
           Navigator.of(context).pushReplacementNamed('/onboarding');
           return;
-        } else if (settings.pinHash != null && settings.pinHash!.isNotEmpty) {
-          Navigator.of(context).pushReplacementNamed('/app_lock');
-          return;
         }
       }
     } catch (_) {

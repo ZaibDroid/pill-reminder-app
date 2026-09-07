@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_text_styles.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -24,16 +23,19 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     Widget? leftWidget = leading;
     if (leftWidget == null && showBackButton) {
       leftWidget = IconButton(
-        icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+        icon: Icon(Icons.arrow_back, color: primaryColor),
         onPressed: onBackButtonPressed ?? () => Navigator.of(context).pop(),
       );
     }
 
     return AppBar(
-      backgroundColor: AppColors.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       elevation: 0,
       scrolledUnderElevation: 1,
       centerTitle: true,
@@ -42,6 +44,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: AppTextStyles.displayLg.copyWith(
           fontSize: 24,
           fontWeight: FontWeight.w700,
+          color: primaryColor,
         ),
       ),
       leading: leftWidget,
@@ -49,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           [
             if (showEmergencyShortcut)
               IconButton(
-                icon: const Icon(Icons.emergency, color: AppColors.primary),
+                icon: Icon(Icons.emergency, color: primaryColor),
                 tooltip: 'Emergency Contacts',
                 onPressed: onEmergencyPressed ??
                     () {

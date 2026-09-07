@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -15,15 +14,20 @@ class SettingsSectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -37,29 +41,35 @@ class SettingsSectionCard extends StatelessWidget {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: AppColors.surfaceContainerLow,
+              color: theme.colorScheme.surfaceContainerLow,
               child: Text(
                 title.toUpperCase(),
                 style: AppTextStyles.labelSm.copyWith(
                   letterSpacing: 1.1,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.onSurfaceVariant,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-            ..._buildDividedChildren(),
+            ..._buildDividedChildren(theme),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildDividedChildren() {
+  List<Widget> _buildDividedChildren(ThemeData theme) {
+    final isDark = theme.brightness == Brightness.dark;
     final list = <Widget>[];
     for (int i = 0; i < children.length; i++) {
       list.add(children[i]);
       if (i < children.length - 1) {
-        list.add(const Divider(height: 1, color: AppColors.surfaceContainerHigh));
+        list.add(
+          Divider(
+            height: 1,
+            color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.2),
+          ),
+        );
       }
     }
     return list;

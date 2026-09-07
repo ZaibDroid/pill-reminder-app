@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/medicine.dart';
@@ -14,13 +13,14 @@ class MedicineInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -35,12 +35,12 @@ class MedicineInfoCard extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.primaryContainer,
+              color: theme.colorScheme.primaryContainer,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.medication,
-              color: AppColors.onPrimaryContainer,
+              color: theme.colorScheme.onPrimaryContainer,
               size: 32,
             ),
           ),
@@ -51,19 +51,24 @@ class MedicineInfoCard extends StatelessWidget {
               children: [
                 Text(
                   medicine.name,
-                  style: AppTextStyles.headlineMd.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.headlineMd.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '${medicine.dosageValue} ${medicine.dosageUnit} ${medicine.formFactor}',
-                  style: AppTextStyles.bodyMd,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
                 if (medicine.doctorName != null && medicine.doctorName!.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     'Prescribed by Dr. ${medicine.doctorName}',
                     style: AppTextStyles.labelSm.copyWith(
-                      color: AppColors.primary,
+                      color: theme.colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),

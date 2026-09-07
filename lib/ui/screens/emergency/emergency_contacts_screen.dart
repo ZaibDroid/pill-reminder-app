@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pill_reminder_app/app/locator.dart';
-import 'package:pill_reminder_app/core/constants/app_colors.dart';
 import 'package:pill_reminder_app/core/constants/app_radius.dart';
 import 'package:pill_reminder_app/core/constants/app_text_styles.dart';
 import 'package:pill_reminder_app/core/models/emergency_contact.dart';
@@ -126,14 +125,15 @@ class _EmergencyContactsContent extends StatelessWidget {
   }
 
   Widget _buildAddContactButton(BuildContext context, EmergencyViewModel viewModel) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       height: 90,
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
         border: Border.all(
-          color: AppColors.outlineVariant,
+          color: theme.colorScheme.outlineVariant,
           style: BorderStyle.solid,
           width: 1.5,
         ),
@@ -147,17 +147,17 @@ class _EmergencyContactsContent extends StatelessWidget {
             Container(
               width: 36,
               height: 36,
-              decoration: const BoxDecoration(
-                color: AppColors.surfaceContainerHigh,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHigh,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.person_add, color: AppColors.primary, size: 20),
+              child: Icon(Icons.person_add, color: theme.colorScheme.primary, size: 20),
             ),
             const SizedBox(height: 6),
             Text(
               'Add Emergency Contact',
               style: AppTextStyles.labelMd.copyWith(
-                color: AppColors.primary,
+                color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),

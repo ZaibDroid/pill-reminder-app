@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../core/services/theme_service.dart';
+import 'locator.dart';
 import 'theme.dart';
 import 'routes.dart';
 
@@ -8,18 +10,26 @@ class PillReminderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      minTextAdapt: true,
-      splitScreenMode: true,
+    final themeService = locator<ThemeService>();
+
+    return ListenableBuilder(
+      listenable: themeService,
       builder: (context, child) {
-        return MaterialApp(
-          title: 'Pill Reminder App',
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          initialRoute: AppRoutes.splash,
-          onGenerateRoute: AppRoutes.generateRoute,
+        return ScreenUtilInit(
+          designSize: const Size(375, 812),
+          minTextAdapt: true,
+          splitScreenMode: true,
+          builder: (context, _) {
+            return MaterialApp(
+              title: 'Pill Reminder App',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeService.themeMode,
+              initialRoute: AppRoutes.splash,
+              onGenerateRoute: AppRoutes.generateRoute,
+            );
+          },
         );
       },
     );

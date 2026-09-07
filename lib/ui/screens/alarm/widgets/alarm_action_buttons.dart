@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -17,6 +16,7 @@ class AlarmActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         // Primary: Mark as Taken
@@ -25,8 +25,8 @@ class AlarmActionButtons extends StatelessWidget {
           height: 60,
           child: ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primary,
-              foregroundColor: AppColors.onPrimary,
+              backgroundColor: theme.colorScheme.primary,
+              foregroundColor: theme.colorScheme.onPrimary,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppRadius.full),
@@ -37,7 +37,7 @@ class AlarmActionButtons extends StatelessWidget {
             label: Text(
               'Mark as Taken',
               style: AppTextStyles.headlineSm.copyWith(
-                color: AppColors.onPrimary,
+                color: theme.colorScheme.onPrimary,
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
               ),
@@ -54,8 +54,8 @@ class AlarmActionButtons extends StatelessWidget {
                 height: 52,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.surfaceContainerHigh,
-                    foregroundColor: AppColors.onSurface,
+                    backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                    foregroundColor: theme.colorScheme.onSurface,
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.full),
@@ -73,8 +73,8 @@ class AlarmActionButtons extends StatelessWidget {
                 height: 52,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.outlineVariant),
-                    foregroundColor: AppColors.onSurfaceVariant,
+                    side: BorderSide(color: theme.colorScheme.outlineVariant),
+                    foregroundColor: theme.colorScheme.onSurfaceVariant,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(AppRadius.full),
                     ),

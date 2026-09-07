@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -12,8 +11,11 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     return Container(
-      color: AppColors.surface,
+      color: theme.scaffoldBackgroundColor,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SafeArea(
         bottom: false,
@@ -25,11 +27,11 @@ class HomeHeader extends StatelessWidget {
               style: AppTextStyles.displayLg.copyWith(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: primaryColor,
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.emergency, color: AppColors.primary),
+              icon: Icon(Icons.emergency, color: primaryColor),
               tooltip: 'Emergency Contacts',
               onPressed: onEmergencyTap ??
                   () {

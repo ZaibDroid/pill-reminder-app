@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/enums/frequency_type.dart';
@@ -16,6 +15,9 @@ class StepIntakeSchedule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -25,6 +27,7 @@ class StepIntakeSchedule extends StatelessWidget {
           style: AppTextStyles.headlineSm.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -37,21 +40,25 @@ class StepIntakeSchedule extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildMealOption(
+              context: context,
               type: MealType.beforeMeal,
               title: 'Before Meal',
               icon: Icons.restaurant,
             ),
             _buildMealOption(
+              context: context,
               type: MealType.afterMeal,
               title: 'After Meal',
               icon: Icons.dinner_dining,
             ),
             _buildMealOption(
+              context: context,
               type: MealType.withMeal,
               title: 'With Food',
               icon: Icons.lunch_dining,
             ),
             _buildMealOption(
+              context: context,
               type: MealType.noRelation,
               title: 'No Relation',
               icon: Icons.water_drop,
@@ -66,41 +73,44 @@ class StepIntakeSchedule extends StatelessWidget {
           style: AppTextStyles.headlineSm.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.outlineVariant),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+            ),
           ),
           child: RadioGroup<FrequencyType>(
             groupValue: viewModel.frequency,
             onChanged: (val) {
               if (val != null) viewModel.frequency = val;
             },
-            child: const Column(
+            child: Column(
               children: [
                 RadioListTile<FrequencyType>(
                   value: FrequencyType.daily,
-                  title: Text('Daily'),
-                  secondary: Icon(Icons.calendar_today, color: AppColors.primary),
-                  activeColor: AppColors.primary,
+                  title: Text('Daily', style: TextStyle(color: theme.colorScheme.onSurface)),
+                  secondary: Icon(Icons.calendar_today, color: theme.colorScheme.primary),
+                  activeColor: theme.colorScheme.primary,
                 ),
-                Divider(height: 1),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
                 RadioListTile<FrequencyType>(
                   value: FrequencyType.specificDays,
-                  title: Text('Specific Days'),
-                  secondary: Icon(Icons.event_available, color: AppColors.primary),
-                  activeColor: AppColors.primary,
+                  title: Text('Specific Days', style: TextStyle(color: theme.colorScheme.onSurface)),
+                  secondary: Icon(Icons.event_available, color: theme.colorScheme.primary),
+                  activeColor: theme.colorScheme.primary,
                 ),
-                Divider(height: 1),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
                 RadioListTile<FrequencyType>(
                   value: FrequencyType.interval,
-                  title: Text('Interval'),
-                  secondary: Icon(Icons.schedule, color: AppColors.primary),
-                  activeColor: AppColors.primary,
+                  title: Text('Interval', style: TextStyle(color: theme.colorScheme.onSurface)),
+                  secondary: Icon(Icons.schedule, color: theme.colorScheme.primary),
+                  activeColor: theme.colorScheme.primary,
                 ),
               ],
             ),
@@ -114,6 +124,7 @@ class StepIntakeSchedule extends StatelessWidget {
           style: AppTextStyles.headlineSm.copyWith(
             fontSize: 18,
             fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 12),
@@ -127,25 +138,28 @@ class StepIntakeSchedule extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 8),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surfaceContainerLowest,
+              color: theme.colorScheme.surface,
               borderRadius: AppRadius.radiusXl,
-              border: Border.all(color: AppColors.outlineVariant),
+              border: Border.all(
+                color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+              ),
             ),
             child: Row(
               children: [
-                const Icon(Icons.alarm, color: AppColors.onSurfaceVariant),
+                Icon(Icons.alarm, color: theme.colorScheme.onSurfaceVariant),
                 const SizedBox(width: 12),
                 Text(
                   '$hourStr:$minStr',
                   style: AppTextStyles.headlineMd.copyWith(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 const Spacer(),
                 if (viewModel.reminderTimes.length > 1)
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                    icon: Icon(Icons.delete_outline, color: theme.colorScheme.error),
                     onPressed: () => viewModel.removeReminderTime(index),
                   ),
               ],
@@ -156,7 +170,7 @@ class StepIntakeSchedule extends StatelessWidget {
         OutlinedButton.icon(
           style: OutlinedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 14),
-            side: const BorderSide(color: AppColors.primary, width: 1.5),
+            side: BorderSide(color: theme.colorScheme.primary, width: 1.5),
             shape: RoundedRectangleBorder(
               borderRadius: AppRadius.radiusXl,
             ),
@@ -170,10 +184,13 @@ class StepIntakeSchedule extends StatelessWidget {
               viewModel.addReminderTime(picked);
             }
           },
-          icon: const Icon(Icons.add, color: AppColors.primary),
+          icon: Icon(Icons.add, color: theme.colorScheme.primary),
           label: Text(
             'Add Another Time',
-            style: AppTextStyles.labelMd.copyWith(color: AppColors.primary),
+            style: AppTextStyles.labelMd.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
       ],
@@ -181,10 +198,13 @@ class StepIntakeSchedule extends StatelessWidget {
   }
 
   Widget _buildMealOption({
+    required BuildContext context,
     required MealType type,
     required String title,
     required IconData icon,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final isSelected = viewModel.mealType == type;
 
     return InkWell(
@@ -193,10 +213,12 @@ class StepIntakeSchedule extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer : AppColors.surfaceContainerLowest,
+          color: isSelected ? theme.colorScheme.primaryContainer : theme.colorScheme.surface,
           borderRadius: AppRadius.radiusXl,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.outlineVariant,
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -206,13 +228,13 @@ class StepIntakeSchedule extends StatelessWidget {
             Icon(
               icon,
               size: 28,
-              color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurfaceVariant,
+              color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 6),
             Text(
               title,
               style: AppTextStyles.labelMd.copyWith(
-                color: isSelected ? AppColors.onPrimaryContainer : AppColors.onSurface,
+                color: isSelected ? theme.colorScheme.onPrimaryContainer : theme.colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),

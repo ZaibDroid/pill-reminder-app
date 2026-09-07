@@ -14,16 +14,17 @@ class MedicineRefillCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isLowStock = medicine.currentStock <= medicine.lowStockThreshold;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
         border: Border.all(
-          color: isLowStock ? AppColors.errorContainer : AppColors.surfaceContainerHigh,
+          color: isLowStock ? theme.colorScheme.error : theme.colorScheme.outlineVariant,
         ),
         boxShadow: [
           BoxShadow(
@@ -43,13 +44,14 @@ class MedicineRefillCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.inventory_2,
-                    color: isLowStock ? AppColors.error : AppColors.primary,
+                    color: isLowStock ? theme.colorScheme.error : theme.colorScheme.primary,
                     size: 22,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     'Supply & Refill',
                     style: AppTextStyles.headlineSm.copyWith(
+                      color: theme.colorScheme.onSurface,
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                     ),
@@ -77,14 +79,16 @@ class MedicineRefillCard extends StatelessWidget {
           Text(
             'Current Stock: ${medicine.currentStock} remaining',
             style: AppTextStyles.bodyMd.copyWith(
-              color: isLowStock ? AppColors.error : AppColors.onSurface,
+              color: isLowStock ? theme.colorScheme.error : theme.colorScheme.onSurface,
               fontWeight: isLowStock ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             'Refill reminder set when stock reaches ${medicine.lowStockThreshold} doses.',
-            style: AppTextStyles.labelSm,
+            style: AppTextStyles.labelSm.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),

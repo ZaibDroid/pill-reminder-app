@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/enums/meal_type.dart';
@@ -28,26 +27,29 @@ class DoseTimelineCard extends StatelessWidget {
     final isMissed = item.isMissed;
     final isPending = item.isPending;
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     Color leftBorderColor;
     Color iconBgColor;
     Color iconFgColor;
 
     if (isTaken) {
-      leftBorderColor = AppColors.secondary;
-      iconBgColor = AppColors.secondaryContainer;
-      iconFgColor = AppColors.onSecondaryContainer;
+      leftBorderColor = theme.colorScheme.secondary;
+      iconBgColor = theme.colorScheme.secondaryContainer;
+      iconFgColor = theme.colorScheme.onSecondaryContainer;
     } else if (isMissed) {
-      leftBorderColor = AppColors.error;
-      iconBgColor = AppColors.errorContainer;
-      iconFgColor = AppColors.error;
+      leftBorderColor = theme.colorScheme.error;
+      iconBgColor = theme.colorScheme.errorContainer;
+      iconFgColor = theme.colorScheme.onErrorContainer;
     } else if (isSkipped) {
-      leftBorderColor = AppColors.outline;
-      iconBgColor = AppColors.surfaceContainer;
-      iconFgColor = AppColors.outline;
+      leftBorderColor = theme.colorScheme.outline;
+      iconBgColor = theme.colorScheme.surfaceContainerHigh;
+      iconFgColor = theme.colorScheme.outline;
     } else {
-      leftBorderColor = AppColors.primary;
-      iconBgColor = AppColors.primaryContainer;
-      iconFgColor = AppColors.onPrimaryContainer;
+      leftBorderColor = theme.colorScheme.primary;
+      iconBgColor = theme.colorScheme.primaryContainer;
+      iconFgColor = theme.colorScheme.onPrimaryContainer;
     }
 
     final mealInstruction = _getMealInstruction(med.mealType);
@@ -55,12 +57,15 @@ class DoseTimelineCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh, width: 1),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -115,6 +120,7 @@ class DoseTimelineCard extends StatelessWidget {
                                     style: AppTextStyles.headlineSm.copyWith(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w700,
+                                      color: theme.colorScheme.onSurface,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -124,8 +130,8 @@ class DoseTimelineCard extends StatelessWidget {
                                   item.formattedTime,
                                   style: AppTextStyles.labelMd.copyWith(
                                     color: isPending
-                                        ? AppColors.primary
-                                        : AppColors.onSurfaceVariant,
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurfaceVariant,
                                     fontWeight: isPending
                                         ? FontWeight.w700
                                         : FontWeight.w600,
@@ -142,14 +148,14 @@ class DoseTimelineCard extends StatelessWidget {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(alpha: 0.08),
+                                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
                                     borderRadius: AppRadius.radiusSm,
                                   ),
                                   child: Text(
                                     '${med.dosageValue.toStringAsFixed(med.dosageValue.truncateToDouble() == med.dosageValue ? 0 : 1)} ${med.dosageUnit}',
                                     style: AppTextStyles.labelSm.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
@@ -158,7 +164,9 @@ class DoseTimelineCard extends StatelessWidget {
                                   const SizedBox(width: 6),
                                   Text(
                                     '• Dr. ${med.doctorName}',
-                                    style: AppTextStyles.labelSm,
+                                    style: AppTextStyles.labelSm.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -171,7 +179,7 @@ class DoseTimelineCard extends StatelessWidget {
                                 mealInstruction,
                                 style: AppTextStyles.bodyMd.copyWith(
                                   fontSize: 13,
-                                  color: AppColors.onSurfaceVariant,
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ],
@@ -184,11 +192,11 @@ class DoseTimelineCard extends StatelessWidget {
                 // Action row or status footer
                 if (isPending) ...[
                   Container(
-                    decoration: const BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.surfaceVariant,
+                          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.25),
                           width: 1,
                         ),
                       ),
@@ -203,8 +211,8 @@ class DoseTimelineCard extends StatelessWidget {
                           flex: 1,
                           child: OutlinedButton(
                             style: OutlinedButton.styleFrom(
-                              backgroundColor: AppColors.surfaceContainerHigh,
-                              foregroundColor: AppColors.onSurface,
+                              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                              foregroundColor: theme.colorScheme.onSurface,
                               side: BorderSide.none,
                               shape: RoundedRectangleBorder(
                                 borderRadius: AppRadius.radiusMd,
@@ -216,6 +224,7 @@ class DoseTimelineCard extends StatelessWidget {
                               'Skip',
                               style: AppTextStyles.labelMd.copyWith(
                                 fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -225,8 +234,8 @@ class DoseTimelineCard extends StatelessWidget {
                           flex: 2,
                           child: ElevatedButton.icon(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: AppColors.onPrimary,
+                              backgroundColor: theme.colorScheme.primary,
+                              foregroundColor: theme.colorScheme.onPrimary,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: AppRadius.radiusMd,
@@ -238,7 +247,7 @@ class DoseTimelineCard extends StatelessWidget {
                             label: Text(
                               'Take Dose',
                               style: AppTextStyles.labelMd.copyWith(
-                                color: AppColors.onPrimary,
+                                color: theme.colorScheme.onPrimary,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -254,11 +263,11 @@ class DoseTimelineCard extends StatelessWidget {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    decoration: const BoxDecoration(
-                      color: AppColors.surfaceContainerLow,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
                       border: Border(
                         top: BorderSide(
-                          color: AppColors.surfaceVariant,
+                          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.4 : 0.25),
                           width: 1,
                         ),
                       ),

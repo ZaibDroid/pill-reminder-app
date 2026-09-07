@@ -118,8 +118,14 @@ class ReportsViewModel extends BaseViewModel {
       int skippedSum = 0;
       int missedSum = 0;
 
+      final now = DateTime.now();
+      final isCurrentMonth = _currentMonth.year == now.year && _currentMonth.month == now.month;
+      final isFutureMonth = _currentMonth.isAfter(DateTime(now.year, now.month + 1, 0));
+      final todayEndOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
       for (int day = 1; day <= daysInMonth; day++) {
         final dayDate = DateTime(_currentMonth.year, _currentMonth.month, day);
+        final isFutureDay = isFutureMonth || (isCurrentMonth && dayDate.isAfter(todayEndOfDay));
         final dayActive = _doseScheduler.filterActiveMedicines(_medicines, dayDate);
         final dayLogs = _monthLogs
             .where((l) =>
@@ -139,8 +145,8 @@ class ReportsViewModel extends BaseViewModel {
         final daySkipped = _adherenceCalculator.countSkipped(dayItems);
         final dayMissed = _adherenceCalculator.countMissed(dayItems);
 
-        _dailyDoseCounts[day] = dayTotal;
-        if (dayTotal > 0) {
+        _dailyDoseCounts[day] = isFutureDay ? 0 : dayTotal;
+        if (dayTotal > 0 && !isFutureDay) {
           _dailyAdherenceRates[day] = _adherenceCalculator.calculateAdherenceRate(
             total: dayTotal,
             taken: dayTaken,
@@ -150,10 +156,12 @@ class ReportsViewModel extends BaseViewModel {
           _dailyAdherenceRates[day] = 0.0;
         }
 
-        scheduledSum += dayTotal;
-        takenSum += dayTaken;
-        skippedSum += daySkipped;
-        missedSum += dayMissed;
+        if (!isFutureDay) {
+          scheduledSum += dayTotal;
+          takenSum += dayTaken;
+          skippedSum += daySkipped;
+          missedSum += dayMissed;
+        }
       }
 
       _totalScheduledCount = scheduledSum > 0 ? scheduledSum : _monthLogs.length;

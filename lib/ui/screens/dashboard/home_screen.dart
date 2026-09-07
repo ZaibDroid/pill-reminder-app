@@ -7,7 +7,6 @@ import 'package:pill_reminder_app/ui/custom_widgets/loading_widget.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/adherence_card.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/date_selector.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/dose_timeline.dart';
-import 'package:pill_reminder_app/ui/screens/dashboard/widgets/home_fab.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/home_header.dart';
 import 'package:pill_reminder_app/ui/viewmodels/home_viewmodel.dart';
 
@@ -56,14 +55,6 @@ class _HomeScreenContent extends StatelessWidget {
             ),
           ],
         ),
-      ),
-      floatingActionButton: HomeFab(
-        onPressed: () async {
-          final result = await Navigator.of(context).pushNamed('/add_medicine');
-          if (result == true) {
-            viewModel.refresh();
-          }
-        },
       ),
     );
   }

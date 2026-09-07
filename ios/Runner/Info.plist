@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>MediAlert needs camera access to take profile and medication photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MediAlert needs photo library access to choose profile and medication pictures.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

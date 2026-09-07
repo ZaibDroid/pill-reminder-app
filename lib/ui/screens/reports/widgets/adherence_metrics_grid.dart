@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -19,22 +18,25 @@ class AdherenceMetricsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           // Metric 1: Overall Adherence
           _buildMetricCard(
+            context: context,
             icon: Icons.insights,
-            iconColor: AppColors.primary,
+            iconColor: theme.colorScheme.primary,
             title: 'Overall Adherence',
             value: '${adherenceRate.round()}%',
             extraWidget: ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: adherenceRate / 100,
-                backgroundColor: AppColors.surfaceContainer,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
                 minHeight: 6,
               ),
             ),
@@ -45,8 +47,9 @@ class AdherenceMetricsGrid extends StatelessWidget {
               // Metric 2: Longest Streak
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   icon: Icons.local_fire_department,
-                  iconColor: AppColors.secondary,
+                  iconColor: theme.colorScheme.secondary,
                   title: 'Longest Streak',
                   value: '$longestStreak Days',
                   subtext: 'Consecutive full adherence',
@@ -56,8 +59,9 @@ class AdherenceMetricsGrid extends StatelessWidget {
               // Metric 3: Total Doses Taken
               Expanded(
                 child: _buildMetricCard(
+                  context: context,
                   icon: Icons.medication,
-                  iconColor: AppColors.tertiary,
+                  iconColor: theme.colorScheme.tertiary,
                   title: 'Total Doses Taken',
                   value: '$takenDoses',
                   subtext: 'Out of $totalDoses scheduled',
@@ -71,6 +75,7 @@ class AdherenceMetricsGrid extends StatelessWidget {
   }
 
   Widget _buildMetricCard({
+    required BuildContext context,
     required IconData icon,
     required Color iconColor,
     required String title,
@@ -78,15 +83,20 @@ class AdherenceMetricsGrid extends StatelessWidget {
     String? subtext,
     Widget? extraWidget,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -103,7 +113,7 @@ class AdherenceMetricsGrid extends StatelessWidget {
                 child: Text(
                   title,
                   style: AppTextStyles.labelMd.copyWith(
-                    color: AppColors.onSurfaceVariant,
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontSize: 13,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -117,7 +127,7 @@ class AdherenceMetricsGrid extends StatelessWidget {
             style: AppTextStyles.displayLg.copyWith(
               fontSize: 26,
               fontWeight: FontWeight.w700,
-              color: AppColors.onSurface,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           if (extraWidget != null) ...[
@@ -129,7 +139,7 @@ class AdherenceMetricsGrid extends StatelessWidget {
             Text(
               subtext,
               style: AppTextStyles.labelSm.copyWith(
-                color: AppColors.onSurfaceVariant,
+                color: theme.colorScheme.onSurfaceVariant,
                 fontSize: 11,
               ),
             ),

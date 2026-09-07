@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_text_styles.dart';
 import '../../core/enums/medicine_status.dart';
@@ -76,43 +75,44 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     Color bg;
     Color fg;
     IconData? badgeIcon = icon;
 
     switch (variant) {
       case BadgeVariant.taken:
-        bg = AppColors.secondaryContainer.withValues(alpha: 0.35);
-        fg = AppColors.onSecondaryContainer;
+        bg = colorScheme.secondaryContainer.withValues(alpha: 0.6);
+        fg = colorScheme.onSecondaryContainer;
         badgeIcon ??= Icons.check_circle;
         break;
       case BadgeVariant.skipped:
-        bg = AppColors.surfaceContainer;
-        fg = AppColors.outline;
+        bg = colorScheme.surfaceContainerHigh;
+        fg = colorScheme.outline;
         badgeIcon ??= Icons.do_not_disturb_on;
         break;
       case BadgeVariant.missed:
-        bg = AppColors.errorContainer;
-        fg = AppColors.error;
+        bg = colorScheme.errorContainer.withValues(alpha: 0.6);
+        fg = colorScheme.onErrorContainer;
         badgeIcon ??= Icons.cancel;
         break;
       case BadgeVariant.pending:
-        bg = AppColors.surfaceVariant;
-        fg = AppColors.onSurfaceVariant;
+        bg = colorScheme.surfaceContainerHigh;
+        fg = colorScheme.onSurfaceVariant;
         badgeIcon ??= Icons.schedule;
         break;
       case BadgeVariant.urgent:
-        bg = AppColors.error;
-        fg = AppColors.onError;
+        bg = colorScheme.error;
+        fg = colorScheme.onError;
         badgeIcon ??= Icons.priority_high;
         break;
       case BadgeVariant.prescription:
-        bg = AppColors.surfaceVariant;
-        fg = AppColors.onSurfaceVariant;
+        bg = colorScheme.surfaceContainerHigh;
+        fg = colorScheme.onSurfaceVariant;
         break;
       case BadgeVariant.custom:
-        bg = backgroundColor ?? AppColors.primaryContainer.withValues(alpha: 0.15);
-        fg = textColor ?? AppColors.primary;
+        bg = backgroundColor ?? colorScheme.primaryContainer.withValues(alpha: 0.25);
+        fg = textColor ?? colorScheme.primary;
         break;
     }
 

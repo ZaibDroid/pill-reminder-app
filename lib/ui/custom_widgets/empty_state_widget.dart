@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_spacing.dart';
 import '../../core/constants/app_text_styles.dart';
 
@@ -21,6 +20,9 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+
     return Center(
       child: Padding(
         padding: AppSpacing.screenPadding,
@@ -31,33 +33,38 @@ class EmptyStateWidget extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primaryContainer.withValues(alpha: 0.15),
+                color: primaryColor.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 40,
-                color: AppColors.primary,
+                color: primaryColor,
               ),
             ),
             const SizedBox(height: 16),
             Text(
               title,
-              style: AppTextStyles.headlineSm,
+              style: AppTextStyles.headlineSm.copyWith(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTextStyles.bodyMd,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
               textAlign: TextAlign.center,
             ),
             if (buttonText != null && onButtonPressed != null) ...[
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.onPrimary,
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
                   ),

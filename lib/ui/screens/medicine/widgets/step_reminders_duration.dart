@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../custom_widgets/custom_text_field.dart';
@@ -50,6 +49,8 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -58,27 +59,46 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.surfaceVariant),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.calendar_month, color: AppColors.primary, size: 20),
+                  Icon(Icons.calendar_month, color: theme.colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
-                  Text('Duration', style: AppTextStyles.headlineSm.copyWith(fontSize: 18, color: AppColors.primary)),
+                  Text(
+                    'Duration',
+                    style: AppTextStyles.headlineSm.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Ongoing Medication', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('No predetermined end date'),
+                title: Text(
+                  'Ongoing Medication',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                subtitle: Text(
+                  'No predetermined end date',
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                ),
                 value: viewModel.isOngoing,
-                activeThumbColor: AppColors.primary,
+                activeThumbColor: theme.colorScheme.primary,
+                activeTrackColor: theme.colorScheme.primary.withValues(alpha: 0.35),
                 onChanged: (val) {
                   viewModel.isOngoing = val;
                   if (val) viewModel.endDate = null;
@@ -91,7 +111,10 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Start Date', style: AppTextStyles.labelSm),
+                        Text(
+                          'Start Date',
+                          style: AppTextStyles.labelSm.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
                         const SizedBox(height: 6),
                         InkWell(
                           onTap: () async {
@@ -106,11 +129,16 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                             decoration: BoxDecoration(
-                              color: AppColors.surfaceContainerLow,
+                              color: theme.colorScheme.surfaceContainerLow,
                               borderRadius: AppRadius.radiusMd,
-                              border: Border.all(color: AppColors.outlineVariant),
+                              border: Border.all(
+                                color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+                              ),
                             ),
-                            child: Text(DateFormat('yyyy-MM-dd').format(viewModel.startDate)),
+                            child: Text(
+                              DateFormat('yyyy-MM-dd').format(viewModel.startDate),
+                              style: TextStyle(color: theme.colorScheme.onSurface),
+                            ),
                           ),
                         ),
                       ],
@@ -122,7 +150,10 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('End Date', style: AppTextStyles.labelSm),
+                          Text(
+                            'End Date',
+                            style: AppTextStyles.labelSm.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                          ),
                           const SizedBox(height: 6),
                           InkWell(
                             onTap: () async {
@@ -137,14 +168,21 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
                               decoration: BoxDecoration(
-                                color: AppColors.surfaceContainerLow,
+                                color: theme.colorScheme.surfaceContainerLow,
                                 borderRadius: AppRadius.radiusMd,
-                                border: Border.all(color: AppColors.outlineVariant),
+                                border: Border.all(
+                                  color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+                                ),
                               ),
                               child: Text(
                                 viewModel.endDate != null
                                     ? DateFormat('yyyy-MM-dd').format(viewModel.endDate!)
                                     : 'Select date',
+                                style: TextStyle(
+                                  color: viewModel.endDate != null
+                                      ? theme.colorScheme.onSurface
+                                      : theme.colorScheme.onSurfaceVariant,
+                                ),
                               ),
                             ),
                           ),
@@ -163,41 +201,67 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.surfaceVariant),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.notifications_active, color: AppColors.primary, size: 20),
+                  Icon(Icons.notifications_active, color: theme.colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
-                  Text('Reminder Settings', style: AppTextStyles.headlineSm.copyWith(fontSize: 18, color: AppColors.primary)),
+                  Text(
+                    'Reminder Settings',
+                    style: AppTextStyles.headlineSm.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('High Priority Alarm', style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text('Bypasses silent mode for critical doses'),
+                title: Text(
+                  'High Priority Alarm',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                subtitle: Text(
+                  'Bypasses silent mode for critical doses',
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                ),
                 value: viewModel.isHighPriority,
-                activeThumbColor: AppColors.tertiary,
+                activeThumbColor: theme.colorScheme.tertiary,
+                activeTrackColor: theme.colorScheme.tertiary.withValues(alpha: 0.35),
                 onChanged: (val) => viewModel.isHighPriority = val,
               ),
               const SizedBox(height: 8),
-              Text('Alarm Sound', style: AppTextStyles.labelSm),
+              Text(
+                'Alarm Sound',
+                style: AppTextStyles.labelSm.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
               const SizedBox(height: 6),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
                   borderRadius: AppRadius.radiusMd,
-                  border: Border.all(color: AppColors.outlineVariant),
+                  border: Border.all(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: viewModel.alarmSound,
+                    dropdownColor: theme.colorScheme.surface,
                     isExpanded: true,
                     items: const [
                       DropdownMenuItem(value: 'Classic Alarm', child: Text('Classic Alarm')),
@@ -220,25 +284,34 @@ class _StepRemindersDurationState extends State<StepRemindersDuration> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.surfaceVariant),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  const Icon(Icons.note_add, color: AppColors.primary, size: 20),
+                  Icon(Icons.note_add, color: theme.colorScheme.primary, size: 20),
                   const SizedBox(width: 8),
-                  Text('Optional Details', style: AppTextStyles.headlineSm.copyWith(fontSize: 18, color: AppColors.primary)),
+                  Text(
+                    'Optional Details',
+                    style: AppTextStyles.headlineSm.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               CustomTextField(
                 label: 'Prescribing Doctor',
                 hintText: 'e.g., Dr. Sarah Mitchell',
-                prefixIcon: const Icon(Icons.person_outline),
+                prefixIcon: Icon(Icons.person_outline, color: theme.colorScheme.onSurfaceVariant),
                 controller: _doctorController,
                 onChanged: (val) => viewModel.doctorName = val,
               ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../viewmodels/add_medicine_viewmodel.dart';
@@ -16,29 +15,39 @@ class StepReviewSave extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Text(
           'Almost done!',
-          style: AppTextStyles.headlineMd.copyWith(fontWeight: FontWeight.w700),
+          style: AppTextStyles.headlineMd.copyWith(
+            fontWeight: FontWeight.w700,
+            color: theme.colorScheme.onSurface,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
           'Please review the medication details before saving to your schedule.',
-          style: AppTextStyles.bodyMd,
+          style: AppTextStyles.bodyMd.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
         ),
         const SizedBox(height: 16),
 
         // Review Card
         Container(
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.surfaceVariant),
+            border: Border.all(
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -49,23 +58,27 @@ class StepReviewSave extends StatelessWidget {
               // Hero Area
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
-                  color: AppColors.surfaceBright,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-                  border: Border(bottom: BorderSide(color: AppColors.surfaceVariant)),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.2),
+                    ),
+                  ),
                 ),
                 child: Row(
                   children: [
                     Container(
                       width: 56,
                       height: 56,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primaryContainer,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.primaryContainer,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.medication,
-                        color: AppColors.onPrimaryContainer,
+                        color: theme.colorScheme.onPrimaryContainer,
                         size: 28,
                       ),
                     ),
@@ -76,11 +89,16 @@ class StepReviewSave extends StatelessWidget {
                         children: [
                           Text(
                             viewModel.name.isNotEmpty ? viewModel.name : 'Medication Name',
-                            style: AppTextStyles.headlineSm.copyWith(fontWeight: FontWeight.w700),
+                            style: AppTextStyles.headlineSm.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                           Text(
-                            '${viewModel.dosageValue} ${viewModel.dosageUnit} ${viewModel.formFactor}',
-                            style: AppTextStyles.bodyMd,
+                            '${viewModel.dosageValue} ${viewModel.dosageUnit} • ${viewModel.formFactor}',
+                            style: AppTextStyles.bodyMd.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ],
                       ),
@@ -88,12 +106,15 @@ class StepReviewSave extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLow,
+                        color: theme.colorScheme.primary.withValues(alpha: 0.12),
                         borderRadius: AppRadius.radiusFull,
                       ),
                       child: Text(
                         'PRESCRIPTION',
-                        style: AppTextStyles.labelSm.copyWith(fontWeight: FontWeight.w700),
+                        style: AppTextStyles.labelSm.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.primary,
+                        ),
                       ),
                     ),
                   ],
@@ -102,24 +123,27 @@ class StepReviewSave extends StatelessWidget {
 
               // Item 1: Intake
               _buildReviewRow(
+                context: context,
                 icon: Icons.water_drop,
                 label: 'Intake Instructions',
                 value: 'Take with food or water (${viewModel.mealType.name})',
                 onEdit: () => onJumpToStep(1),
               ),
-              const Divider(height: 1),
+              Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
 
               // Item 2: Schedule
               _buildReviewRow(
+                context: context,
                 icon: Icons.calendar_month,
                 label: 'Schedule',
                 value: 'Frequency: ${viewModel.frequency.name.toUpperCase()} at ${viewModel.reminderTimes.map((t) => "${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}").join(', ')}',
                 onEdit: () => onJumpToStep(1),
               ),
-              const Divider(height: 1),
+              Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
 
               // Item 3: Duration
               _buildReviewRow(
+                context: context,
                 icon: Icons.hourglass_empty,
                 label: 'Duration & Inventory',
                 value: viewModel.isOngoing ? 'Ongoing treatment' : 'Ends on ${viewModel.endDate?.toString().split(' ')[0]}',
@@ -128,8 +152,9 @@ class StepReviewSave extends StatelessWidget {
 
               // Item 4: Doctor / Notes
               if (viewModel.doctorName != null && viewModel.doctorName!.isNotEmpty) ...[
-                const Divider(height: 1),
+                Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
                 _buildReviewRow(
+                  context: context,
                   icon: Icons.person_outline,
                   label: 'Prescribed by',
                   value: 'Dr. ${viewModel.doctorName}',
@@ -144,11 +169,14 @@ class StepReviewSave extends StatelessWidget {
   }
 
   Widget _buildReviewRow({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required String value,
     required VoidCallback onEdit,
   }) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
@@ -157,25 +185,34 @@ class StepReviewSave extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: const BoxDecoration(
-              color: AppColors.surfaceContainerLow,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerLow,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.onSurfaceVariant, size: 20),
+            child: Icon(icon, color: theme.colorScheme.onSurfaceVariant, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTextStyles.labelSm),
+                Text(
+                  label,
+                  style: AppTextStyles.labelSm.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
                 const SizedBox(height: 2),
-                Text(value, style: AppTextStyles.bodyMd.copyWith(color: AppColors.onSurface, fontWeight: FontWeight.w500)),
+                Text(
+                  value,
+                  style: AppTextStyles.bodyMd.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.edit, color: AppColors.primary, size: 18),
+            icon: Icon(Icons.edit, color: theme.colorScheme.primary, size: 18),
             onPressed: onEdit,
           ),
         ],

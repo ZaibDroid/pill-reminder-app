@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_radius.dart';
 
 class CustomCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final Color color;
+  final Color? color;
   final VoidCallback? onTap;
   final Color? accentBorderColor;
   final double accentBorderWidth;
@@ -15,7 +14,7 @@ class CustomCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(16.0),
-    this.color = AppColors.surfaceContainerLowest,
+    this.color,
     this.onTap,
     this.accentBorderColor,
     this.accentBorderWidth = 4.0,
@@ -24,20 +23,24 @@ class CustomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final effectiveColor = color ?? theme.colorScheme.surface;
+    final isDark = theme.brightness == Brightness.dark;
+
     final decoration = BoxDecoration(
-      color: color,
+      color: effectiveColor,
       borderRadius: AppRadius.radiusXl,
       boxShadow: hasShadow
           ? [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
             ]
           : null,
       border: Border.all(
-        color: AppColors.surfaceContainerHigh,
+        color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
         width: 1,
       ),
     );
@@ -53,7 +56,7 @@ class CustomCard extends StatelessWidget {
         borderRadius: AppRadius.radiusXl,
         child: Container(
           decoration: BoxDecoration(
-            color: color,
+            color: effectiveColor,
             border: Border(
               left: BorderSide(
                 color: accentBorderColor!,
@@ -63,7 +66,7 @@ class CustomCard extends StatelessWidget {
             boxShadow: hasShadow
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: isDark ? Colors.black.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),

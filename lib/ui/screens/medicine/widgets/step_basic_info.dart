@@ -1,5 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../custom_widgets/custom_text_field.dart';
@@ -57,48 +58,209 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
     super.dispose();
   }
 
+  void _showImagePickerModal(BuildContext context) {
+    final theme = Theme.of(context);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.outlineVariant,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Select Medicine Photo',
+                style: AppTextStyles.headlineSm.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.camera_alt_rounded, color: theme.colorScheme.onPrimaryContainer),
+                ),
+                title: Text(
+                  'Take Photo (Camera)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  widget.viewModel.pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.secondaryContainer,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.photo_library_rounded, color: theme.colorScheme.onSecondaryContainer),
+                ),
+                title: Text(
+                  'Choose from Gallery',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  widget.viewModel.pickImage(ImageSource.gallery);
+                },
+              ),
+              if (widget.viewModel.pillImageLocalPath != null)
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.errorContainer,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
+                  ),
+                  title: Text(
+                    'Remove Photo',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(ctx).pop();
+                    widget.viewModel.removeImage();
+                  },
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = widget.viewModel;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final hasImage = viewModel.pillImageLocalPath != null &&
+        File(viewModel.pillImageLocalPath!).existsSync();
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Photo upload placeholder
+        // Photo upload or preview
         Container(
-          height: 140,
+          height: 160,
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerHigh,
+            color: theme.colorScheme.surfaceContainerLow,
             borderRadius: AppRadius.radiusXl,
             border: Border.all(
-              color: AppColors.outlineVariant,
-              style: BorderStyle.solid,
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
               width: 1.5,
             ),
           ),
           child: InkWell(
-            onTap: () {
-              // Photo selection
-            },
+            onTap: () => _showImagePickerModal(context),
             borderRadius: AppRadius.radiusXl,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.add_a_photo,
-                  size: 36,
-                  color: AppColors.primary,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Add Pill Photo',
-                  style: AppTextStyles.labelMd.copyWith(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.w600,
+            child: hasImage
+                ? Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: AppRadius.radiusXl,
+                        child: Image.file(
+                          File(viewModel.pillImageLocalPath!),
+                          width: double.infinity,
+                          height: 160,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        right: 12,
+                        bottom: 12,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            borderRadius: AppRadius.radiusFull,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: const [
+                              Icon(Icons.edit, size: 16, color: Colors.white),
+                              SizedBox(width: 4),
+                              Text(
+                                'Change Photo',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.add_a_photo_rounded,
+                          size: 28,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Add Pill Photo',
+                        style: AppTextStyles.labelMd.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Tap to take photo or choose from gallery',
+                        style: AppTextStyles.labelSm.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ),
         const SizedBox(height: 24),
@@ -108,7 +270,7 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           label: 'Medicine Name',
           hintText: 'e.g., Amoxicillin',
           controller: _nameController,
-          prefixIcon: const Icon(Icons.medication, color: AppColors.onSurfaceVariant),
+          prefixIcon: Icon(Icons.medication, color: theme.colorScheme.onSurfaceVariant),
           onChanged: (val) => viewModel.name = val,
         ),
         const SizedBox(height: 16),
@@ -116,7 +278,10 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
         // Dosage Amount & Unit
         Text(
           'Dosage',
-          style: AppTextStyles.labelMd.copyWith(color: AppColors.onSurface),
+          style: AppTextStyles.labelMd.copyWith(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         Row(
@@ -139,15 +304,18 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
                 height: 56,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLowest,
+                  color: theme.colorScheme.surface,
                   borderRadius: AppRadius.radiusMd,
-                  border: Border.all(color: AppColors.outlineVariant),
+                  border: Border.all(
+                    color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.6 : 0.4),
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: viewModel.dosageUnit,
+                    dropdownColor: theme.colorScheme.surface,
                     isExpanded: true,
-                    icon: const Icon(Icons.arrow_drop_down, color: AppColors.onSurfaceVariant),
+                    icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
                     items: const [
                       DropdownMenuItem(value: 'mg', child: Text('mg')),
                       DropdownMenuItem(value: 'ml', child: Text('ml')),
@@ -171,7 +339,10 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
         // Form Factor Selection
         Text(
           'Pill Form Factor',
-          style: AppTextStyles.labelMd.copyWith(color: AppColors.onSurface),
+          style: AppTextStyles.labelMd.copyWith(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         Wrap(
@@ -182,9 +353,17 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
             return ChoiceChip(
               label: Text(form[0].toUpperCase() + form.substring(1)),
               selected: isSelected,
-              selectedColor: AppColors.primaryContainer.withValues(alpha: 0.2),
+              selectedColor: theme.colorScheme.primaryContainer,
+              backgroundColor: theme.colorScheme.surface,
+              side: BorderSide(
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.5 : 0.3),
+              ),
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.primary : AppColors.onSurface,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
               onSelected: (selected) {

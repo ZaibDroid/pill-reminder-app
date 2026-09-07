@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
@@ -15,13 +14,14 @@ class LockScreenSettingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -35,13 +35,13 @@ class LockScreenSettingCard extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            decoration: const BoxDecoration(
-              color: AppColors.primaryContainer,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.screen_lock_portrait,
-              color: AppColors.onPrimaryContainer,
+              color: theme.colorScheme.onPrimaryContainer,
               size: 24,
             ),
           ),
@@ -52,20 +52,25 @@ class LockScreenSettingCard extends StatelessWidget {
               children: [
                 Text(
                   'Show on Lock Screen',
-                  style: AppTextStyles.labelMd.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.labelMd.copyWith(
+                    color: theme.colorScheme.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'Allow quick dial without unlocking.',
-                  style: AppTextStyles.labelSm,
+                  style: AppTextStyles.labelSm.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
           ),
           Switch(
             value: isEnabled,
-            activeThumbColor: AppColors.primary,
-            activeTrackColor: AppColors.primaryContainer.withValues(alpha: 0.5),
+            activeThumbColor: theme.colorScheme.primary,
+            activeTrackColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
             onChanged: onToggle,
           ),
         ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/emergency_contact.dart';
@@ -24,17 +23,18 @@ class EmergencyContactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final isPrimary = contact.isPrimary;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
         border: Border.all(
           color: isPrimary
-              ? AppColors.primary.withValues(alpha: 0.3)
-              : AppColors.surfaceContainerHigh,
+              ? theme.colorScheme.primary.withValues(alpha: 0.5)
+              : theme.colorScheme.outlineVariant,
         ),
         boxShadow: [
           BoxShadow(
@@ -50,7 +50,7 @@ class EmergencyContactCard extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(
               left: BorderSide(
-                color: isPrimary ? AppColors.primary : AppColors.surfaceVariant,
+                color: isPrimary ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
                 width: isPrimary ? 5 : 1,
               ),
             ),
@@ -67,13 +67,13 @@ class EmergencyContactCard extends StatelessWidget {
                     height: 48,
                     decoration: BoxDecoration(
                       color: isPrimary
-                          ? AppColors.primaryContainer.withValues(alpha: 0.25)
-                          : AppColors.surfaceContainerHigh,
+                          ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
+                          : theme.colorScheme.surfaceContainerHigh,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.person,
-                      color: isPrimary ? AppColors.primary : AppColors.onSurfaceVariant,
+                      color: isPrimary ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                       size: 26,
                     ),
                   ),
@@ -88,6 +88,7 @@ class EmergencyContactCard extends StatelessWidget {
                               child: Text(
                                 contact.fullName,
                                 style: AppTextStyles.headlineSm.copyWith(
+                                  color: theme.colorScheme.onSurface,
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -99,13 +100,13 @@ class EmergencyContactCard extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryContainer,
+                                  color: theme.colorScheme.primaryContainer,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   'PRIMARY',
                                   style: AppTextStyles.labelSm.copyWith(
-                                    color: AppColors.primary,
+                                    color: theme.colorScheme.primary,
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
                                     letterSpacing: 0.5,
@@ -122,14 +123,14 @@ class EmergencyContactCard extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: isPrimary
-                                    ? AppColors.primaryContainer.withValues(alpha: 0.15)
-                                    : AppColors.surfaceVariant,
+                                    ? theme.colorScheme.primaryContainer.withValues(alpha: 0.2)
+                                    : theme.colorScheme.surfaceContainerHigh,
                                 borderRadius: AppRadius.radiusFull,
                               ),
                               child: Text(
                                 contact.relationship ?? (isPrimary ? 'Primary Physician' : 'Emergency Contact'),
                                 style: AppTextStyles.labelSm.copyWith(
-                                  color: isPrimary ? AppColors.primary : AppColors.onSurfaceVariant,
+                                  color: isPrimary ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -142,7 +143,7 @@ class EmergencyContactCard extends StatelessWidget {
                           style: AppTextStyles.bodyMd.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.onSurface,
+                            color: theme.colorScheme.onSurface,
                           ),
                         ),
                         if (contact.email != null && contact.email!.isNotEmpty) ...[
@@ -150,7 +151,7 @@ class EmergencyContactCard extends StatelessWidget {
                           Text(
                             contact.email!,
                             style: AppTextStyles.labelSm.copyWith(
-                              color: AppColors.onSurfaceVariant,
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -161,7 +162,7 @@ class EmergencyContactCard extends StatelessWidget {
                     IconButton(
                       icon: Icon(
                         isPrimary ? Icons.star : Icons.star_border,
-                        color: isPrimary ? Colors.amber[700] : AppColors.outline,
+                        color: isPrimary ? Colors.amber[700] : theme.colorScheme.onSurfaceVariant,
                         size: 22,
                       ),
                       tooltip: isPrimary ? 'Unset Primary' : 'Set as Primary',
@@ -176,8 +177,8 @@ class EmergencyContactCard extends StatelessWidget {
                     flex: 3,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isPrimary ? AppColors.tertiary : AppColors.primary,
-                        foregroundColor: isPrimary ? AppColors.onTertiary : AppColors.onPrimary,
+                        backgroundColor: isPrimary ? theme.colorScheme.tertiary : theme.colorScheme.primary,
+                        foregroundColor: isPrimary ? theme.colorScheme.onTertiary : theme.colorScheme.onPrimary,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadius.full),
@@ -196,8 +197,8 @@ class EmergencyContactCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     IconButton(
                       style: IconButton.styleFrom(
-                        backgroundColor: AppColors.surfaceContainerHigh,
-                        foregroundColor: AppColors.primary,
+                        backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                        foregroundColor: theme.colorScheme.primary,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadius.full),
                         ),
@@ -211,7 +212,8 @@ class EmergencyContactCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   IconButton(
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceContainerHigh,
+                      backgroundColor: theme.colorScheme.surfaceContainerHigh,
+                      foregroundColor: theme.colorScheme.onSurface,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
@@ -224,13 +226,13 @@ class EmergencyContactCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   IconButton(
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.surfaceContainerHigh,
+                      backgroundColor: theme.colorScheme.surfaceContainerHigh,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.full),
                       ),
                       padding: const EdgeInsets.all(12),
                     ),
-                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    icon: Icon(Icons.delete_outline, size: 18, color: theme.colorScheme.error),
                     tooltip: 'Delete Contact',
                     onPressed: onDelete,
                   ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/medicine.dart';
@@ -14,15 +13,16 @@ class MedicineScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final remindersList = medicine.reminders.toList();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: theme.colorScheme.surface,
         borderRadius: AppRadius.radiusXl,
-        border: Border.all(color: AppColors.surfaceContainerHigh),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -36,11 +36,12 @@ class MedicineScheduleCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.schedule, color: AppColors.primary, size: 22),
+              Icon(Icons.schedule, color: theme.colorScheme.primary, size: 22),
               const SizedBox(width: 8),
               Text(
                 'Schedule & Times',
                 style: AppTextStyles.headlineSm.copyWith(
+                  color: theme.colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                 ),
@@ -50,13 +51,18 @@ class MedicineScheduleCard extends StatelessWidget {
           const SizedBox(height: 12),
           Text(
             'Frequency: ${medicine.frequency.name.toUpperCase()}',
-            style: AppTextStyles.bodyMd.copyWith(color: AppColors.onSurface),
+            style: AppTextStyles.bodyMd.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 8),
           if (remindersList.isEmpty)
             Text(
               'No active reminder times set.',
-              style: AppTextStyles.bodyMd,
+              style: AppTextStyles.bodyMd.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             )
           else
             Wrap(
@@ -68,23 +74,23 @@ class MedicineScheduleCard extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.secondaryContainer.withValues(alpha: 0.35),
+                    color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.35),
                     borderRadius: AppRadius.radiusMd,
-                    border: Border.all(color: AppColors.secondaryContainer),
+                    border: Border.all(color: theme.colorScheme.secondaryContainer),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.alarm,
                         size: 16,
-                        color: AppColors.onSecondaryContainer,
+                        color: theme.colorScheme.onSecondaryContainer,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         '$hourStr:$minStr',
                         style: AppTextStyles.labelMd.copyWith(
-                          color: AppColors.onSecondaryContainer,
+                          color: theme.colorScheme.onSecondaryContainer,
                           fontWeight: FontWeight.w700,
                         ),
                       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/enums/time_slot.dart';
 import '../../../../core/models/timeline_dose_item.dart';
@@ -41,7 +40,7 @@ class DoseTimeline extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSlotHeader(slot),
+            _buildSlotHeader(context, slot),
             const SizedBox(height: 4),
             ...doses.map((dose) => DoseTimelineCard(
                   item: dose,
@@ -56,21 +55,24 @@ class DoseTimeline extends StatelessWidget {
     );
   }
 
-  Widget _buildSlotHeader(TimeSlot slot) {
+  Widget _buildSlotHeader(BuildContext context, TimeSlot slot) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     IconData icon;
     String label;
 
     switch (slot) {
       case TimeSlot.morning:
-        icon = Icons.wb_sunny;
+        icon = Icons.wb_sunny_rounded;
         label = 'Morning';
         break;
       case TimeSlot.afternoon:
-        icon = Icons.wb_cloudy;
+        icon = Icons.wb_cloudy_rounded;
         label = 'Afternoon';
         break;
       case TimeSlot.evening:
-        icon = Icons.bedtime;
+        icon = Icons.bedtime_rounded;
         label = 'Evening';
         break;
       case TimeSlot.night:
@@ -85,21 +87,22 @@ class DoseTimeline extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: AppColors.primary,
+            color: theme.colorScheme.primary,
             size: 22,
           ),
           const SizedBox(width: 8),
           Text(
             label,
             style: AppTextStyles.headlineSm.copyWith(
-              fontSize: 19,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Divider(
-              color: AppColors.surfaceVariant,
+              color: theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.5 : 0.3),
               thickness: 1,
             ),
           ),

@@ -14,6 +14,7 @@ class AlarmMedicationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Column(
       children: [
         // Medication Image Circle
@@ -21,9 +22,12 @@ class AlarmMedicationCard extends StatelessWidget {
           width: 160,
           height: 160,
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 4),
+            border: Border.all(
+              color: theme.colorScheme.primary.withValues(alpha: 0.3),
+              width: 4,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
@@ -32,11 +36,11 @@ class AlarmMedicationCard extends StatelessWidget {
               ),
             ],
           ),
-          child: const Center(
+          child: Center(
             child: Icon(
               Icons.medication,
               size: 80,
-              color: AppColors.primary,
+              color: theme.colorScheme.primary,
             ),
           ),
         ),
@@ -68,7 +72,10 @@ class AlarmMedicationCard extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           'Time for Your Medication',
-          style: AppTextStyles.headlineLgMobile.copyWith(fontWeight: FontWeight.w700),
+          style: AppTextStyles.headlineLgMobile.copyWith(
+            color: theme.colorScheme.onSurface,
+            fontWeight: FontWeight.w700,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -78,9 +85,9 @@ class AlarmMedicationCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.surfaceContainerLowest,
+            color: theme.colorScheme.surface,
             borderRadius: AppRadius.radiusXl,
-            border: Border.all(color: AppColors.surfaceVariant),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -94,7 +101,7 @@ class AlarmMedicationCard extends StatelessWidget {
               Text(
                 medicine?.name ?? 'Amoxicillin 500mg',
                 style: AppTextStyles.headlineMd.copyWith(
-                  color: AppColors.primary,
+                  color: theme.colorScheme.primary,
                   fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.center,
@@ -102,23 +109,27 @@ class AlarmMedicationCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 '${medicine?.dosageValue ?? 1} ${medicine?.dosageUnit ?? "Tablet"}',
-                style: AppTextStyles.bodyLg,
+                style: AppTextStyles.bodyLg.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLow,
+                  color: theme.colorScheme.surfaceContainerHigh,
                   borderRadius: AppRadius.radiusMd,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.restaurant, size: 18, color: AppColors.primary),
+                    Icon(Icons.restaurant, size: 18, color: theme.colorScheme.primary),
                     const SizedBox(width: 8),
                     Text(
                       'Take with water',
-                      style: AppTextStyles.labelMd,
+                      style: AppTextStyles.labelMd.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
                     ),
                   ],
                 ),
