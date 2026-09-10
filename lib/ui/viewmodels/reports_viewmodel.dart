@@ -9,9 +9,13 @@ import '../../core/domain/timeline_builder.dart';
 import '../../core/enums/medicine_status.dart';
 import '../../core/enums/view_state.dart';
 import '../../core/models/dose_log.dart';
+import '../../core/models/emergency_contact.dart';
 import '../../core/models/medicine.dart';
 import '../../core/repositories/dose_log_repository.dart';
+import '../../core/repositories/emergency_contact_repository.dart';
 import '../../core/repositories/medicine_repository.dart';
+import '../../core/repositories/user_settings_repository.dart';
+import '../../core/services/local_storage_service.dart';
 import '../../core/utils/custom_logger.dart';
 import '../../core/view_model/base_view_model.dart';
 
@@ -23,10 +27,15 @@ class ReportsViewModel extends BaseViewModel {
   final DoseScheduler _doseScheduler;
   final TimelineBuilder _timelineBuilder;
   final AdherenceCalculator _adherenceCalculator;
+  final EmergencyContactRepository? _emergencyContactRepository;
+  final LocalStorageService? _localStorageService;
 
   DateTime _currentMonth = DateTime.now();
   List<DoseLog> _monthLogs = [];
   List<Medicine> _medicines = [];
+  List<EmergencyContact> _contacts = [];
+  String _userName = 'Eleanor Vance';
+  String _patientId = '#MA-9482';
   final Map<int, double> _dailyAdherenceRates = {};
   final Map<int, int> _dailyDoseCounts = {};
 
@@ -44,6 +53,9 @@ class ReportsViewModel extends BaseViewModel {
     DoseScheduler? doseScheduler,
     TimelineBuilder? timelineBuilder,
     AdherenceCalculator? adherenceCalculator,
+    UserSettingsRepository? userSettingsRepository,
+    EmergencyContactRepository? emergencyContactRepository,
+    LocalStorageService? localStorageService,
   })  : _doseLogRepository = doseLogRepository ?? locator<DoseLogRepository>(),
         _medicineRepository = medicineRepository ?? locator<MedicineRepository>(),
         _doseScheduler = doseScheduler ??
@@ -57,11 +69,22 @@ class ReportsViewModel extends BaseViewModel {
         _adherenceCalculator = adherenceCalculator ??
             (locator.isRegistered<AdherenceCalculator>()
                 ? locator<AdherenceCalculator>()
-                : const AdherenceCalculator());
+                : const AdherenceCalculator()),
+        _emergencyContactRepository = emergencyContactRepository ??
+            (locator.isRegistered<EmergencyContactRepository>()
+                ? locator<EmergencyContactRepository>()
+                : null),
+        _localStorageService = localStorageService ??
+            (locator.isRegistered<LocalStorageService>()
+                ? locator<LocalStorageService>()
+                : null);
 
   DateTime get currentMonth => _currentMonth;
   List<DoseLog> get monthLogs => List.unmodifiable(_monthLogs);
   List<Medicine> get medicines => List.unmodifiable(_medicines);
+  List<EmergencyContact> get contacts => List.unmodifiable(_contacts);
+  String get userName => _userName;
+  String get patientId => _patientId;
   Map<int, double> get dailyAdherenceRates => Map.unmodifiable(_dailyAdherenceRates);
   Map<int, int> get dailyDoseCounts => Map.unmodifiable(_dailyDoseCounts);
 
@@ -171,6 +194,15 @@ class ReportsViewModel extends BaseViewModel {
 
       _calculateStreak(daysInMonth);
 
+      if (_localStorageService != null) {
+        _userName = _localStorageService.getString('user_name') ?? 'Eleanor Vance';
+        _patientId = _localStorageService.getString('patient_id') ?? '#MA-9482';
+      }
+
+      if (_emergencyContactRepository != null) {
+        _contacts = await _emergencyContactRepository.getAllEmergencyContacts();
+      }
+
       log.i('@loadMonthlyReports: Processed ${_monthLogs.length} logs and $_totalScheduledCount scheduled doses for $_currentMonth');
       setState(ViewState.idle);
     } catch (e, stackTrace) {
@@ -208,10 +240,12 @@ class ReportsViewModel extends BaseViewModel {
     _longestStreakDays = maxStreak;
   }
 
-  /// Pure Dart method constructing the PDF Document for reporting & testing.
+  /// Pure Dart method constructing the comprehensive PDF Document for reporting & testing.
   pw.Document generatePdfReport() {
     final pdf = pw.Document();
     final monthStr = DateFormat('MMMM yyyy').format(_currentMonth);
+    final now = DateTime.now();
+    final dateStr = DateFormat('MMMM d, yyyy - hh:mm a').format(now);
 
     pdf.addPage(
       pw.MultiPage(
@@ -219,34 +253,137 @@ class ReportsViewModel extends BaseViewModel {
         margin: const pw.EdgeInsets.all(32),
         build: (pw.Context context) {
           return [
-            // Header
-            pw.Header(
-              level: 0,
+            // Top Header
+            pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'MediAlert Clinical & Health Summary',
+                      style: pw.TextStyle(
+                        fontSize: 20,
+                        fontWeight: pw.FontWeight.bold,
+                        color: PdfColors.teal900,
+                      ),
+                    ),
+                    pw.SizedBox(height: 3),
+                    pw.Text(
+                      'Monthly Adherence & Prescription Report - $monthStr',
+                      style: const pw.TextStyle(
+                        fontSize: 11,
+                        color: PdfColors.grey700,
+                      ),
+                    ),
+                  ],
+                ),
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.end,
+                  children: [
+                    pw.Text(
+                      'Report Date',
+                      style: pw.TextStyle(
+                        fontSize: 9,
+                        color: PdfColors.grey600,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                    pw.Text(
+                      dateStr,
+                      style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey800),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            pw.SizedBox(height: 12),
+            pw.Divider(thickness: 1, color: PdfColors.teal800),
+            pw.SizedBox(height: 12),
+
+            // Patient & Summary Info Card
+            pw.Container(
+              padding: const pw.EdgeInsets.all(12),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.teal50,
+                borderRadius: pw.BorderRadius.circular(8),
+                border: pw.Border.all(color: PdfColors.teal200),
+              ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                 children: [
-                  pw.Text(
-                    'MediAlert Health Report',
-                    style: pw.TextStyle(
-                      fontSize: 22,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.blue900,
-                    ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'PATIENT NAME',
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.grey700),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        _userName,
+                        style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.teal900),
+                      ),
+                    ],
                   ),
-                  pw.Text(
-                    monthStr,
-                    style: pw.TextStyle(
-                      fontSize: 14,
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.grey700,
-                    ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'MEDICAL / PATIENT ID',
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.grey700),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        _patientId,
+                        style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.teal800),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'REPORTING PERIOD',
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.grey700),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        monthStr,
+                        style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'ACTIVE MEDICATIONS',
+                        style: pw.TextStyle(fontSize: 9, fontWeight: pw.FontWeight.bold, color: PdfColors.grey700),
+                      ),
+                      pw.SizedBox(height: 2),
+                      pw.Text(
+                        '${_medicines.length} Prescriptions',
+                        style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            pw.SizedBox(height: 12),
+            pw.SizedBox(height: 16),
 
             // Adherence Highlights
+            pw.Text(
+              'Monthly Adherence Highlights',
+              style: pw.TextStyle(
+                fontSize: 14,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue900,
+              ),
+            ),
+            pw.SizedBox(height: 8),
             pw.Container(
               padding: const pw.EdgeInsets.all(12),
               decoration: pw.BoxDecoration(
@@ -256,65 +393,117 @@ class ReportsViewModel extends BaseViewModel {
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
                 children: [
-                  _buildPdfStat('Adherence', '${adherenceRate.toStringAsFixed(1)}%'),
-                  _buildPdfStat('Taken', '$_takenCount / $_totalScheduledCount'),
-                  _buildPdfStat('Skipped', '$_skippedCount'),
-                  _buildPdfStat('Missed', '$_missedCount'),
+                  _buildPdfStat('Overall Adherence', '${adherenceRate.toStringAsFixed(1)}%'),
+                  _buildPdfStat('Taken Doses', '$_takenCount / $_totalScheduledCount'),
+                  _buildPdfStat('Skipped Doses', '$_skippedCount'),
+                  _buildPdfStat('Missed Doses', '$_missedCount'),
                   _buildPdfStat('Longest Streak', '$_longestStreakDays Days'),
                 ],
               ),
             ),
-            pw.SizedBox(height: 20),
+            pw.SizedBox(height: 16),
 
             // Dose Distribution Breakdown
             pw.Text(
               'Dose Distribution Summary',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
             ),
-            pw.SizedBox(height: 8),
+            pw.SizedBox(height: 6),
             pw.Bullet(text: 'Taken Doses: $_takenCount (${takenPercentage.toStringAsFixed(1)}%)'),
             pw.Bullet(text: 'Skipped Doses: $_skippedCount (${skippedPercentage.toStringAsFixed(1)}%)'),
             pw.Bullet(text: 'Missed Doses: $_missedCount (${missedPercentage.toStringAsFixed(1)}%)'),
-            pw.SizedBox(height: 20),
+            pw.SizedBox(height: 16),
 
             // Active Medications List
             pw.Text(
-              'Active Medications',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+              'Prescription & Medication Schedule',
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
             ),
             pw.SizedBox(height: 8),
             if (_medicines.isEmpty)
-              pw.Text('No medications registered.', style: const pw.TextStyle(color: PdfColors.grey600))
+              pw.Container(
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.grey50,
+                  borderRadius: pw.BorderRadius.circular(6),
+                ),
+                child: pw.Text('No active medications registered.', style: const pw.TextStyle(color: PdfColors.grey600)),
+              )
             else
               pw.TableHelper.fromTextArray(
-                headers: ['Medication', 'Dosage', 'Frequency', 'Instructions'],
+                headers: ['Medication', 'Dosage', 'Frequency', 'Instructions', 'Doctor', 'Stock'],
                 data: _medicines.map((m) {
+                  final dosageStr = '${m.dosageValue.toStringAsFixed(m.dosageValue.truncateToDouble() == m.dosageValue ? 0 : 1)} ${m.dosageUnit}';
+                  final mealStr = _formatMealInstruction(m.mealType.name);
+                  final doctorStr = m.doctorName != null && m.doctorName!.isNotEmpty ? 'Dr. ${m.doctorName}' : '-';
+                  final stockStr = '${m.currentStock} left';
+
                   return [
                     m.name,
-                    '${m.dosageValue} ${m.dosageUnit}',
-                    m.frequency.name,
-                    m.mealType.name,
+                    dosageStr,
+                    m.frequency.name.toUpperCase(),
+                    mealStr,
+                    doctorStr,
+                    stockStr,
                   ];
                 }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 9),
+                headerDecoration: const pw.BoxDecoration(color: PdfColors.teal800),
+                cellAlignment: pw.Alignment.centerLeft,
+                cellStyle: const pw.TextStyle(fontSize: 9),
+                cellPadding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              ),
+            pw.SizedBox(height: 16),
+
+            // Emergency Contacts Section
+            if (_contacts.isNotEmpty) ...[
+              pw.Text(
+                'Emergency Contacts',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.blue900,
+                ),
+              ),
+              pw.SizedBox(height: 8),
+              pw.TableHelper.fromTextArray(
+                headers: ['Name', 'Relationship', 'Phone Number', 'Priority'],
+                data: _contacts.map((c) {
+                  return [
+                    c.fullName,
+                    c.relationship,
+                    c.phoneNumber,
+                    c.isPrimary ? 'PRIMARY' : 'Secondary',
+                  ];
+                }).toList(),
+                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 9),
                 headerDecoration: const pw.BoxDecoration(color: PdfColors.blue800),
                 cellAlignment: pw.Alignment.centerLeft,
-                cellPadding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                cellStyle: const pw.TextStyle(fontSize: 9),
+                cellPadding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               ),
-            pw.SizedBox(height: 20),
+              pw.SizedBox(height: 16),
+            ],
 
             // Dose Logs Table
             pw.Text(
               'Recorded Dose Logs ($monthStr)',
-              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold),
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
             ),
             pw.SizedBox(height: 8),
             if (_monthLogs.isEmpty)
-              pw.Text('No dose logs recorded for this period.', style: const pw.TextStyle(color: PdfColors.grey600))
+              pw.Container(
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.grey50,
+                  borderRadius: pw.BorderRadius.circular(6),
+                ),
+                child: pw.Text('No dose logs recorded for this period.', style: const pw.TextStyle(color: PdfColors.grey600)),
+              )
             else
               pw.TableHelper.fromTextArray(
-                headers: ['Date & Time', 'Medication', 'Status', 'Logged At'],
-                data: _monthLogs.map((log) {
+                headers: ['Scheduled Time', 'Medication', 'Status', 'Logged At'],
+                data: _monthLogs.take(50).map((log) {
                   final timeStr = DateFormat('yyyy-MM-dd HH:mm').format(log.scheduledDateTime);
                   final takenStr = log.actualTakenDateTime != null
                       ? DateFormat('yyyy-MM-dd HH:mm').format(log.actualTakenDateTime!)
@@ -326,11 +515,34 @@ class ReportsViewModel extends BaseViewModel {
                     takenStr,
                   ];
                 }).toList(),
-                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+                headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white, fontSize: 9),
                 headerDecoration: const pw.BoxDecoration(color: PdfColors.grey700),
                 cellAlignment: pw.Alignment.centerLeft,
+                cellStyle: const pw.TextStyle(fontSize: 9),
                 cellPadding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
               ),
+            pw.SizedBox(height: 16),
+
+            // Clinical Notes / Footer
+            pw.Container(
+              padding: const pw.EdgeInsets.all(10),
+              decoration: pw.BoxDecoration(
+                color: PdfColors.grey100,
+                borderRadius: pw.BorderRadius.circular(6),
+              ),
+              child: pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.Text('Notice: ', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8)),
+                  pw.Expanded(
+                    child: pw.Text(
+                      'This medical summary is generated for personal health tracking, clinical consultation, and emergency reference. Please consult with your licensed healthcare practitioner for medical guidance.',
+                      style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ];
         },
       ),
@@ -339,27 +551,45 @@ class ReportsViewModel extends BaseViewModel {
     return pdf;
   }
 
+  static String _formatMealInstruction(String name) {
+    switch (name.toLowerCase()) {
+      case 'beforemeal':
+        return 'Before Meal';
+      case 'aftermeal':
+        return 'After Meal';
+      case 'withmeal':
+        return 'With Meal/Food';
+      case 'norelation':
+      default:
+        return 'Take with water';
+    }
+  }
+
   pw.Widget _buildPdfStat(String title, String value) {
     return pw.Column(
       children: [
-        pw.Text(title, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+        pw.Text(title, style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
         pw.SizedBox(height: 4),
-        pw.Text(value, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+        pw.Text(value, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
       ],
     );
   }
 
-  /// Triggers PDF export preview and print dialog.
-  Future<void> exportPdfReport() async {
+  /// Shares the generated Clinical Health PDF directly via native Share sheet (WhatsApp, Email, etc.).
+  Future<void> shareHealthReportPdf() async {
     _isExporting = true;
+    _errorMessage = null;
     notifyListeners();
     try {
       final doc = generatePdfReport();
-      final monthStr = DateFormat('MM_yyyy').format(_currentMonth);
+      final bytes = await doc.save();
+      final cleanName = _userName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      final monthTag = DateFormat('yyyyMM').format(_currentMonth);
+      final filename = 'MediAlert_Health_Report_${cleanName}_$monthTag.pdf';
 
-      await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => doc.save(),
-        name: 'MediAlert_Report_$monthStr.pdf',
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename: filename,
       );
       _isExporting = false;
       notifyListeners();
@@ -367,8 +597,39 @@ class ReportsViewModel extends BaseViewModel {
       _isExporting = false;
       _errorMessage = e.toString();
       notifyListeners();
-      log.e('@exportPdfReport: Failed to export PDF', e, stackTrace);
+      log.e('@shareHealthReportPdf: Failed to share PDF', e, stackTrace);
       rethrow;
     }
+  }
+
+  /// Opens preview, layout, print, or local saving dialog for the Health PDF.
+  Future<void> previewOrPrintHealthReportPdf() async {
+    _isExporting = true;
+    _errorMessage = null;
+    notifyListeners();
+    try {
+      final doc = generatePdfReport();
+      final cleanName = _userName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
+      final monthTag = DateFormat('yyyyMM').format(_currentMonth);
+      final filename = 'MediAlert_Health_Report_${cleanName}_$monthTag.pdf';
+
+      await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => doc.save(),
+        name: filename,
+      );
+      _isExporting = false;
+      notifyListeners();
+    } catch (e, stackTrace) {
+      _isExporting = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      log.e('@previewOrPrintHealthReportPdf: Failed to preview PDF', e, stackTrace);
+      rethrow;
+    }
+  }
+
+  /// Triggers PDF export preview and print dialog (backwards compatible).
+  Future<void> exportPdfReport() async {
+    return previewOrPrintHealthReportPdf();
   }
 }

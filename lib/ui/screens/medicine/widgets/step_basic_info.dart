@@ -268,7 +268,7 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
         // Medicine Name
         CustomTextField(
           label: 'Medicine Name',
-          hintText: 'e.g., Amoxicillin',
+          hintText: 'Medicine Name',
           controller: _nameController,
           prefixIcon: Icon(Icons.medication, color: theme.colorScheme.onSurfaceVariant),
           onChanged: (val) => viewModel.name = val,
@@ -312,16 +312,21 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
-                    value: viewModel.dosageUnit,
+                    value: _normalizeUnit(viewModel.dosageUnit),
                     dropdownColor: theme.colorScheme.surface,
                     isExpanded: true,
                     icon: Icon(Icons.arrow_drop_down, color: theme.colorScheme.onSurfaceVariant),
                     items: const [
                       DropdownMenuItem(value: 'mg', child: Text('mg')),
                       DropdownMenuItem(value: 'ml', child: Text('ml')),
-                      DropdownMenuItem(value: 'tablet', child: Text('tab')),
-                      DropdownMenuItem(value: 'capsule', child: Text('cap')),
-                      DropdownMenuItem(value: 'drops', child: Text('drops')),
+                      DropdownMenuItem(value: 'tab', child: Text('tab')),
+                      DropdownMenuItem(value: 'cap', child: Text('cap')),
+                      DropdownMenuItem(value: 'drop', child: Text('drop')),
+                      DropdownMenuItem(value: 'mcg', child: Text('mcg')),
+                      DropdownMenuItem(value: 'g', child: Text('g')),
+                      DropdownMenuItem(value: 'IU', child: Text('IU')),
+                      DropdownMenuItem(value: 'puff', child: Text('puff')),
+                      DropdownMenuItem(value: 'spray', child: Text('spray')),
                     ],
                     onChanged: (val) {
                       if (val != null) {
@@ -349,8 +354,11 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
           spacing: 8,
           runSpacing: 8,
           children: ['tablet', 'capsule', 'liquid', 'drops', 'injection'].map((form) {
-            final isSelected = viewModel.formFactor == form;
+            final isSelected = viewModel.formFactor.toLowerCase() == form.toLowerCase();
             return ChoiceChip(
+              avatar: isSelected
+                  ? Icon(Icons.check_rounded, size: 16, color: theme.colorScheme.primary)
+                  : null,
               label: Text(form[0].toUpperCase() + form.substring(1)),
               selected: isSelected,
               selectedColor: theme.colorScheme.primaryContainer,
@@ -359,12 +367,13 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
                 color: isSelected
                     ? theme.colorScheme.primary
                     : theme.colorScheme.outlineVariant.withValues(alpha: isDark ? 0.5 : 0.3),
+                width: isSelected ? 1.5 : 1.0,
               ),
               labelStyle: TextStyle(
                 color: isSelected
                     ? theme.colorScheme.primary
                     : theme.colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
               onSelected: (selected) {
                 if (selected) {
@@ -376,5 +385,13 @@ class _StepBasicInfoState extends State<StepBasicInfo> {
         ),
       ],
     );
+  }
+
+  String _normalizeUnit(String raw) {
+    if (raw == 'tablet') return 'tab';
+    if (raw == 'capsule') return 'cap';
+    if (raw == 'drops') return 'drop';
+    const valid = ['mg', 'ml', 'tab', 'cap', 'drop', 'mcg', 'g', 'IU', 'puff', 'spray'];
+    return valid.contains(raw) ? raw : 'mg';
   }
 }

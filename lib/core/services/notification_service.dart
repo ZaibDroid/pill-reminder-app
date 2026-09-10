@@ -1,9 +1,19 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../../app/locator.dart';
+import '../../app/routes.dart';
+import '../enums/medicine_status.dart';
+import '../models/dose_log.dart';
+import '../models/reminder_time.dart';
+import '../repositories/dose_log_repository.dart';
+import '../repositories/medicine_repository.dart';
 import '../utils/custom_logger.dart';
+import 'alarm_service.dart';
 import 'permission_service.dart';
 
 /// Offline-first notification service for MediAlert medication reminders.
@@ -55,11 +65,21 @@ class NotificationService {
     try {
       log.i('@init: Initializing offline-first NotificationService...');
 
-      // 1. Initialize timezone database
+      // 1. Initialize timezone database and detect device native timezone
       try {
         tz.initializeTimeZones();
+        final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
+        final timeZoneName = timeZoneInfo.identifier;
+        tz.setLocalLocation(tz.getLocation(timeZoneName));
+        log.i('@init: Local timezone set to native device location: $timeZoneName');
       } catch (e) {
-        log.w('@init: Timezones already initialized or error initializing: $e');
+        log.w('@init: Error detecting native timezone ($e), attempting fallback');
+        try {
+          final fallbackName = DateTime.now().timeZoneName;
+          if (tz.timeZoneDatabase.locations.containsKey(fallbackName)) {
+            tz.setLocalLocation(tz.getLocation(fallbackName));
+          }
+        } catch (_) {}
       }
 
       // 2. Setup Android initialization settings
@@ -88,7 +108,9 @@ class NotificationService {
       // 5. Initialize the plugin
       final initialized = await _notificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveNotificationResponse: onNotificationTap,
+        onDidReceiveNotificationResponse: (NotificationResponse response) {
+          _handleNotificationResponse(response, onNotificationTap);
+        },
       );
 
       // 6. Create Android Notification Channel
@@ -99,7 +121,18 @@ class NotificationService {
       _isInitialized = initialized ?? true;
       log.i('@init: NotificationService initialized successfully (status: $_isInitialized)');
 
-      // 7. Optionally handle permission request
+      // 7. Check if app was launched via notification tap
+      try {
+        final launchDetails = await _notificationsPlugin.getNotificationAppLaunchDetails();
+        if (launchDetails?.didNotificationLaunchApp == true &&
+            launchDetails?.notificationResponse != null) {
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _handleNotificationResponse(launchDetails!.notificationResponse!, onNotificationTap);
+          });
+        }
+      } catch (_) {}
+
+      // 8. Optionally handle permission request
       if (requestPermission) {
         log.i('@init: Requesting notification permissions as requested...');
         await _permissionService.requestNotificationPermission();
@@ -112,23 +145,99 @@ class NotificationService {
     }
   }
 
+  /// Handles user interaction with notifications and action buttons.
+  Future<void> _handleNotificationResponse(
+    NotificationResponse response, [
+    void Function(NotificationResponse)? onNotificationTap,
+  ]) async {
+    log.i('@_handleNotificationResponse: Received notification response: actionId=${response.actionId}, payload=${response.payload}');
+    onNotificationTap?.call(response);
+
+    final payload = response.payload;
+    if (payload == null || payload.isEmpty) return;
+
+    try {
+      final Map<String, dynamic> data = jsonDecode(payload);
+      final medicineId = data['medicineId'] as int?;
+
+      if (medicineId != null && locator.isRegistered<MedicineRepository>()) {
+        final medRepo = locator<MedicineRepository>();
+        final medicine = await medRepo.getMedicine(medicineId);
+        if (medicine != null) {
+          await medicine.reminders.load();
+
+          if (response.actionId == 'take_action') {
+            log.i('@_handleNotificationResponse: Quick action -> Take Dose');
+            if (locator.isRegistered<DoseLogRepository>()) {
+              final doseLog = DoseLog()
+                ..scheduledDateTime = DateTime.now()
+                ..actualTakenDateTime = DateTime.now()
+                ..status = MedicineStatus.taken;
+              doseLog.medicine.value = medicine;
+              await locator<DoseLogRepository>().saveDoseLog(doseLog);
+
+              if (medicine.currentStock > 0) {
+                medicine.currentStock -= 1;
+                await medRepo.updateMedicine(medicine);
+              }
+            }
+            return;
+          } else if (response.actionId == 'snooze_action') {
+            log.i('@_handleNotificationResponse: Quick action -> Snooze 10m');
+            if (locator.isRegistered<AlarmService>()) {
+              final reminder = medicine.reminders.isNotEmpty
+                  ? medicine.reminders.first
+                  : ReminderTime();
+              await locator<AlarmService>().snoozeAlarm(
+                medicine: medicine,
+                reminder: reminder,
+                durationMinutes: 10,
+              );
+            }
+            return;
+          } else if (response.actionId == 'skip_action') {
+            log.i('@_handleNotificationResponse: Quick action -> Skip Dose');
+            if (locator.isRegistered<DoseLogRepository>()) {
+              final doseLog = DoseLog()
+                ..scheduledDateTime = DateTime.now()
+                ..status = MedicineStatus.skipped;
+              doseLog.medicine.value = medicine;
+              await locator<DoseLogRepository>().saveDoseLog(doseLog);
+            }
+            return;
+          }
+
+          // Full-screen tap / alarm popup: Navigate directly to ActiveAlarmScreen!
+          AppRoutes.navigatorKey.currentState?.pushNamed(
+            AppRoutes.alarm,
+            arguments: medicine,
+          );
+        }
+      }
+    } catch (e, stackTrace) {
+      log.e('@_handleNotificationResponse: Error processing notification payload', e, stackTrace);
+    }
+  }
+
   /// Creates the primary high-importance Android notification channel.
   Future<void> _createAndroidNotificationChannel() async {
     try {
-      const androidChannel = AndroidNotificationChannel(
-        channelId,
-        channelName,
-        description: channelDescription,
-        importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
-      );
-
       final androidPlugin = _notificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
+        final androidChannel = AndroidNotificationChannel(
+          channelId,
+          channelName,
+          description: channelDescription,
+          importance: Importance.max,
+          playSound: true,
+          enableVibration: true,
+          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000]),
+          audioAttributesUsage: AudioAttributesUsage.alarm,
+        );
+
         await androidPlugin.createNotificationChannel(androidChannel);
         log.d('@_createAndroidNotificationChannel: Notification channel created ($channelId)');
       }
@@ -149,13 +258,43 @@ class NotificationService {
       priority: Priority.high,
       playSound: true,
       enableVibration: enableVibration,
+      vibrationPattern: enableVibration
+          ? Int64List.fromList([0, 1000, 500, 1000])
+          : null,
+      category: AndroidNotificationCategory.alarm,
+      audioAttributesUsage: AudioAttributesUsage.alarm,
+      fullScreenIntent: true,
+      visibility: NotificationVisibility.public,
       icon: '@mipmap/ic_launcher',
+      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+      color: const Color(0xFF00685F),
+      actions: const <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          'take_action',
+          'Take',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+        AndroidNotificationAction(
+          'snooze_action',
+          'Snooze (10m)',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+        AndroidNotificationAction(
+          'skip_action',
+          'Skip',
+          showsUserInterface: false,
+          cancelNotification: true,
+        ),
+      ],
     );
 
     const darwinDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
     );
 
     return NotificationDetails(

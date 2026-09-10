@@ -5,6 +5,7 @@ import '../../custom_widgets/custom_app_bar.dart';
 import '../../custom_widgets/error_state_widget.dart';
 import '../../custom_widgets/loading_widget.dart';
 import '../../viewmodels/settings_viewmodel.dart';
+import 'widgets/alarm_sound_selection_dialog.dart';
 import 'widgets/edit_profile_dialog.dart';
 import 'widgets/settings_header.dart';
 import 'widgets/settings_navigation_tile.dart';
@@ -14,10 +15,18 @@ import 'widgets/settings_switch_tile.dart';
 import 'widgets/theme_selection_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  final SettingsViewModel? viewModel;
+
+  const SettingsScreen({super.key, this.viewModel});
 
   @override
   Widget build(BuildContext context) {
+    if (viewModel != null) {
+      return ChangeNotifierProvider<SettingsViewModel>.value(
+        value: viewModel!,
+        child: const _SettingsScreenContent(),
+      );
+    }
     return ChangeNotifierProvider(
       create: (_) => locator<SettingsViewModel>()..loadSettings(),
       child: const _SettingsScreenContent(),
@@ -67,6 +76,22 @@ class _SettingsScreenContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
 
+        // Medication Management
+        SettingsSectionCard(
+          title: 'Medications',
+          children: [
+            SettingsNavigationTile(
+              icon: Icons.medication_rounded,
+              title: 'Manage Medications',
+              subtitle: 'View, edit, or remove all medications',
+              onTap: () async {
+                await Navigator.of(context).pushNamed('/medicine_list');
+                await viewModel.loadSettings();
+              },
+            ),
+          ],
+        ),
+
         // Notifications & Alerts
         SettingsSectionCard(
           title: 'Notifications & Alerts',
@@ -79,11 +104,43 @@ class _SettingsScreenContent extends StatelessWidget {
               onChanged: (val) => viewModel.setHighPriorityAlarm(val),
             ),
             SettingsNavigationTile(
-              icon: Icons.volume_up,
-              title: 'Alarm Sound',
-              subtitle: viewModel.alarmSound,
+              icon: Icons.notifications_active_rounded,
+              title: 'Notification Sound',
+              subtitle: viewModel.notificationSound,
               onTap: () {
                 _showSoundPicker(context, viewModel);
+              },
+            ),
+            SettingsNavigationTile(
+              icon: Icons.notification_important_rounded,
+              title: 'Test Alarm & Vibration',
+              subtitle: 'Trigger a test alarm immediately',
+              onTap: () async {
+                await viewModel.triggerTestAlarm();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Test alarm triggered! Check notification and vibration.'),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
+              },
+            ),
+            SettingsNavigationTile(
+              icon: Icons.sync_rounded,
+              title: 'Resync All Reminders',
+              subtitle: 'Re-align all medicine alarms with device clock',
+              onTap: () async {
+                final count = await viewModel.syncAllAlarms();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Successfully resynced $count reminder alarms!'),
+                      duration: const Duration(seconds: 3),
+                    ),
+                  );
+                }
               },
             ),
             SettingsNavigationTile(
@@ -98,70 +155,6 @@ class _SettingsScreenContent extends StatelessWidget {
                     onSelected: (theme) => viewModel.setThemeMode(theme),
                   ),
                 );
-              },
-            ),
-          ],
-        ),
-
-        // Data Management
-        SettingsSectionCard(
-          title: 'Data & Reports',
-          children: [
-            SettingsNavigationTile(
-              icon: Icons.share_rounded,
-              title: 'Share Health Report (PDF)',
-              subtitle: 'Share clinical PDF to WhatsApp, Email, & more',
-              onTap: () async {
-                try {
-                  await viewModel.shareHealthReportPdf();
-                } catch (_) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to share PDF report.')),
-                    );
-                  }
-                }
-              },
-            ),
-            SettingsNavigationTile(
-              icon: Icons.picture_as_pdf_rounded,
-              title: 'Preview & Print Report (PDF)',
-              subtitle: 'Open formatted medical report for printing or saving',
-              onTap: () async {
-                try {
-                  await viewModel.previewOrPrintHealthReportPdf();
-                } catch (_) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Failed to generate PDF preview.')),
-                    );
-                  }
-                }
-              },
-            ),
-            SettingsNavigationTile(
-              icon: Icons.code_rounded,
-              title: 'Export Raw Data (JSON)',
-              subtitle: 'View raw offline medication and user data',
-              onTap: () async {
-                final json = await viewModel.exportDataJson();
-                if (context.mounted) {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Exported Data (JSON)'),
-                      content: SingleChildScrollView(
-                        child: SelectableText(json),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                }
               },
             ),
           ],
@@ -199,17 +192,10 @@ class _SettingsScreenContent extends StatelessWidget {
   void _showSoundPicker(BuildContext context, SettingsViewModel viewModel) {
     showDialog(
       context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('Select Alarm Sound'),
-        children: ['Clinical Chime', 'Classic Alarm', 'Gentle Beep', 'Vibrate Only'].map((sound) {
-          return SimpleDialogOption(
-            onPressed: () {
-              viewModel.setAlarmSound(sound);
-              Navigator.of(ctx).pop();
-            },
-            child: Text(sound),
-          );
-        }).toList(),
+      builder: (_) => AlarmSoundSelectionDialog(
+        isNotificationMode: true,
+        currentSound: viewModel.notificationSound,
+        onSelected: (sound) => viewModel.setNotificationSound(sound),
       ),
     );
   }

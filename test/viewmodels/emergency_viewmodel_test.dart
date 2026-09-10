@@ -176,20 +176,6 @@ void main() {
       expect(vm.primaryContact, isNull);
     });
 
-    test('Toggling lock screen setting updates UserSettings', () async {
-      final vm = EmergencyViewModel(
-        emergencyContactRepository: emergencyContactRepository,
-        userSettingsRepository: userSettingsRepository,
-      );
-
-      await vm.loadContacts();
-      await vm.toggleShowOnLockScreen(true);
-      expect(vm.showOnLockScreen, isTrue);
-
-      final settings = await userSettingsRepository.getOrCreateSettings();
-      expect(settings.isBiometricEnabled, isTrue);
-    });
-
     test('Handles database failure gracefully and sets hasError state', () async {
       await databaseService.close(deleteFromDisk: true);
 

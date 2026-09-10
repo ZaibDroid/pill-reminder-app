@@ -281,5 +281,36 @@ void main() {
       expect(allMeds.first.name, equals('Updated Name'));
       expect(allMeds.first.dosageValue, equals(15));
     });
+
+    test('Weekday and interval selection helpers update state accurately', () {
+      final viewModel = AddMedicineViewModel(
+        medicineRepository: medicineRepository,
+        reminderRepository: reminderRepository,
+        alarmService: alarmService,
+        permissionService: mockPermissionService,
+      );
+
+      viewModel.frequency = FrequencyType.specificDays;
+      expect(viewModel.isDaySelected(1), isTrue);
+
+      viewModel.selectWeekdaysOnly();
+      expect(viewModel.specificDaysOfWeek, equals([1, 2, 3, 4, 5]));
+      expect(viewModel.isDaySelected(6), isFalse);
+      expect(viewModel.isDaySelected(7), isFalse);
+
+      viewModel.selectWeekendsOnly();
+      expect(viewModel.specificDaysOfWeek, equals([6, 7]));
+
+      viewModel.selectAllDays();
+      expect(viewModel.specificDaysOfWeek, equals([1, 2, 3, 4, 5, 6, 7]));
+
+      viewModel.toggleDayOfWeek(1);
+      expect(viewModel.isDaySelected(1), isFalse);
+      expect(viewModel.specificDaysOfWeek, equals([2, 3, 4, 5, 6, 7]));
+
+      viewModel.frequency = FrequencyType.interval;
+      viewModel.intervalHours = 12;
+      expect(viewModel.intervalHours, equals(12));
+    });
   });
 }

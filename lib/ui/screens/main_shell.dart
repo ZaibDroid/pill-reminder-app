@@ -1,9 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../../app/locator.dart';
 import '../../app/routes.dart';
 import '../../core/constants/app_radius.dart';
 import '../../core/constants/app_text_styles.dart';
+import '../../core/services/alarm_service.dart';
 import '../custom_widgets/app_bottom_nav_bar.dart';
+import '../viewmodels/history_viewmodel.dart';
+import '../viewmodels/home_viewmodel.dart';
+import '../viewmodels/reports_viewmodel.dart';
+import '../viewmodels/settings_viewmodel.dart';
 import 'dashboard/home_screen.dart';
 import 'history/history_screen.dart';
 import 'reports/reports_screen.dart';
@@ -19,25 +26,86 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  late int _currentIndex;
+  int _currentIndex = 0;
+  HomeViewModel? _homeViewModel;
+  HistoryViewModel? _historyViewModel;
+  ReportsViewModel? _reportsViewModel;
+  SettingsViewModel? _settingsViewModel;
+  Timer? _foregroundAlarmCheckTimer;
 
-  final List<Widget> _tabs = const [
-    HomeScreen(),
-    HistoryScreen(),
-    ReportsScreen(),
-    SettingsScreen(),
-  ];
+  HomeViewModel get _effectiveHomeViewModel =>
+      _homeViewModel ??= (locator.isRegistered<HomeViewModel>() ? (locator<HomeViewModel>()..loadTodayTimeline()) : HomeViewModel());
+
+  HistoryViewModel get _effectiveHistoryViewModel =>
+      _historyViewModel ??= (locator.isRegistered<HistoryViewModel>() ? (locator<HistoryViewModel>()..loadHistoryForDate(DateTime.now())) : HistoryViewModel());
+
+  ReportsViewModel get _effectiveReportsViewModel =>
+      _reportsViewModel ??= (locator.isRegistered<ReportsViewModel>() ? (locator<ReportsViewModel>()..loadMonthlyReports()) : ReportsViewModel());
+
+  SettingsViewModel get _effectiveSettingsViewModel =>
+      _settingsViewModel ??= (locator.isRegistered<SettingsViewModel>() ? (locator<SettingsViewModel>()..loadSettings()) : SettingsViewModel());
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialTab;
+    _initViewModels();
+    _startForegroundAlarmMonitor();
+  }
+
+  void _startForegroundAlarmMonitor() {
+    _foregroundAlarmCheckTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (!mounted) return;
+      if (locator.isRegistered<AlarmService>()) {
+        final dueMed = await locator<AlarmService>().checkForDueMedicineNow();
+        if (dueMed != null && mounted) {
+          Navigator.of(context).pushNamed(
+            AppRoutes.alarm,
+            arguments: dueMed,
+          );
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _foregroundAlarmCheckTimer?.cancel();
+    super.dispose();
+  }
+
+  void _initViewModels() {
+    _homeViewModel = locator.isRegistered<HomeViewModel>() ? (locator<HomeViewModel>()..loadTodayTimeline()) : HomeViewModel();
+    _historyViewModel = locator.isRegistered<HistoryViewModel>() ? (locator<HistoryViewModel>()..loadHistoryForDate(DateTime.now())) : HistoryViewModel();
+    _reportsViewModel = locator.isRegistered<ReportsViewModel>() ? (locator<ReportsViewModel>()..loadMonthlyReports()) : ReportsViewModel();
+    _settingsViewModel = locator.isRegistered<SettingsViewModel>() ? (locator<SettingsViewModel>()..loadSettings()) : SettingsViewModel();
   }
 
   void _onAddMedicine() async {
     final result = await Navigator.of(context).pushNamed(AppRoutes.addMedicine);
     if (result == true && mounted) {
+      await _effectiveHomeViewModel.refresh();
+      await _effectiveHistoryViewModel.refresh();
+      await _effectiveReportsViewModel.loadMonthlyReports();
+      await _effectiveSettingsViewModel.loadSettings();
       setState(() {});
+    }
+  }
+
+  void _onTabSelected(int index) {
+    if (_currentIndex == index) {
+      if (index == 0) _effectiveHomeViewModel.refresh();
+      if (index == 1) _effectiveHistoryViewModel.refresh();
+      if (index == 2) _effectiveReportsViewModel.loadMonthlyReports();
+      if (index == 3) _effectiveSettingsViewModel.loadSettings();
+    } else {
+      setState(() {
+        _currentIndex = index;
+      });
+      if (index == 0) _effectiveHomeViewModel.refresh();
+      if (index == 1) _effectiveHistoryViewModel.refresh();
+      if (index == 2) _effectiveReportsViewModel.loadMonthlyReports();
+      if (index == 3) _effectiveSettingsViewModel.loadSettings();
     }
   }
 
@@ -153,15 +221,16 @@ class _MainShellState extends State<MainShell> {
       child: Scaffold(
         body: IndexedStack(
           index: _currentIndex,
-          children: _tabs,
+          children: [
+            HomeScreen(viewModel: _effectiveHomeViewModel),
+            HistoryScreen(viewModel: _effectiveHistoryViewModel),
+            ReportsScreen(viewModel: _effectiveReportsViewModel),
+            SettingsScreen(viewModel: _effectiveSettingsViewModel),
+          ],
         ),
         bottomNavigationBar: AppBottomNavBar(
           currentIndex: _currentIndex,
-          onTabSelected: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+          onTabSelected: _onTabSelected,
           onAddPressed: _onAddMedicine,
         ),
       ),

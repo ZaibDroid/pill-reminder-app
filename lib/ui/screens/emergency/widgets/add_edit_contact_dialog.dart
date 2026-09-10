@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
@@ -104,7 +105,7 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: 'Full Name',
-                  hintText: 'e.g., Dr. Sarah Mitchell',
+                  hintText: 'Name',
                   controller: _nameController,
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
@@ -116,9 +117,12 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                 const SizedBox(height: 12),
                 CustomTextField(
                   label: 'Phone Number',
-                  hintText: 'e.g., +1 (555) 234-5678',
+                  hintText: '03xx xxxxxxx',
                   keyboardType: TextInputType.phone,
                   controller: _phoneController,
+                  inputFormatters: [
+                    _PakistanPhoneFormatter(),
+                  ],
                   validator: (val) {
                     if (val == null || val.trim().isEmpty) {
                       return 'Phone number is required';
@@ -133,13 +137,13 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
                 const SizedBox(height: 12),
                 CustomTextField(
                   label: 'Relationship',
-                  hintText: 'e.g., Primary Physician, Daughter, Caregiver',
+                  hintText: 'Primary Physician, Daughter, Caregiver',
                   controller: _relationshipController,
                 ),
                 const SizedBox(height: 12),
                 CustomTextField(
                   label: 'Email (Optional)',
-                  hintText: 'e.g., contact@example.com',
+                  hintText: 'contact@example.com',
                   keyboardType: TextInputType.emailAddress,
                   controller: _emailController,
                 ),
@@ -183,6 +187,46 @@ class _AddEditContactDialogState extends State<AddEditContactDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Automatically formats numbers as `03xx xxxxxxx` while preserving international (+) input.
+class _PakistanPhoneFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+    if (text.isEmpty) return newValue;
+
+    // Allow user to backspace / delete smoothly
+    if (newValue.text.length < oldValue.text.length) {
+      return newValue;
+    }
+
+    // Allow international format (+...)
+    if (text.startsWith('+')) {
+      if (text.length > 18) return oldValue;
+      return newValue;
+    }
+
+    // Allow up to 11 digits (e.g. 0300 1234567)
+    final digits = text.replaceAll(RegExp(r'\D'), '');
+    if (digits.length > 11) {
+      return oldValue;
+    }
+
+    final buffer = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i == 4) buffer.write(' ');
+      buffer.write(digits[i]);
+    }
+    final formatted = buffer.toString();
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

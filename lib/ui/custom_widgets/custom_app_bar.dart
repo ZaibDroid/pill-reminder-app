@@ -52,7 +52,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           [
             if (showEmergencyShortcut)
               IconButton(
-                icon: Icon(Icons.emergency, color: primaryColor),
+                icon: Icon(Icons.contact_emergency_rounded, color: primaryColor),
                 tooltip: 'Emergency Contacts',
                 onPressed: onEmergencyPressed ??
                     () {

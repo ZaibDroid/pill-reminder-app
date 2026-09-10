@@ -42,7 +42,6 @@ class AppStrings {
 
   // Emergency
   static const String emergencyContacts = 'Emergency Contacts';
-  static const String showOnLockScreen = 'Show on Lock Screen';
   static const String callNow = 'Call Now';
   static const String addEmergencyContact = 'Add Emergency Contact';
 

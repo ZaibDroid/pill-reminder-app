@@ -6,6 +6,7 @@ import '../core/repositories/medicine_repository.dart';
 import '../core/repositories/reminder_repository.dart';
 import '../core/repositories/user_settings_repository.dart';
 import '../core/services/alarm_service.dart';
+import '../core/services/audio_alarm_service.dart';
 import '../core/services/database_service.dart';
 import '../core/services/local_storage_service.dart';
 import '../core/services/notification_service.dart';
@@ -30,6 +31,7 @@ void setupLocator() {
   locator.registerLazySingleton(() => LocalStorageService());
   locator.registerLazySingleton(() => PermissionService());
   locator.registerLazySingleton(() => AlarmService());
+  locator.registerLazySingleton(() => AudioAlarmService());
   locator.registerLazySingleton(() => ThemeService());
 
   // Repositories

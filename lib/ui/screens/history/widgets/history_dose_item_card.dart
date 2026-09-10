@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/timeline_dose_item.dart';
+import '../../../custom_widgets/medicine_avatar.dart';
 
 class HistoryDoseItemCard extends StatelessWidget {
   final TimelineDoseItem item;
@@ -88,77 +89,79 @@ class HistoryDoseItemCard extends StatelessWidget {
           ),
           padding: const EdgeInsets.all(16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: iconBgColor,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.medication,
-                  color: iconFgColor,
-                  size: 24,
-                ),
+              MedicineAvatar(
+                imagePath: item.medicine.pillImageLocalPath,
+                formFactor: item.medicine.formFactor,
+                size: 74,
+                borderRadius: BorderRadius.circular(18),
+                backgroundColor: iconBgColor,
+                iconColor: iconFgColor,
+                iconSize: 38,
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: 18),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.medicine.name,
-                            style: AppTextStyles.headlineSm.copyWith(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              color: theme.colorScheme.onSurface,
-                              decoration: isSkipped ? TextDecoration.lineThrough : null,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.medicine.name,
+                              style: AppTextStyles.headlineSm.copyWith(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: theme.colorScheme.onSurface,
+                                decoration: isSkipped ? TextDecoration.lineThrough : null,
+                              ),
                             ),
                           ),
-                        ),
-                        Text(
-                          item.formattedTime,
-                          style: AppTextStyles.labelSm.copyWith(
-                            color: isMissed ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
-                            fontWeight: isMissed ? FontWeight.w700 : FontWeight.w500,
+                          Text(
+                            item.formattedTime,
+                            style: AppTextStyles.labelSm.copyWith(
+                              color: isMissed ? theme.colorScheme.error : theme.colorScheme.onSurfaceVariant,
+                              fontWeight: isMissed ? FontWeight.w700 : FontWeight.w600,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${item.medicine.dosageValue} ${item.medicine.dosageUnit} • ${item.medicine.frequency.name}',
-                      style: AppTextStyles.bodyMd.copyWith(
-                        fontSize: 14,
-                        color: theme.colorScheme.onSurfaceVariant,
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Icon(statusIcon, color: statusFgColor, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          statusText,
-                          style: AppTextStyles.labelSm.copyWith(
-                            color: statusFgColor,
-                            fontWeight: FontWeight.w700,
-                          ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${item.medicine.dosageValue.toStringAsFixed(item.medicine.dosageValue.truncateToDouble() == item.medicine.dosageValue ? 0 : 1)} ${item.medicine.dosageUnit} • ${item.medicine.frequency.name.toUpperCase()}',
+                        style: AppTextStyles.bodyMd.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(statusIcon, color: statusFgColor, size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            statusText,
+                            style: AppTextStyles.labelSm.copyWith(
+                              color: statusFgColor,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
-        ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -133,16 +133,16 @@ class ThemeSelectionDialog extends StatelessWidget {
                 ],
               ),
             ),
-            Radio<String>(
-              value: value,
-              groupValue: currentTheme.toLowerCase(),
-              activeColor: theme.colorScheme.primary,
-              onChanged: (val) {
-                if (val != null) {
-                  onSelected(val);
-                  Navigator.of(context).pop();
-                }
-              },
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+                  width: isSelected ? 6 : 2,
+                ),
+              ),
             ),
           ],
         ),

@@ -12,6 +12,7 @@ import '../../core/models/user_settings.dart';
 import '../../core/repositories/emergency_contact_repository.dart';
 import '../../core/repositories/medicine_repository.dart';
 import '../../core/repositories/user_settings_repository.dart';
+import '../../core/services/alarm_service.dart';
 import '../../core/services/local_storage_service.dart';
 import '../../core/services/theme_service.dart';
 import '../../core/utils/custom_logger.dart';
@@ -24,6 +25,7 @@ class SettingsViewModel extends BaseViewModel {
   final LocalStorageService _localStorageService;
   final MedicineRepository _medicineRepository;
   final EmergencyContactRepository _emergencyContactRepository;
+  final AlarmService _alarmService;
   final ThemeService? _themeService;
   final ImagePicker _imagePicker;
 
@@ -39,12 +41,14 @@ class SettingsViewModel extends BaseViewModel {
     LocalStorageService? localStorageService,
     MedicineRepository? medicineRepository,
     EmergencyContactRepository? emergencyContactRepository,
+    AlarmService? alarmService,
     ThemeService? themeService,
     ImagePicker? imagePicker,
   })  : _userSettingsRepository = userSettingsRepository ?? locator<UserSettingsRepository>(),
         _localStorageService = localStorageService ?? locator<LocalStorageService>(),
         _medicineRepository = medicineRepository ?? locator<MedicineRepository>(),
         _emergencyContactRepository = emergencyContactRepository ?? locator<EmergencyContactRepository>(),
+        _alarmService = alarmService ?? locator<AlarmService>(),
         _themeService = themeService ?? (locator.isRegistered<ThemeService>() ? locator<ThemeService>() : null),
         _imagePicker = imagePicker ?? ImagePicker();
 
@@ -59,7 +63,8 @@ class SettingsViewModel extends BaseViewModel {
   bool get hasError => state == ViewState.error;
 
   bool get isHighPriorityAlarmEnabled => _settings?.vibrationEnabled ?? true;
-  String get alarmSound => _settings?.soundName ?? 'Clinical Chime';
+  String get notificationSound => _settings?.soundName ?? 'Clinical Chime';
+  String get alarmSound => notificationSound;
   String get themeMode => _settings?.themeMode ?? 'system';
   bool get isPinLockEnabled => _settings?.pinHash != null && _settings!.pinHash!.isNotEmpty;
   bool get isBiometricEnabled => _settings?.isBiometricEnabled ?? false;
@@ -173,12 +178,34 @@ class SettingsViewModel extends BaseViewModel {
     await _userSettingsRepository.saveUserSettings(_settings!);
   }
 
-  Future<void> setAlarmSound(String sound) async {
+  Future<void> triggerTestAlarm() async {
+    try {
+      await _alarmService.testAlarm();
+      log.i('@triggerTestAlarm: Test alarm triggered successfully');
+    } catch (e, stackTrace) {
+      log.e('@triggerTestAlarm: Failed to trigger test alarm', e, stackTrace);
+    }
+  }
+
+  Future<int> syncAllAlarms() async {
+    try {
+      final count = await _alarmService.rescheduleAllActiveAlarms();
+      log.i('@syncAllAlarms: Rescheduled $count active alarms');
+      return count;
+    } catch (e, stackTrace) {
+      log.e('@syncAllAlarms: Error syncing all alarms', e, stackTrace);
+      return 0;
+    }
+  }
+
+  Future<void> setNotificationSound(String sound) async {
     if (_settings == null) return;
     _settings!.soundName = sound;
     notifyListeners();
     await _userSettingsRepository.saveUserSettings(_settings!);
   }
+
+  Future<void> setAlarmSound(String sound) => setNotificationSound(sound);
 
   Future<void> setThemeMode(String mode) async {
     if (_settings == null) return;

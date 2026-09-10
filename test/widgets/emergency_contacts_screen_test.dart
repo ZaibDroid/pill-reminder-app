@@ -11,7 +11,6 @@ import 'package:pill_reminder_app/ui/custom_widgets/empty_state_widget.dart';
 import 'package:pill_reminder_app/ui/screens/emergency/emergency_contacts_screen.dart';
 import 'package:pill_reminder_app/ui/screens/emergency/widgets/emergency_contact_card.dart';
 import 'package:pill_reminder_app/ui/screens/emergency/widgets/emergency_header.dart';
-import 'package:pill_reminder_app/ui/screens/emergency/widgets/lock_screen_setting_card.dart';
 import 'package:pill_reminder_app/ui/viewmodels/emergency_viewmodel.dart';
 
 Widget _buildTestWrapper(Widget child) {
@@ -85,7 +84,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(EmergencyHeader), findsOneWidget);
-      expect(find.byType(LockScreenSettingCard), findsOneWidget);
       expect(find.byType(EmptyStateWidget), findsOneWidget);
       expect(find.text('No Emergency Contacts'), findsOneWidget);
       expect(find.text('Add Emergency Contact'), findsWidgets);

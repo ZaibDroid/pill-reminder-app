@@ -26,12 +26,79 @@ class AddMedicineViewModel extends BaseViewModel {
   final int totalSteps = 4;
 
   // Step 1: Basic Info
-  String name = '';
-  double dosageValue = 10.0;
-  String dosageUnit = 'mg';
-  String formFactor = 'tablet';
-  String? pillImageLocalPath;
-  String colorHex = '#00685F';
+  String _name = '';
+  double _dosageValue = 10.0;
+  String _dosageUnit = 'mg';
+  String _formFactor = 'tablet';
+  String? _pillImageLocalPath;
+  String _colorHex = '#00685F';
+  String _intakeGuidance = 'Full glass of water';
+
+  String get name => _name;
+  set name(String val) {
+    if (_name != val) {
+      _name = val;
+      notifyListeners();
+    }
+  }
+
+  double get dosageValue => _dosageValue;
+  set dosageValue(double val) {
+    if (_dosageValue != val) {
+      _dosageValue = val;
+      notifyListeners();
+    }
+  }
+
+  String get dosageUnit => _dosageUnit;
+  set dosageUnit(String val) {
+    if (_dosageUnit != val) {
+      _dosageUnit = val;
+      notifyListeners();
+    }
+  }
+
+  String get formFactor => _formFactor;
+  set formFactor(String val) {
+    if (_formFactor != val) {
+      _formFactor = val;
+      final lower = val.toLowerCase();
+      if (lower == 'gel' || lower == 'cream' || lower == 'ointment') {
+        _intakeGuidance = 'Apply with cotton';
+      } else if (lower == 'drops') {
+        _intakeGuidance = 'Apply with fingertips';
+      } else if (lower == 'inhaler') {
+        _intakeGuidance = 'Inhale directly';
+      } else {
+        _intakeGuidance = 'Full glass of water';
+      }
+      notifyListeners();
+    }
+  }
+
+  String get intakeGuidance => _intakeGuidance;
+  set intakeGuidance(String val) {
+    if (_intakeGuidance != val) {
+      _intakeGuidance = val;
+      notifyListeners();
+    }
+  }
+
+  String? get pillImageLocalPath => _pillImageLocalPath;
+  set pillImageLocalPath(String? val) {
+    if (_pillImageLocalPath != val) {
+      _pillImageLocalPath = val;
+      notifyListeners();
+    }
+  }
+
+  String get colorHex => _colorHex;
+  set colorHex(String val) {
+    if (_colorHex != val) {
+      _colorHex = val;
+      notifyListeners();
+    }
+  }
 
   Future<void> pickImage(ImageSource source) async {
     try {
@@ -42,7 +109,7 @@ class AddMedicineViewModel extends BaseViewModel {
         imageQuality: 85,
       );
       if (pickedFile != null) {
-        pillImageLocalPath = pickedFile.path;
+        _pillImageLocalPath = pickedFile.path;
         notifyListeners();
       }
     } catch (e) {
@@ -51,31 +118,186 @@ class AddMedicineViewModel extends BaseViewModel {
   }
 
   void removeImage() {
-    pillImageLocalPath = null;
+    _pillImageLocalPath = null;
     notifyListeners();
   }
 
   // Step 2: Intake & Schedule
-  MealType mealType = MealType.afterMeal;
-  FrequencyType frequency = FrequencyType.daily;
-  List<int> specificDaysOfWeek = [1, 2, 3, 4, 5, 6, 7];
-  int? intervalHours;
-  List<TimeOfDay> reminderTimes = [
+  MealType _mealType = MealType.afterMeal;
+  FrequencyType _frequency = FrequencyType.daily;
+  List<int> _specificDaysOfWeek = [1, 2, 3, 4, 5, 6, 7];
+  int? _intervalHours;
+  List<TimeOfDay> _reminderTimes = [
     const TimeOfDay(hour: 8, minute: 0),
   ];
 
+  MealType get mealType => _mealType;
+  set mealType(MealType val) {
+    if (_mealType != val) {
+      _mealType = val;
+      notifyListeners();
+    }
+  }
+
+  FrequencyType get frequency => _frequency;
+  set frequency(FrequencyType val) {
+    if (_frequency != val) {
+      _frequency = val;
+      notifyListeners();
+    }
+  }
+
+  List<int> get specificDaysOfWeek => _specificDaysOfWeek;
+  set specificDaysOfWeek(List<int> val) {
+    _specificDaysOfWeek = val;
+    notifyListeners();
+  }
+
+  void toggleDayOfWeek(int day) {
+    final updated = List<int>.from(_specificDaysOfWeek);
+    if (updated.contains(day)) {
+      if (updated.length > 1) {
+        updated.remove(day);
+      }
+    } else {
+      updated.add(day);
+      updated.sort();
+    }
+    _specificDaysOfWeek = updated;
+    notifyListeners();
+  }
+
+  bool isDaySelected(int day) => _specificDaysOfWeek.contains(day);
+
+  void selectAllDays() {
+    _specificDaysOfWeek = [1, 2, 3, 4, 5, 6, 7];
+    notifyListeners();
+  }
+
+  void selectWeekdaysOnly() {
+    _specificDaysOfWeek = [1, 2, 3, 4, 5];
+    notifyListeners();
+  }
+
+  void selectWeekendsOnly() {
+    _specificDaysOfWeek = [6, 7];
+    notifyListeners();
+  }
+
+  int? get intervalHours => _intervalHours;
+  set intervalHours(int? val) {
+    if (_intervalHours != val) {
+      _intervalHours = val;
+      notifyListeners();
+    }
+  }
+
+  List<TimeOfDay> get reminderTimes => _reminderTimes;
+  set reminderTimes(List<TimeOfDay> val) {
+    _reminderTimes = val;
+    notifyListeners();
+  }
+
   // Step 3: Duration & Reminders
-  DateTime startDate = DateTime.now();
-  DateTime? endDate;
-  bool isOngoing = true;
-  bool isHighPriority = false;
-  String alarmSound = 'Classic Alarm';
-  bool isVibrationEnabled = true;
-  String? doctorName;
-  String? prescriptionNotes;
-  int currentStock = 30;
-  int lowStockThreshold = 5;
-  bool isRefillAlertEnabled = true;
+  DateTime _startDate = DateTime.now();
+  DateTime? _endDate;
+  bool _isOngoing = true;
+  bool _isHighPriority = false;
+  String _alarmSound = 'Morning Clock Alarm';
+  bool _isVibrationEnabled = true;
+  String? _doctorName;
+  String? _prescriptionNotes;
+  int _currentStock = 30;
+  int _lowStockThreshold = 5;
+  bool _isRefillAlertEnabled = true;
+
+  DateTime get startDate => _startDate;
+  set startDate(DateTime val) {
+    if (_startDate != val) {
+      _startDate = val;
+      notifyListeners();
+    }
+  }
+
+  DateTime? get endDate => _endDate;
+  set endDate(DateTime? val) {
+    if (_endDate != val) {
+      _endDate = val;
+      notifyListeners();
+    }
+  }
+
+  bool get isOngoing => _isOngoing;
+  set isOngoing(bool val) {
+    if (_isOngoing != val) {
+      _isOngoing = val;
+      notifyListeners();
+    }
+  }
+
+  bool get isHighPriority => _isHighPriority;
+  set isHighPriority(bool val) {
+    if (_isHighPriority != val) {
+      _isHighPriority = val;
+      notifyListeners();
+    }
+  }
+
+  String get alarmSound => _alarmSound;
+  set alarmSound(String val) {
+    if (_alarmSound != val) {
+      _alarmSound = val;
+      notifyListeners();
+    }
+  }
+
+  bool get isVibrationEnabled => _isVibrationEnabled;
+  set isVibrationEnabled(bool val) {
+    if (_isVibrationEnabled != val) {
+      _isVibrationEnabled = val;
+      notifyListeners();
+    }
+  }
+
+  String? get doctorName => _doctorName;
+  set doctorName(String? val) {
+    if (_doctorName != val) {
+      _doctorName = val;
+      notifyListeners();
+    }
+  }
+
+  String? get prescriptionNotes => _prescriptionNotes;
+  set prescriptionNotes(String? val) {
+    if (_prescriptionNotes != val) {
+      _prescriptionNotes = val;
+      notifyListeners();
+    }
+  }
+
+  int get currentStock => _currentStock;
+  set currentStock(int val) {
+    if (_currentStock != val) {
+      _currentStock = val;
+      notifyListeners();
+    }
+  }
+
+  int get lowStockThreshold => _lowStockThreshold;
+  set lowStockThreshold(int val) {
+    if (_lowStockThreshold != val) {
+      _lowStockThreshold = val;
+      notifyListeners();
+    }
+  }
+
+  bool get isRefillAlertEnabled => _isRefillAlertEnabled;
+  set isRefillAlertEnabled(bool val) {
+    if (_isRefillAlertEnabled != val) {
+      _isRefillAlertEnabled = val;
+      notifyListeners();
+    }
+  }
 
   // Editing existing medicine
   final Medicine? _editingMedicine;
@@ -100,24 +322,25 @@ class AddMedicineViewModel extends BaseViewModel {
   }
 
   void _initFromExisting(Medicine med) {
-    name = med.name;
-    dosageValue = med.dosageValue;
-    dosageUnit = med.dosageUnit;
-    formFactor = med.formFactor;
-    pillImageLocalPath = med.pillImageLocalPath;
-    colorHex = med.colorHex;
-    mealType = med.mealType;
-    frequency = med.frequency;
-    specificDaysOfWeek = List.from(med.specificDaysOfWeek);
-    intervalHours = med.intervalHours;
-    startDate = med.startDate;
-    endDate = med.endDate;
-    isOngoing = med.isOngoing;
-    doctorName = med.doctorName;
-    prescriptionNotes = med.prescriptionNotes;
-    currentStock = med.currentStock;
-    lowStockThreshold = med.lowStockThreshold;
-    isRefillAlertEnabled = med.isRefillAlertEnabled;
+    _name = med.name;
+    _dosageValue = med.dosageValue;
+    _dosageUnit = med.dosageUnit;
+    _formFactor = med.formFactor;
+    _pillImageLocalPath = med.pillImageLocalPath;
+    _colorHex = med.colorHex;
+    _mealType = med.mealType;
+    _frequency = med.frequency;
+    _specificDaysOfWeek = List.from(med.specificDaysOfWeek);
+    _intervalHours = med.intervalHours;
+    _startDate = med.startDate;
+    _endDate = med.endDate;
+    _isOngoing = med.isOngoing;
+    _doctorName = med.doctorName;
+    _prescriptionNotes = med.prescriptionNotes;
+    _intakeGuidance = med.intakeGuidance;
+    _currentStock = med.currentStock;
+    _lowStockThreshold = med.lowStockThreshold;
+    _isRefillAlertEnabled = med.isRefillAlertEnabled;
   }
 
   int get currentStep => _currentStep;
@@ -175,16 +398,34 @@ class AddMedicineViewModel extends BaseViewModel {
   }
 
   void addReminderTime(TimeOfDay time) {
-    if (!reminderTimes.any((t) => t.hour == time.hour && t.minute == time.minute)) {
-      reminderTimes.add(time);
-      reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+    if (!_reminderTimes.any((t) => t.hour == time.hour && t.minute == time.minute)) {
+      _reminderTimes.add(time);
+      _reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+      notifyListeners();
+    }
+  }
+
+  void updateReminderTime(int index, TimeOfDay newTime) {
+    if (index >= 0 && index < _reminderTimes.length) {
+      _reminderTimes[index] = newTime;
+      _reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+      notifyListeners();
+    }
+  }
+
+  void toggleAmPm(int index) {
+    if (index >= 0 && index < _reminderTimes.length) {
+      final current = _reminderTimes[index];
+      final newHour = (current.hour + 12) % 24;
+      _reminderTimes[index] = TimeOfDay(hour: newHour, minute: current.minute);
+      _reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
       notifyListeners();
     }
   }
 
   void removeReminderTime(int index) {
-    if (reminderTimes.length > 1 && index < reminderTimes.length) {
-      reminderTimes.removeAt(index);
+    if (_reminderTimes.length > 1 && index < _reminderTimes.length) {
+      _reminderTimes.removeAt(index);
       notifyListeners();
     }
   }
@@ -210,6 +451,7 @@ class AddMedicineViewModel extends BaseViewModel {
       med.isOngoing = isOngoing;
       med.doctorName = doctorName?.trim();
       med.prescriptionNotes = prescriptionNotes?.trim();
+      med.intakeGuidance = intakeGuidance.trim().isEmpty ? 'Full glass of water' : intakeGuidance.trim();
       med.currentStock = currentStock;
       med.lowStockThreshold = lowStockThreshold;
       med.isRefillAlertEnabled = isRefillAlertEnabled;

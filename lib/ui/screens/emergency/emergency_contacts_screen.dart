@@ -12,7 +12,6 @@ import 'package:pill_reminder_app/ui/viewmodels/emergency_viewmodel.dart';
 import 'widgets/add_edit_contact_dialog.dart';
 import 'widgets/emergency_contact_card.dart';
 import 'widgets/emergency_header.dart';
-import 'widgets/lock_screen_setting_card.dart';
 
 class EmergencyContactsScreen extends StatelessWidget {
   final EmergencyViewModel? viewModel;
@@ -72,12 +71,7 @@ class _EmergencyContactsContent extends StatelessWidget {
         padding: const EdgeInsets.only(top: 8, bottom: 96),
         children: [
           const EmergencyHeader(),
-          const SizedBox(height: 12),
-          LockScreenSettingCard(
-            isEnabled: viewModel.showOnLockScreen,
-            onToggle: viewModel.toggleShowOnLockScreen,
-          ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
           if (viewModel.isEmpty)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),

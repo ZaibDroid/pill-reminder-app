@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/enums/frequency_type.dart';
+import '../../../../core/enums/meal_type.dart';
+import '../../../custom_widgets/medicine_avatar.dart';
 import '../../../viewmodels/add_medicine_viewmodel.dart';
 
 class StepReviewSave extends StatelessWidget {
@@ -69,18 +72,14 @@ class StepReviewSave extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.medication,
-                        color: theme.colorScheme.onPrimaryContainer,
-                        size: 28,
-                      ),
+                    MedicineAvatar(
+                      imagePath: viewModel.pillImageLocalPath,
+                      formFactor: viewModel.formFactor,
+                      size: 56,
+                      isCircle: true,
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      iconColor: theme.colorScheme.onPrimaryContainer,
+                      iconSize: 28,
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -95,7 +94,7 @@ class StepReviewSave extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            '${viewModel.dosageValue} ${viewModel.dosageUnit} • ${viewModel.formFactor}',
+                            '${_formatDosage(viewModel.dosageValue, viewModel.dosageUnit)} • ${viewModel.formFactor[0].toUpperCase()}${viewModel.formFactor.substring(1)}',
                             style: AppTextStyles.bodyMd.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
@@ -121,12 +120,12 @@ class StepReviewSave extends StatelessWidget {
                 ),
               ),
 
-              // Item 1: Intake
+              // Item 1: Intake & Administration
               _buildReviewRow(
                 context: context,
-                icon: Icons.water_drop,
-                label: 'Intake Instructions',
-                value: 'Take with food or water (${viewModel.mealType.name})',
+                icon: Icons.restaurant,
+                label: 'Intake & Administration',
+                value: '${_formatMealType(viewModel.mealType)} • ${viewModel.intakeGuidance}',
                 onEdit: () => onJumpToStep(1),
               ),
               Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
@@ -136,7 +135,7 @@ class StepReviewSave extends StatelessWidget {
                 context: context,
                 icon: Icons.calendar_month,
                 label: 'Schedule',
-                value: 'Frequency: ${viewModel.frequency.name.toUpperCase()} at ${viewModel.reminderTimes.map((t) => "${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}").join(', ')}',
+                value: _formatSchedule(),
                 onEdit: () => onJumpToStep(1),
               ),
               Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
@@ -145,12 +144,23 @@ class StepReviewSave extends StatelessWidget {
               _buildReviewRow(
                 context: context,
                 icon: Icons.hourglass_empty,
-                label: 'Duration & Inventory',
-                value: viewModel.isOngoing ? 'Ongoing treatment' : 'Ends on ${viewModel.endDate?.toString().split(' ')[0]}',
+                label: 'Duration',
+                value: viewModel.isOngoing ? 'Ongoing medication' : 'Ends on ${viewModel.endDate?.toString().split(' ')[0]}',
+                onEdit: () => onJumpToStep(2),
+              ),
+              Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
+
+              // Item 4: Stock & Inventory
+              _buildReviewRow(
+                context: context,
+                icon: Icons.inventory_2_rounded,
+                label: 'Inventory & Stock',
+                value: '${viewModel.currentStock} in stock'
+                    '${viewModel.isRefillAlertEnabled ? ' • Alert at ${viewModel.lowStockThreshold} left' : ''}',
                 onEdit: () => onJumpToStep(2),
               ),
 
-              // Item 4: Doctor / Notes
+              // Item 5: Doctor / Notes
               if (viewModel.doctorName != null && viewModel.doctorName!.isNotEmpty) ...[
                 Divider(height: 1, color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2)),
                 _buildReviewRow(
@@ -166,6 +176,62 @@ class StepReviewSave extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatSchedule() {
+    String freqStr;
+    if (viewModel.frequency == FrequencyType.daily) {
+      freqStr = 'Daily';
+    } else if (viewModel.frequency == FrequencyType.specificDays) {
+      const dayNames = {1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun'};
+      final days = viewModel.specificDaysOfWeek.map((d) => dayNames[d] ?? '').where((s) => s.isNotEmpty).join(', ');
+      freqStr = 'Specific Days ($days)';
+    } else {
+      final hours = viewModel.intervalHours ?? 8;
+      String intervalLabel;
+      if (hours == 48) {
+        intervalLabel = 'Every 48h (2 Days)';
+      } else if (hours == 72) {
+        intervalLabel = 'Every 72h (3 Days)';
+      } else if (hours == 96) {
+        intervalLabel = 'Every 96h (4 Days)';
+      } else if (hours == 24) {
+        intervalLabel = 'Every 24h (1 Day)';
+      } else if (hours == 1) {
+        intervalLabel = 'Every 1 Hour';
+      } else {
+        intervalLabel = 'Every ${hours}h';
+      }
+      freqStr = 'Interval ($intervalLabel)';
+    }
+    final times = viewModel.reminderTimes.map(_formatTime12).join(', ');
+    return '$freqStr • $times';
+  }
+
+  String _formatTime12(TimeOfDay t) {
+    final hour12 = t.hourOfPeriod == 0 ? 12 : t.hourOfPeriod;
+    final hourStr = hour12.toString().padLeft(2, '0');
+    final minStr = t.minute.toString().padLeft(2, '0');
+    final periodStr = t.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hourStr:$minStr $periodStr';
+  }
+
+  String _formatMealType(MealType type) {
+    switch (type) {
+      case MealType.beforeMeal:
+        return 'Take Before Meal';
+      case MealType.afterMeal:
+        return 'Take After Meal';
+      case MealType.withMeal:
+        return 'Take With Food';
+      case MealType.noRelation:
+        return 'No Food Relation';
+    }
+  }
+
+  String _formatDosage(double val, String unit) {
+    final cleanVal = val.truncateToDouble() == val ? val.toInt().toString() : val.toString();
+    return '$cleanVal $unit';
   }
 
   Widget _buildReviewRow({

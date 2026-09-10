@@ -1,51 +1,58 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
-import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../custom_widgets/primary_button.dart';
+import '../../../custom_widgets/secondary_button.dart';
 
 class ExportReportButton extends StatelessWidget {
-  final VoidCallback onExport;
+  final VoidCallback? onShare;
+  final VoidCallback? onPreview;
+  final VoidCallback? onExport;
   final bool isLoading;
 
   const ExportReportButton({
     super.key,
-    required this.onExport,
+    this.onShare,
+    this.onPreview,
+    this.onExport,
     this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.onPrimary,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.full),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0, bottom: 12.0),
+            child: Text(
+              'Export Health Report (PDF)',
+              style: AppTextStyles.headlineSm.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16),
-        ),
-        onPressed: isLoading ? null : onExport,
-        icon: isLoading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.onPrimary,
-                ),
-              )
-            : const Icon(Icons.summarize, size: 20),
-        label: Text(
-          isLoading ? 'Generating PDF Report...' : 'Export Health Report (PDF)',
-          style: AppTextStyles.labelMd.copyWith(
-            color: AppColors.onPrimary,
-            fontWeight: FontWeight.w700,
-            fontSize: 15,
+          PrimaryButton(
+            text: 'Share Health Report (PDF)',
+            icon: Icons.share_rounded,
+            isLoading: isLoading,
+            onPressed: isLoading ? null : (onShare ?? onExport),
           ),
-        ),
+          const SizedBox(height: 12),
+          SecondaryButton(
+            text: 'Preview & Print Report (PDF)',
+            icon: Icons.picture_as_pdf_rounded,
+            borderColor: AppColors.primary,
+            textColor: AppColors.primary,
+            onPressed: isLoading ? null : (onPreview ?? onExport),
+          ),
+        ],
       ),
     );
   }

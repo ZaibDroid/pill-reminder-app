@@ -22,7 +22,7 @@ class SettingsHeader extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Manage your account and clinical preferences.',
+            'Manage your account and preferences.',
             style: AppTextStyles.bodyMd.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),

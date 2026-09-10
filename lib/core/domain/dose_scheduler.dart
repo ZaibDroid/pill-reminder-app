@@ -45,6 +45,9 @@ class DoseScheduler {
       case FrequencyType.interval:
         return true;
       case FrequencyType.specificDays:
+        if (medicine.specificDaysOfWeek.isEmpty) {
+          return true;
+        }
         return medicine.specificDaysOfWeek.contains(date.weekday);
     }
   }

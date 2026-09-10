@@ -12,6 +12,7 @@ import 'package:pill_reminder_app/ui/custom_widgets/status_badge.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/adherence_card.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/date_selector.dart';
 import 'package:pill_reminder_app/ui/screens/dashboard/widgets/dose_timeline_card.dart';
+import 'package:pill_reminder_app/ui/screens/settings/widgets/alarm_sound_selection_dialog.dart';
 
 Widget _buildTestWrapper(Widget child) {
   return ScreenUtilInit(
@@ -194,6 +195,65 @@ void main() {
       expect(find.byIcon(Icons.add_rounded), findsOneWidget);
       await tester.tap(find.byIcon(Icons.add_rounded));
       expect(addPressed, isTrue);
+    });
+  });
+
+  group('AlarmSoundSelectionDialog Widget Tests', () {
+    testWidgets('Renders notification sounds and selects one', (tester) async {
+      String selectedSound = 'Clinical Chime';
+
+      await tester.pumpWidget(
+        _buildTestWrapper(
+          AlarmSoundSelectionDialog(
+            isNotificationMode: true,
+            currentSound: selectedSound,
+            onSelected: (val) => selectedSound = val,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select Notification Sound'), findsOneWidget);
+      expect(find.text('Clinical Chime'), findsOneWidget);
+      expect(find.text('Classic Alert'), findsOneWidget);
+      expect(find.text('Gentle Beep'), findsOneWidget);
+      expect(find.text('Vibrate Only'), findsOneWidget);
+
+      await tester.tap(find.text('Classic Alert'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Set'));
+      await tester.pumpAndSettle();
+
+      expect(selectedSound, equals('Classic Alert'));
+    });
+
+    testWidgets('Renders medicine alarm sounds and selects one', (tester) async {
+      String selectedSound = 'Morning Clock Alarm';
+
+      await tester.pumpWidget(
+        _buildTestWrapper(
+          AlarmSoundSelectionDialog(
+            isNotificationMode: false,
+            currentSound: selectedSound,
+            onSelected: (val) => selectedSound = val,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select Alarm Sound'), findsOneWidget);
+      expect(find.text('Morning Clock Alarm'), findsOneWidget);
+      expect(find.text('Digital Alarm Buzzer'), findsOneWidget);
+      expect(find.text('Vintage Telephone'), findsOneWidget);
+
+      await tester.tap(find.text('Digital Alarm Buzzer'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Set'));
+      await tester.pumpAndSettle();
+
+      expect(selectedSound, equals('Digital Alarm Buzzer'));
     });
   });
 }

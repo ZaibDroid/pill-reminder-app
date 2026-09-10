@@ -22,6 +22,7 @@ class PillReminderApp extends StatelessWidget {
           builder: (context, _) {
             return MaterialApp(
               title: 'Pill Reminder App',
+              navigatorKey: AppRoutes.navigatorKey,
               debugShowCheckedModeBanner: false,
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,

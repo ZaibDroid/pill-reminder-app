@@ -56,6 +56,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       expect(viewModel.state, equals(ViewState.idle));
@@ -105,6 +106,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -170,6 +172,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: targetDate);
@@ -203,6 +206,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -278,6 +282,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -312,6 +317,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -355,6 +361,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -390,6 +397,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline(date: testDate);
@@ -421,6 +429,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       final tomorrow = DateTime.now().add(const Duration(days: 1));
@@ -441,6 +450,7 @@ void main() {
       final viewModel = HomeViewModel(
         medicineRepository: medicineRepository,
         doseLogRepository: doseLogRepository,
+        reminderRepository: reminderRepository,
       );
 
       await viewModel.loadTodayTimeline();

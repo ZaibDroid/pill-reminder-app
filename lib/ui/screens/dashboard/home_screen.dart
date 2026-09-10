@@ -104,7 +104,7 @@ class _HomeScreenContent extends StatelessWidget {
               onButtonPressed: () async {
                 final result = await Navigator.of(context).pushNamed('/add_medicine');
                 if (result == true) {
-                  viewModel.refresh();
+                  await viewModel.refresh();
                 }
               },
             ),
@@ -118,11 +118,14 @@ class _HomeScreenContent extends StatelessWidget {
             onSkipDose: (dose) async {
               await viewModel.skipDose(dose);
             },
-            onCardTap: (dose) {
-              Navigator.of(context).pushNamed(
+            onCardTap: (dose) async {
+              final result = await Navigator.of(context).pushNamed(
                 '/medicine_details',
                 arguments: dose.medicine,
               );
+              if (result == true) {
+                await viewModel.refresh();
+              }
             },
           ),
       ],

@@ -22,41 +22,72 @@ class TimelineBuilder {
     for (final med in activeMedicines) {
       final activeReminders = med.reminders.where((r) => r.isActive).toList();
 
-      for (final reminder in activeReminders) {
+      if (activeReminders.isEmpty) {
+        // Fallback: create a dose item at 08:00 AM so active medicine is always visible
         final scheduledTime = DateTime(
           date.year,
           date.month,
           date.day,
-          reminder.hour,
-          reminder.minute,
+          8,
+          0,
         );
-
-        // Find matching dose log for this medicine and reminder/scheduled time
         DoseLog? matchingLog;
         for (final log in doseLogs) {
           final isSameMedicine = log.medicine.value?.id == med.id ||
               (log.medicine.isLoaded && log.medicine.value?.id == med.id);
-          final isSameReminder = log.reminderTime.value?.id == reminder.id;
-          final isSameTime = log.scheduledDateTime.hour == reminder.hour &&
-              log.scheduledDateTime.minute == reminder.minute &&
-              _isSameDay(log.scheduledDateTime, date);
-
-          if (isSameMedicine && (isSameReminder || isSameTime)) {
+          final isSameTime = _isSameDay(log.scheduledDateTime, date);
+          if (isSameMedicine && isSameTime) {
             matchingLog = log;
             matchedLogIds.add(log.id);
             break;
           }
         }
-
         items.add(
           TimelineDoseItem(
             medicine: med,
-            reminderTime: reminder,
+            reminderTime: null,
             doseLog: matchingLog,
             scheduledTime: scheduledTime,
             status: matchingLog?.status ?? MedicineStatus.pending,
           ),
         );
+      } else {
+        for (final reminder in activeReminders) {
+          final scheduledTime = DateTime(
+            date.year,
+            date.month,
+            date.day,
+            reminder.hour,
+            reminder.minute,
+          );
+
+          // Find matching dose log for this medicine and reminder/scheduled time
+          DoseLog? matchingLog;
+          for (final log in doseLogs) {
+            final isSameMedicine = log.medicine.value?.id == med.id ||
+                (log.medicine.isLoaded && log.medicine.value?.id == med.id);
+            final isSameReminder = log.reminderTime.value?.id == reminder.id;
+            final isSameTime = log.scheduledDateTime.hour == reminder.hour &&
+                log.scheduledDateTime.minute == reminder.minute &&
+                _isSameDay(log.scheduledDateTime, date);
+
+            if (isSameMedicine && (isSameReminder || isSameTime)) {
+              matchingLog = log;
+              matchedLogIds.add(log.id);
+              break;
+            }
+          }
+
+          items.add(
+            TimelineDoseItem(
+              medicine: med,
+              reminderTime: reminder,
+              doseLog: matchingLog,
+              scheduledTime: scheduledTime,
+              status: matchingLog?.status ?? MedicineStatus.pending,
+            ),
+          );
+        }
       }
     }
 

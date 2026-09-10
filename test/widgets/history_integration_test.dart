@@ -143,7 +143,7 @@ void main() {
       expect(find.byType(EmptyStateWidget), findsNothing);
       expect(find.byType(HistoryDoseItemCard), findsOneWidget);
       expect(find.text('Metformin'), findsOneWidget);
-      expect(find.text('500.0 mg • daily'), findsOneWidget);
+      expect(find.text('500 mg • DAILY'), findsOneWidget);
       expect(find.text('Taken at 08:10 AM'), findsOneWidget);
       expect(find.text('100%'), findsOneWidget);
     });

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/medicine.dart';
+import '../../../custom_widgets/medicine_avatar.dart';
 
 class MedicineListItem extends StatelessWidget {
   final Medicine medicine;
@@ -39,42 +40,67 @@ class MedicineListItem extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: AppRadius.radiusLg,
-                  ),
-                  child: Icon(
-                    Icons.medication,
-                    color: theme.colorScheme.primary,
-                    size: 28,
-                  ),
+                MedicineAvatar(
+                  imagePath: medicine.pillImageLocalPath,
+                  formFactor: medicine.formFactor,
+                  size: 74,
+                  borderRadius: BorderRadius.circular(18),
+                  backgroundColor: theme.colorScheme.primaryContainer.withValues(alpha: 0.35),
+                  iconColor: theme.colorScheme.primary,
+                  iconSize: 38,
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 18),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        medicine.name,
-                        style: AppTextStyles.headlineSm.copyWith(
-                          color: theme.colorScheme.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          medicine.name,
+                          style: AppTextStyles.headlineSm.copyWith(
+                            color: theme.colorScheme.onSurface,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${medicine.dosageValue} ${medicine.dosageUnit} • ${medicine.frequency.name.toUpperCase()}',
-                        style: AppTextStyles.bodyMd.copyWith(
-                          fontSize: 14,
-                          color: theme.colorScheme.onSurfaceVariant,
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.45),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                '${medicine.dosageValue.toStringAsFixed(medicine.dosageValue.truncateToDouble() == medicine.dosageValue ? 0 : 1)} ${medicine.dosageUnit}',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: theme.colorScheme.primary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              medicine.frequency.name.toUpperCase(),
+                              style: AppTextStyles.bodyMd.copyWith(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Icon(

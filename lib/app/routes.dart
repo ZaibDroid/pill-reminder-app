@@ -11,6 +11,8 @@ import '../ui/screens/onboarding/onboarding_screen.dart';
 import '../ui/screens/splash/splash_screen.dart';
 
 class AppRoutes {
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   static const String splash = '/';
   static const String onboarding = '/onboarding';
   static const String appLock = '/app_lock';
@@ -70,9 +72,23 @@ class AppRoutes {
         );
 
       case alarm:
-        final medicine = settings.arguments as Medicine?;
+        Medicine? medicine;
+        int? medicineId;
+        int? reminderTimeId;
+        if (settings.arguments is Medicine) {
+          medicine = settings.arguments as Medicine;
+        } else if (settings.arguments is Map<String, dynamic>) {
+          final map = settings.arguments as Map<String, dynamic>;
+          medicine = map['medicine'] as Medicine?;
+          medicineId = map['medicineId'] as int?;
+          reminderTimeId = map['reminderTimeId'] as int?;
+        }
         return MaterialPageRoute(
-          builder: (_) => ActiveAlarmScreen(medicine: medicine),
+          builder: (_) => ActiveAlarmScreen(
+            medicine: medicine,
+            medicineId: medicineId,
+            reminderTimeId: reminderTimeId,
+          ),
         );
 
       default:

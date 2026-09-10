@@ -42,6 +42,8 @@ class Medicine {
 
   String? prescriptionNotes;
 
+  String intakeGuidance = 'Full glass of water';
+
   int currentStock = 0;
 
   int lowStockThreshold = 5;

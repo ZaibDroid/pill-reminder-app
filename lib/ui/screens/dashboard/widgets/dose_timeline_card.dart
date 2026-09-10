@@ -3,6 +3,7 @@ import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/enums/meal_type.dart';
 import '../../../../core/models/timeline_dose_item.dart';
+import '../../../custom_widgets/medicine_avatar.dart';
 import '../../../custom_widgets/status_badge.dart';
 
 class DoseTimelineCard extends StatelessWidget {
@@ -87,103 +88,106 @@ class DoseTimelineCard extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(14),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Icon Box
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: iconBgColor,
-                          borderRadius: AppRadius.radiusLg,
-                        ),
-                        child: Icon(
-                          _getMedicineIcon(med.formFactor),
-                          color: iconFgColor,
-                          size: 26,
-                        ),
+                      // Enriched Image / Icon Box
+                      MedicineAvatar(
+                        imagePath: med.pillImageLocalPath,
+                        formFactor: med.formFactor,
+                        size: 74,
+                        borderRadius: BorderRadius.circular(18),
+                        backgroundColor: iconBgColor,
+                        iconColor: iconFgColor,
+                        iconSize: 38,
                       ),
-                      const SizedBox(width: 14),
-                      // Details
+                      const SizedBox(width: 18),
+                      // Details shifted cleanly to the right
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    med.name,
-                                    style: AppTextStyles.headlineSm.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
-                                      color: theme.colorScheme.onSurface,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Text(
-                                  item.formattedTime,
-                                  style: AppTextStyles.labelMd.copyWith(
-                                    color: isPending
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.onSurfaceVariant,
-                                    fontWeight: isPending
-                                        ? FontWeight.w700
-                                        : FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                                    borderRadius: AppRadius.radiusSm,
-                                  ),
-                                  child: Text(
-                                    '${med.dosageValue.toStringAsFixed(med.dosageValue.truncateToDouble() == med.dosageValue ? 0 : 1)} ${med.dosageUnit}',
-                                    style: AppTextStyles.labelSm.copyWith(
-                                      color: theme.colorScheme.primary,
-                                      fontWeight: FontWeight.w700,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      med.name,
+                                      style: AppTextStyles.headlineSm.copyWith(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                                ),
-                                if (med.doctorName != null &&
-                                    med.doctorName!.isNotEmpty) ...[
-                                  const SizedBox(width: 6),
                                   Text(
-                                    '• Dr. ${med.doctorName}',
-                                    style: AppTextStyles.labelSm.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                    item.formattedTime,
+                                    style: AppTextStyles.labelMd.copyWith(
+                                      color: isPending
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurfaceVariant,
+                                      fontWeight: isPending
+                                          ? FontWeight.w700
+                                          : FontWeight.w600,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
-                              ],
-                            ),
-                            if (mealInstruction.isNotEmpty) ...[
-                              const SizedBox(height: 6),
-                              Text(
-                                mealInstruction,
-                                style: AppTextStyles.bodyMd.copyWith(
-                                  fontSize: 13,
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
                               ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '${med.dosageValue.toStringAsFixed(med.dosageValue.truncateToDouble() == med.dosageValue ? 0 : 1)} ${med.dosageUnit}',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: theme.colorScheme.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  if (med.doctorName != null &&
+                                      med.doctorName!.isNotEmpty) ...[
+                                    const SizedBox(width: 6),
+                                    Expanded(
+                                      child: Text(
+                                        '• Dr. ${med.doctorName}',
+                                        style: AppTextStyles.labelSm.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                              if (mealInstruction.isNotEmpty) ...[
+                                const SizedBox(height: 6),
+                                Text(
+                                  mealInstruction,
+                                  style: AppTextStyles.bodyMd.copyWith(
+                                    fontSize: 13,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ],
@@ -295,15 +299,5 @@ class DoseTimelineCard extends StatelessWidget {
       case MealType.noRelation:
         return 'Take with water';
     }
-  }
-
-  IconData _getMedicineIcon(String formFactor) {
-    final lower = formFactor.toLowerCase();
-    if (lower.contains('drop')) return Icons.water_drop;
-    if (lower.contains('capsule')) return Icons.medication;
-    if (lower.contains('injection') || lower.contains('vaccine')) {
-      return Icons.vaccines;
-    }
-    return Icons.medication;
   }
 }

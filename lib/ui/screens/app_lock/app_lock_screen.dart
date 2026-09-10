@@ -188,7 +188,7 @@ class _AppLockContent extends StatelessWidget {
                         : () {
                             Navigator.of(context).pushNamed('/emergency');
                           },
-                    icon: const Icon(Icons.emergency, size: 16, color: AppColors.error),
+                    icon: const Icon(Icons.contact_emergency_rounded, size: 16, color: AppColors.error),
                     label: Text(
                       'Emergency',
                       style: AppTextStyles.labelMd.copyWith(

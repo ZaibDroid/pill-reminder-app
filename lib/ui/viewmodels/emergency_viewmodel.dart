@@ -11,21 +11,21 @@ class EmergencyViewModel extends BaseViewModel {
   final log = CustomLogger(className: '@EmergencyViewModel');
 
   final EmergencyContactRepository _emergencyContactRepository;
-  final UserSettingsRepository _userSettingsRepository;
+
+  static const int maxContactsLimit = 5;
 
   List<EmergencyContact> _contacts = [];
-  bool _showOnLockScreen = true;
   String? _errorMessage;
 
   EmergencyViewModel({
     EmergencyContactRepository? emergencyContactRepository,
     UserSettingsRepository? userSettingsRepository,
-  })  : _emergencyContactRepository = emergencyContactRepository ?? locator<EmergencyContactRepository>(),
-        _userSettingsRepository = userSettingsRepository ?? locator<UserSettingsRepository>();
+  })  : _emergencyContactRepository = emergencyContactRepository ?? locator<EmergencyContactRepository>();
 
   List<EmergencyContact> get contacts => List.unmodifiable(_contacts);
-  bool get showOnLockScreen => _showOnLockScreen;
   String? get errorMessage => _errorMessage;
+  int get maxContacts => maxContactsLimit;
+  bool get canAddContact => _contacts.length < maxContactsLimit;
 
   bool get isLoading => state == ViewState.busy;
   bool get hasError => state == ViewState.error;
@@ -47,8 +47,6 @@ class EmergencyViewModel extends BaseViewModel {
     setState(ViewState.busy);
     try {
       _contacts = await _emergencyContactRepository.getAllEmergencyContacts();
-      final settings = await _userSettingsRepository.getOrCreateSettings();
-      _showOnLockScreen = settings.isBiometricEnabled;
       log.i('@loadContacts: Loaded ${_contacts.length} emergency contacts from database');
       setState(ViewState.idle);
     } catch (e, stackTrace) {
@@ -59,19 +57,6 @@ class EmergencyViewModel extends BaseViewModel {
   }
 
   Future<void> refresh() => loadContacts();
-
-  Future<void> toggleShowOnLockScreen(bool value) async {
-    _showOnLockScreen = value;
-    notifyListeners();
-    try {
-      final settings = await _userSettingsRepository.getOrCreateSettings();
-      settings.isBiometricEnabled = value;
-      await _userSettingsRepository.saveUserSettings(settings);
-      log.i('@toggleShowOnLockScreen: Updated lock screen emergency toggle to $value');
-    } catch (e, stackTrace) {
-      log.e('@toggleShowOnLockScreen: Error persisting lock screen setting', e, stackTrace);
-    }
-  }
 
   void validateContactInput(String fullName, String phoneNumber) {
     if (fullName.trim().isEmpty) {
@@ -90,6 +75,9 @@ class EmergencyViewModel extends BaseViewModel {
     String? email,
     bool isPrimary = false,
   }) async {
+    if (_contacts.length >= maxContactsLimit) {
+      throw StateError('You can add up to $maxContactsLimit emergency contacts only.');
+    }
     validateContactInput(fullName, phoneNumber);
     try {
       final contact = EmergencyContact()
@@ -167,15 +155,10 @@ class EmergencyViewModel extends BaseViewModel {
     final cleanNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
     final uri = Uri(scheme: 'tel', path: cleanNumber);
     try {
-      if (await canLaunchUrl(uri)) {
-        log.i('@makePhoneCall: Launching phone dialer for $cleanNumber');
-        return await launchUrl(uri);
-      } else {
-        log.w('@makePhoneCall: Could not launch $uri');
-        return false;
-      }
+      log.i('@makePhoneCall: Redirecting to phone dialer for $cleanNumber');
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e, stackTrace) {
-      log.e('@makePhoneCall: Error launching phone call for $cleanNumber', e, stackTrace);
+      log.e('@makePhoneCall: Error redirecting to dialer for $cleanNumber', e, stackTrace);
       return false;
     }
   }
@@ -186,15 +169,10 @@ class EmergencyViewModel extends BaseViewModel {
         ? Uri(scheme: 'sms', path: cleanNumber, queryParameters: {'body': message})
         : Uri(scheme: 'sms', path: cleanNumber);
     try {
-      if (await canLaunchUrl(uri)) {
-        log.i('@sendEmergencySms: Launching SMS app for $cleanNumber');
-        return await launchUrl(uri);
-      } else {
-        log.w('@sendEmergencySms: Could not launch SMS for $uri');
-        return false;
-      }
+      log.i('@sendEmergencySms: Redirecting to SMS inbox/composer for $cleanNumber');
+      return await launchUrl(uri, mode: LaunchMode.externalApplication);
     } catch (e, stackTrace) {
-      log.e('@sendEmergencySms: Error launching SMS for $cleanNumber', e, stackTrace);
+      log.e('@sendEmergencySms: Error redirecting to SMS inbox for $cleanNumber', e, stackTrace);
       return false;
     }
   }

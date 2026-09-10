@@ -4,6 +4,7 @@ import '../enums/frequency_type.dart';
 import '../enums/meal_type.dart';
 import '../models/medicine.dart';
 import '../models/reminder_time.dart';
+import '../repositories/medicine_repository.dart';
 import '../utils/custom_logger.dart';
 import 'notification_service.dart';
 
@@ -310,6 +311,95 @@ class AlarmService {
     } catch (e, stackTrace) {
       log.e('@cancelAllAlarms: Failed to cancel all alarms', e, stackTrace);
     }
+  }
+
+  /// Reschedules all active medication alarms from the repository.
+  /// Used on startup or settings changes to ensure all medicines are synchronized
+  /// with the correct native timezone and notification channels.
+  Future<int> rescheduleAllActiveAlarms({MedicineRepository? medicineRepository}) async {
+    try {
+      final repo = medicineRepository ??
+          (locator.isRegistered<MedicineRepository>()
+              ? locator<MedicineRepository>()
+              : null);
+
+      if (repo == null) {
+        log.w('@rescheduleAllActiveAlarms: MedicineRepository not registered, skipping reschedule');
+        return 0;
+      }
+
+      final medicines = await repo.getAllMedicines();
+      int totalRescheduled = 0;
+
+      for (final med in medicines) {
+        await med.reminders.load();
+        for (final reminder in med.reminders) {
+          if (reminder.isActive) {
+            await scheduleMedicationAlarm(med, reminder);
+            totalRescheduled++;
+          }
+        }
+      }
+
+      log.i(
+        '@rescheduleAllActiveAlarms: Successfully synced and rescheduled $totalRescheduled reminder(s) across ${medicines.length} medicine(s)',
+      );
+      return totalRescheduled;
+    } catch (e, stackTrace) {
+      log.e('@rescheduleAllActiveAlarms: Error rescheduling active alarms', e, stackTrace);
+      return 0;
+    }
+  }
+
+  /// Triggers an immediate test notification with sound and vibration to verify system alarms.
+  Future<void> testAlarm() async {
+    try {
+      log.i('@testAlarm: Triggering immediate test alarm notification');
+      await _notificationService.showNotification(
+        id: 999999,
+        title: 'MediAlert Alarm Test',
+        body: 'Test notification - Sound and vibration are configured and active!',
+        enableVibration: true,
+      );
+    } catch (e, stackTrace) {
+      log.e('@testAlarm: Error triggering test alarm', e, stackTrace);
+    }
+  }
+
+  String? _lastTriggeredSlot;
+
+  /// Checks if any active medication reminder matches the current minute right now.
+  /// Used for immediate foreground full-screen alarm trigger when app is open.
+  Future<Medicine?> checkForDueMedicineNow() async {
+    try {
+      final now = DateTime.now();
+      final repo = locator.isRegistered<MedicineRepository>()
+          ? locator<MedicineRepository>()
+          : null;
+      if (repo == null) return null;
+
+      final medicines = await repo.getAllMedicines();
+      for (final med in medicines) {
+        if (!med.isOngoing && med.endDate != null && med.endDate!.isBefore(now)) continue;
+        await med.reminders.load();
+        for (final reminder in med.reminders) {
+          if (reminder.isActive &&
+              reminder.hour == now.hour &&
+              reminder.minute == now.minute) {
+            final slotKey = '${med.id}_${reminder.id}_${now.year}_${now.month}_${now.day}_${now.hour}_${now.minute}';
+            if (_lastTriggeredSlot == slotKey) {
+              return null; // Already triggered for this minute slot
+            }
+            _lastTriggeredSlot = slotKey;
+            log.i('@checkForDueMedicineNow: Found due medication "${med.name}" at $now');
+            return med;
+          }
+        }
+      }
+    } catch (e) {
+      log.d('@checkForDueMedicineNow: Error checking due medicines: $e');
+    }
+    return null;
   }
 
   /// Helper to calculate the next target [DateTime] for specific days or interval schedules.

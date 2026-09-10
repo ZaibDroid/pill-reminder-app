@@ -89,8 +89,27 @@ class _ReportsScreenContent extends StatelessWidget {
           const SizedBox(height: 24),
           ExportReportButton(
             isLoading: viewModel.isExporting,
-            onExport: () async {
-              await viewModel.exportPdfReport();
+            onShare: () async {
+              try {
+                await viewModel.shareHealthReportPdf();
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to share PDF report.')),
+                  );
+                }
+              }
+            },
+            onPreview: () async {
+              try {
+                await viewModel.previewOrPrintHealthReportPdf();
+              } catch (_) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Failed to generate PDF preview.')),
+                  );
+                }
+              }
             },
           ),
         ],

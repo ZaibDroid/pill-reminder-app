@@ -63,59 +63,64 @@ const MedicineSchema = CollectionSchema(
       type: IsarType.byte,
       enumMap: _MedicinefrequencyEnumValueMap,
     ),
-    r'intervalHours': PropertySchema(
+    r'intakeGuidance': PropertySchema(
       id: 9,
+      name: r'intakeGuidance',
+      type: IsarType.string,
+    ),
+    r'intervalHours': PropertySchema(
+      id: 10,
       name: r'intervalHours',
       type: IsarType.long,
     ),
     r'isOngoing': PropertySchema(
-      id: 10,
+      id: 11,
       name: r'isOngoing',
       type: IsarType.bool,
     ),
     r'isRefillAlertEnabled': PropertySchema(
-      id: 11,
+      id: 12,
       name: r'isRefillAlertEnabled',
       type: IsarType.bool,
     ),
     r'lowStockThreshold': PropertySchema(
-      id: 12,
+      id: 13,
       name: r'lowStockThreshold',
       type: IsarType.long,
     ),
     r'mealType': PropertySchema(
-      id: 13,
+      id: 14,
       name: r'mealType',
       type: IsarType.byte,
       enumMap: _MedicinemealTypeEnumValueMap,
     ),
     r'name': PropertySchema(
-      id: 14,
+      id: 15,
       name: r'name',
       type: IsarType.string,
     ),
     r'pillImageLocalPath': PropertySchema(
-      id: 15,
+      id: 16,
       name: r'pillImageLocalPath',
       type: IsarType.string,
     ),
     r'prescriptionNotes': PropertySchema(
-      id: 16,
+      id: 17,
       name: r'prescriptionNotes',
       type: IsarType.string,
     ),
     r'specificDaysOfWeek': PropertySchema(
-      id: 17,
+      id: 18,
       name: r'specificDaysOfWeek',
       type: IsarType.longList,
     ),
     r'startDate': PropertySchema(
-      id: 18,
+      id: 19,
       name: r'startDate',
       type: IsarType.dateTime,
     ),
     r'updatedAt': PropertySchema(
-      id: 19,
+      id: 20,
       name: r'updatedAt',
       type: IsarType.dateTime,
     )
@@ -163,6 +168,7 @@ int _medicineEstimateSize(
   }
   bytesCount += 3 + object.dosageUnit.length * 3;
   bytesCount += 3 + object.formFactor.length * 3;
+  bytesCount += 3 + object.intakeGuidance.length * 3;
   bytesCount += 3 + object.name.length * 3;
   {
     final value = object.pillImageLocalPath;
@@ -195,17 +201,18 @@ void _medicineSerialize(
   writer.writeDateTime(offsets[6], object.endDate);
   writer.writeString(offsets[7], object.formFactor);
   writer.writeByte(offsets[8], object.frequency.index);
-  writer.writeLong(offsets[9], object.intervalHours);
-  writer.writeBool(offsets[10], object.isOngoing);
-  writer.writeBool(offsets[11], object.isRefillAlertEnabled);
-  writer.writeLong(offsets[12], object.lowStockThreshold);
-  writer.writeByte(offsets[13], object.mealType.index);
-  writer.writeString(offsets[14], object.name);
-  writer.writeString(offsets[15], object.pillImageLocalPath);
-  writer.writeString(offsets[16], object.prescriptionNotes);
-  writer.writeLongList(offsets[17], object.specificDaysOfWeek);
-  writer.writeDateTime(offsets[18], object.startDate);
-  writer.writeDateTime(offsets[19], object.updatedAt);
+  writer.writeString(offsets[9], object.intakeGuidance);
+  writer.writeLong(offsets[10], object.intervalHours);
+  writer.writeBool(offsets[11], object.isOngoing);
+  writer.writeBool(offsets[12], object.isRefillAlertEnabled);
+  writer.writeLong(offsets[13], object.lowStockThreshold);
+  writer.writeByte(offsets[14], object.mealType.index);
+  writer.writeString(offsets[15], object.name);
+  writer.writeString(offsets[16], object.pillImageLocalPath);
+  writer.writeString(offsets[17], object.prescriptionNotes);
+  writer.writeLongList(offsets[18], object.specificDaysOfWeek);
+  writer.writeDateTime(offsets[19], object.startDate);
+  writer.writeDateTime(offsets[20], object.updatedAt);
 }
 
 Medicine _medicineDeserialize(
@@ -227,19 +234,20 @@ Medicine _medicineDeserialize(
       _MedicinefrequencyValueEnumMap[reader.readByteOrNull(offsets[8])] ??
           FrequencyType.daily;
   object.id = id;
-  object.intervalHours = reader.readLongOrNull(offsets[9]);
-  object.isOngoing = reader.readBool(offsets[10]);
-  object.isRefillAlertEnabled = reader.readBool(offsets[11]);
-  object.lowStockThreshold = reader.readLong(offsets[12]);
+  object.intakeGuidance = reader.readString(offsets[9]);
+  object.intervalHours = reader.readLongOrNull(offsets[10]);
+  object.isOngoing = reader.readBool(offsets[11]);
+  object.isRefillAlertEnabled = reader.readBool(offsets[12]);
+  object.lowStockThreshold = reader.readLong(offsets[13]);
   object.mealType =
-      _MedicinemealTypeValueEnumMap[reader.readByteOrNull(offsets[13])] ??
+      _MedicinemealTypeValueEnumMap[reader.readByteOrNull(offsets[14])] ??
           MealType.beforeMeal;
-  object.name = reader.readString(offsets[14]);
-  object.pillImageLocalPath = reader.readStringOrNull(offsets[15]);
-  object.prescriptionNotes = reader.readStringOrNull(offsets[16]);
-  object.specificDaysOfWeek = reader.readLongList(offsets[17]) ?? [];
-  object.startDate = reader.readDateTime(offsets[18]);
-  object.updatedAt = reader.readDateTime(offsets[19]);
+  object.name = reader.readString(offsets[15]);
+  object.pillImageLocalPath = reader.readStringOrNull(offsets[16]);
+  object.prescriptionNotes = reader.readStringOrNull(offsets[17]);
+  object.specificDaysOfWeek = reader.readLongList(offsets[18]) ?? [];
+  object.startDate = reader.readDateTime(offsets[19]);
+  object.updatedAt = reader.readDateTime(offsets[20]);
   return object;
 }
 
@@ -270,27 +278,29 @@ P _medicineDeserializeProp<P>(
       return (_MedicinefrequencyValueEnumMap[reader.readByteOrNull(offset)] ??
           FrequencyType.daily) as P;
     case 9:
-      return (reader.readLongOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 10:
-      return (reader.readBool(offset)) as P;
+      return (reader.readLongOrNull(offset)) as P;
     case 11:
       return (reader.readBool(offset)) as P;
     case 12:
-      return (reader.readLong(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 13:
+      return (reader.readLong(offset)) as P;
+    case 14:
       return (_MedicinemealTypeValueEnumMap[reader.readByteOrNull(offset)] ??
           MealType.beforeMeal) as P;
-    case 14:
-      return (reader.readString(offset)) as P;
     case 15:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 16:
       return (reader.readStringOrNull(offset)) as P;
     case 17:
-      return (reader.readLongList(offset) ?? []) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 18:
-      return (reader.readDateTime(offset)) as P;
+      return (reader.readLongList(offset) ?? []) as P;
     case 19:
+      return (reader.readDateTime(offset)) as P;
+    case 20:
       return (reader.readDateTime(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1292,6 +1302,141 @@ extension MedicineQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition> intakeGuidanceEqualTo(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceGreaterThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        include: include,
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceLessThan(
+    String value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.lessThan(
+        include: include,
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition> intakeGuidanceBetween(
+    String lower,
+    String upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.between(
+        property: r'intakeGuidance',
+        lower: lower,
+        includeLower: includeLower,
+        upper: upper,
+        includeUpper: includeUpper,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.startsWith(
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.endsWith(
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceContains(String value, {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.contains(
+        property: r'intakeGuidance',
+        value: value,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition> intakeGuidanceMatches(
+      String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.matches(
+        property: r'intakeGuidance',
+        wildcard: pattern,
+        caseSensitive: caseSensitive,
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'intakeGuidance',
+        value: '',
+      ));
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterFilterCondition>
+      intakeGuidanceIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.greaterThan(
+        property: r'intakeGuidance',
+        value: '',
       ));
     });
   }
@@ -2420,6 +2565,18 @@ extension MedicineQuerySortBy on QueryBuilder<Medicine, Medicine, QSortBy> {
     });
   }
 
+  QueryBuilder<Medicine, Medicine, QAfterSortBy> sortByIntakeGuidance() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'intakeGuidance', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterSortBy> sortByIntakeGuidanceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'intakeGuidance', Sort.desc);
+    });
+  }
+
   QueryBuilder<Medicine, Medicine, QAfterSortBy> sortByIntervalHours() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'intervalHours', Sort.asc);
@@ -2665,6 +2822,18 @@ extension MedicineQuerySortThenBy
     });
   }
 
+  QueryBuilder<Medicine, Medicine, QAfterSortBy> thenByIntakeGuidance() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'intakeGuidance', Sort.asc);
+    });
+  }
+
+  QueryBuilder<Medicine, Medicine, QAfterSortBy> thenByIntakeGuidanceDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'intakeGuidance', Sort.desc);
+    });
+  }
+
   QueryBuilder<Medicine, Medicine, QAfterSortBy> thenByIntervalHours() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'intervalHours', Sort.asc);
@@ -2848,6 +3017,14 @@ extension MedicineQueryWhereDistinct
     });
   }
 
+  QueryBuilder<Medicine, Medicine, QDistinct> distinctByIntakeGuidance(
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'intakeGuidance',
+          caseSensitive: caseSensitive);
+    });
+  }
+
   QueryBuilder<Medicine, Medicine, QDistinct> distinctByIntervalHours() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'intervalHours');
@@ -2979,6 +3156,12 @@ extension MedicineQueryProperty
   QueryBuilder<Medicine, FrequencyType, QQueryOperations> frequencyProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'frequency');
+    });
+  }
+
+  QueryBuilder<Medicine, String, QQueryOperations> intakeGuidanceProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'intakeGuidance');
     });
   }
 

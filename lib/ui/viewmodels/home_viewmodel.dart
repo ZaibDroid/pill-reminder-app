@@ -7,9 +7,11 @@ import '../../core/enums/time_slot.dart';
 import '../../core/enums/view_state.dart';
 import '../../core/models/dose_log.dart';
 import '../../core/models/medicine.dart';
+import '../../core/models/reminder_time.dart';
 import '../../core/models/timeline_dose_item.dart';
 import '../../core/repositories/dose_log_repository.dart';
 import '../../core/repositories/medicine_repository.dart';
+import '../../core/repositories/reminder_repository.dart';
 import '../../core/utils/custom_logger.dart';
 import '../../core/view_model/base_view_model.dart';
 
@@ -28,6 +30,7 @@ class HomeViewModel extends BaseViewModel {
 
   final MedicineRepository _medicineRepository;
   final DoseLogRepository _doseLogRepository;
+  final ReminderRepository? _reminderRepository;
   final DoseScheduler _doseScheduler;
   final TimelineBuilder _timelineBuilder;
   final AdherenceCalculator _adherenceCalculator;
@@ -41,11 +44,16 @@ class HomeViewModel extends BaseViewModel {
   HomeViewModel({
     MedicineRepository? medicineRepository,
     DoseLogRepository? doseLogRepository,
+    ReminderRepository? reminderRepository,
     DoseScheduler? doseScheduler,
     TimelineBuilder? timelineBuilder,
     AdherenceCalculator? adherenceCalculator,
   })  : _medicineRepository = medicineRepository ?? locator<MedicineRepository>(),
         _doseLogRepository = doseLogRepository ?? locator<DoseLogRepository>(),
+        _reminderRepository = reminderRepository ??
+            (locator.isRegistered<ReminderRepository>()
+                ? locator<ReminderRepository>()
+                : null),
         _doseScheduler = doseScheduler ??
             (locator.isRegistered<DoseScheduler>()
                 ? locator<DoseScheduler>()
@@ -133,11 +141,29 @@ class HomeViewModel extends BaseViewModel {
 
     try {
       final allMedicines = await _medicineRepository.getAllMedicines();
+      List<ReminderTime> allReminders = [];
+      if (_reminderRepository != null) {
+        try {
+          allReminders = await _reminderRepository.getAllReminderTimes();
+          for (final r in allReminders) {
+            await r.medicine.load();
+          }
+        } catch (e) {
+          log.d('@loadTodayTimeline: Could not fetch all reminders ($e)');
+        }
+      }
+
       _activeMedicines = _doseScheduler.filterActiveMedicines(allMedicines, _selectedDate);
 
       // Ensure reminders are loaded for active medicines
       for (final med in _activeMedicines) {
         await med.reminders.load();
+        if (med.reminders.isEmpty && allReminders.isNotEmpty) {
+          final matched = allReminders.where((r) => r.medicine.value?.id == med.id).toList();
+          for (final r in matched) {
+            med.reminders.add(r);
+          }
+        }
       }
 
       final startOfDay = _doseScheduler.getStartOfDay(_selectedDate);
