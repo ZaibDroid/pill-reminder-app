@@ -178,15 +178,6 @@ class SettingsViewModel extends BaseViewModel {
     await _userSettingsRepository.saveUserSettings(_settings!);
   }
 
-  Future<void> triggerTestAlarm() async {
-    try {
-      await _alarmService.testAlarm();
-      log.i('@triggerTestAlarm: Test alarm triggered successfully');
-    } catch (e, stackTrace) {
-      log.e('@triggerTestAlarm: Failed to trigger test alarm', e, stackTrace);
-    }
-  }
-
   Future<int> syncAllAlarms() async {
     try {
       final count = await _alarmService.rescheduleAllActiveAlarms();

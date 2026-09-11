@@ -1,16 +1,72 @@
 import 'package:flutter/material.dart';
+import '../../../../app/locator.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/models/medicine.dart';
+import '../../../../core/repositories/medicine_repository.dart';
 
 class MedicineRefillCard extends StatelessWidget {
   final Medicine medicine;
+  final VoidCallback? onStockUpdated;
 
   const MedicineRefillCard({
     super.key,
     required this.medicine,
+    this.onStockUpdated,
   });
+
+  void _showRefillDialog(BuildContext context) {
+    final controller = TextEditingController(text: '30');
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Refill ${medicine.name}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Current stock: ${medicine.currentStock} remaining',
+              style: AppTextStyles.bodyMd,
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              autofocus: true,
+              decoration: const InputDecoration(
+                labelText: 'Add Quantity',
+                hintText: 'Enter units to add (e.g. 30)',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.add_shopping_cart),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final added = int.tryParse(controller.text) ?? 0;
+              if (added > 0) {
+                medicine.currentStock += added;
+                if (locator.isRegistered<MedicineRepository>()) {
+                  await locator<MedicineRepository>().updateMedicine(medicine);
+                }
+                if (ctx.mounted) Navigator.of(ctx).pop();
+                onStockUpdated?.call();
+              }
+            },
+            child: const Text('Add to Stock'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +144,20 @@ class MedicineRefillCard extends StatelessWidget {
             'Refill reminder set when stock reaches ${medicine.lowStockThreshold} doses.',
             style: AppTextStyles.labelSm.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () => _showRefillDialog(context),
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Refill Stock'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: theme.colorScheme.primary,
+                side: BorderSide(color: theme.colorScheme.primary.withValues(alpha: 0.5)),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.radiusMd),
+              ),
             ),
           ),
         ],

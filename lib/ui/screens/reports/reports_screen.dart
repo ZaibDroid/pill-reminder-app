@@ -8,6 +8,7 @@ import 'package:pill_reminder_app/ui/screens/reports/widgets/adherence_heatmap_c
 import 'package:pill_reminder_app/ui/screens/reports/widgets/adherence_metrics_grid.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/dose_distribution_chart.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/export_report_button.dart';
+import 'package:pill_reminder_app/ui/screens/reports/widgets/report_filter_selector.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/reports_header.dart';
 import 'package:pill_reminder_app/ui/viewmodels/reports_viewmodel.dart';
 
@@ -66,7 +67,16 @@ class _ReportsScreenContent extends StatelessWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.only(top: 8, bottom: 96),
         children: [
-          ReportsHeader(currentMonth: viewModel.currentMonth),
+          ReportsHeader(
+            currentMonth: viewModel.currentMonth,
+            selectedFilter: viewModel.selectedFilter,
+            dateRangeText: viewModel.filterDateRangeText,
+          ),
+          const SizedBox(height: 8),
+          ReportFilterSelector(
+            selectedFilter: viewModel.selectedFilter,
+            onFilterSelected: (filter) => viewModel.setFilter(filter),
+          ),
           const SizedBox(height: 12),
           DoseDistributionChart(
             takenPercentage: viewModel.takenPercentage,
@@ -85,6 +95,8 @@ class _ReportsScreenContent extends StatelessWidget {
             currentMonth: viewModel.currentMonth,
             dailyAdherenceRates: viewModel.dailyAdherenceRates,
             dailyDoseCounts: viewModel.dailyDoseCounts,
+            selectedFilter: viewModel.selectedFilter,
+            filteredDays: viewModel.filteredDays,
           ),
           const SizedBox(height: 24),
           ExportReportButton(

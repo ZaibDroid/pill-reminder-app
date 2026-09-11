@@ -112,22 +112,6 @@ class _SettingsScreenContent extends StatelessWidget {
               },
             ),
             SettingsNavigationTile(
-              icon: Icons.notification_important_rounded,
-              title: 'Test Alarm & Vibration',
-              subtitle: 'Trigger a test alarm immediately',
-              onTap: () async {
-                await viewModel.triggerTestAlarm();
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Test alarm triggered! Check notification and vibration.'),
-                      duration: Duration(seconds: 3),
-                    ),
-                  );
-                }
-              },
-            ),
-            SettingsNavigationTile(
               icon: Icons.sync_rounded,
               title: 'Resync All Reminders',
               subtitle: 'Re-align all medicine alarms with device clock',

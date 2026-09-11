@@ -7,6 +7,7 @@ import '../../core/domain/adherence_calculator.dart';
 import '../../core/domain/dose_scheduler.dart';
 import '../../core/domain/timeline_builder.dart';
 import '../../core/enums/medicine_status.dart';
+import '../../core/enums/report_filter.dart';
 import '../../core/enums/view_state.dart';
 import '../../core/models/dose_log.dart';
 import '../../core/models/emergency_contact.dart';
@@ -30,7 +31,12 @@ class ReportsViewModel extends BaseViewModel {
   final EmergencyContactRepository? _emergencyContactRepository;
   final LocalStorageService? _localStorageService;
 
+  ReportFilter _selectedFilter = ReportFilter.lastMonth;
   DateTime _currentMonth = DateTime.now();
+  DateTime _startDate = DateTime.now();
+  DateTime _endDate = DateTime.now();
+  final List<DateTime> _filteredDays = [];
+
   List<DoseLog> _monthLogs = [];
   List<Medicine> _medicines = [];
   List<EmergencyContact> _contacts = [];
@@ -79,7 +85,12 @@ class ReportsViewModel extends BaseViewModel {
                 ? locator<LocalStorageService>()
                 : null);
 
+  ReportFilter get selectedFilter => _selectedFilter;
   DateTime get currentMonth => _currentMonth;
+  DateTime get startDate => _startDate;
+  DateTime get endDate => _endDate;
+  List<DateTime> get filteredDays => List.unmodifiable(_filteredDays);
+
   List<DoseLog> get monthLogs => List.unmodifiable(_monthLogs);
   List<Medicine> get medicines => List.unmodifiable(_medicines);
   List<EmergencyContact> get contacts => List.unmodifiable(_contacts);
@@ -95,6 +106,15 @@ class ReportsViewModel extends BaseViewModel {
   int get longestStreakDays => _longestStreakDays;
   bool get isExporting => _isExporting;
   String? get errorMessage => _errorMessage;
+
+  String get filterDateRangeText {
+    if (_selectedFilter == ReportFilter.allHistory) {
+      return '${DateFormat('MMM d, yyyy').format(_startDate)} - ${DateFormat('MMM d, yyyy').format(_endDate)}';
+    }
+    return '${DateFormat('MMM d').format(_startDate)} - ${DateFormat('MMM d, yyyy').format(_endDate)}';
+  }
+
+  String get filterPeriodTitle => _selectedFilter.label;
 
   double get takenPercentage =>
       _totalScheduledCount == 0 ? 0.0 : (_takenCount / _totalScheduledCount) * 100.0;
@@ -113,21 +133,68 @@ class ReportsViewModel extends BaseViewModel {
   bool get hasError => state == ViewState.error;
   bool get isEmpty => !isLoading && !hasError && _totalScheduledCount == 0 && _monthLogs.isEmpty;
 
-  Future<void> loadMonthlyReports({DateTime? month}) async {
+  Future<void> setFilter(ReportFilter filter) async {
+    _selectedFilter = filter;
+    await loadMonthlyReports(filter: filter);
+  }
+
+  Future<void> loadMonthlyReports({DateTime? month, ReportFilter? filter}) async {
+    if (filter != null) {
+      _selectedFilter = filter;
+    }
     _currentMonth = month ?? _currentMonth;
     _errorMessage = null;
     setState(ViewState.busy);
+
     try {
-      final startOfMonth = DateTime(_currentMonth.year, _currentMonth.month, 1, 0, 0, 0, 0);
-      final daysInMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
-      final endOfMonth = DateTime(_currentMonth.year, _currentMonth.month, daysInMonth, 23, 59, 59, 999);
+      final now = DateTime.now();
+
+      if (month != null) {
+        _startDate = DateTime(_currentMonth.year, _currentMonth.month, 1, 0, 0, 0, 0);
+        final daysInMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
+        _endDate = DateTime(_currentMonth.year, _currentMonth.month, daysInMonth, 23, 59, 59, 999);
+      } else {
+        switch (_selectedFilter) {
+          case ReportFilter.lastWeek:
+            _endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+            _startDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0)
+                .subtract(const Duration(days: 6));
+            _currentMonth = DateTime(now.year, now.month, 1);
+            break;
+          case ReportFilter.lastMonth:
+            _endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+            _startDate = DateTime(now.year, now.month, now.day, 0, 0, 0, 0)
+                .subtract(const Duration(days: 29));
+            _currentMonth = DateTime(now.year, now.month, 1);
+            break;
+          case ReportFilter.allHistory:
+            _endDate = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+            _currentMonth = DateTime(now.year, now.month, 1);
+            final allLogs = await _doseLogRepository.getAllDoseLogs();
+            final allMeds = await _medicineRepository.getAllMedicines();
+            DateTime earliest = DateTime(now.year, now.month, now.day).subtract(const Duration(days: 30));
+            for (final l in allLogs) {
+              if (l.scheduledDateTime.isBefore(earliest)) {
+                earliest = l.scheduledDateTime;
+              }
+            }
+            for (final m in allMeds) {
+              if (m.startDate.isBefore(earliest)) {
+                earliest = m.startDate;
+              }
+            }
+            _startDate = DateTime(earliest.year, earliest.month, earliest.day, 0, 0, 0, 0);
+            break;
+        }
+      }
 
       _medicines = await _medicineRepository.getAllMedicines();
       for (final med in _medicines) {
         await med.reminders.load();
       }
 
-      _monthLogs = await _doseLogRepository.getDoseLogsForDateRange(startOfMonth, endOfMonth);
+      // Fetch logs for the filtered range
+      _monthLogs = await _doseLogRepository.getDoseLogsForDateRange(_startDate, _endDate);
       for (final l in _monthLogs) {
         await l.medicine.load();
         await l.reminderTime.load();
@@ -135,20 +202,22 @@ class ReportsViewModel extends BaseViewModel {
 
       _dailyAdherenceRates.clear();
       _dailyDoseCounts.clear();
+      _filteredDays.clear();
 
       int scheduledSum = 0;
       int takenSum = 0;
       int skippedSum = 0;
       int missedSum = 0;
 
-      final now = DateTime.now();
-      final isCurrentMonth = _currentMonth.year == now.year && _currentMonth.month == now.month;
-      final isFutureMonth = _currentMonth.isAfter(DateTime(now.year, now.month + 1, 0));
       final todayEndOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
 
-      for (int day = 1; day <= daysInMonth; day++) {
-        final dayDate = DateTime(_currentMonth.year, _currentMonth.month, day);
-        final isFutureDay = isFutureMonth || (isCurrentMonth && dayDate.isAfter(todayEndOfDay));
+      // 1. Populate filtered range stats and filtered days list
+      final totalDays = _endDate.difference(_startDate).inDays + 1;
+      for (int i = 0; i < totalDays; i++) {
+        final dayDate = DateTime(_startDate.year, _startDate.month, _startDate.day + i);
+        _filteredDays.add(dayDate);
+
+        final isFutureDay = dayDate.isAfter(todayEndOfDay);
         final dayActive = _doseScheduler.filterActiveMedicines(_medicines, dayDate);
         final dayLogs = _monthLogs
             .where((l) =>
@@ -168,17 +237,6 @@ class ReportsViewModel extends BaseViewModel {
         final daySkipped = _adherenceCalculator.countSkipped(dayItems);
         final dayMissed = _adherenceCalculator.countMissed(dayItems);
 
-        _dailyDoseCounts[day] = isFutureDay ? 0 : dayTotal;
-        if (dayTotal > 0 && !isFutureDay) {
-          _dailyAdherenceRates[day] = _adherenceCalculator.calculateAdherenceRate(
-            total: dayTotal,
-            taken: dayTaken,
-            skipped: daySkipped,
-          );
-        } else {
-          _dailyAdherenceRates[day] = 0.0;
-        }
-
         if (!isFutureDay) {
           scheduledSum += dayTotal;
           takenSum += dayTaken;
@@ -192,7 +250,51 @@ class ReportsViewModel extends BaseViewModel {
       _skippedCount = skippedSum > 0 ? skippedSum : _monthLogs.where((l) => l.status == MedicineStatus.skipped).length;
       _missedCount = missedSum > 0 ? missedSum : _monthLogs.where((l) => l.status == MedicineStatus.missed).length;
 
-      _calculateStreak(daysInMonth);
+      // 2. Populate calendar heatmap for the current running month (days 1 to 28/29/30/31)
+      final daysInCurrentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 0).day;
+      final startOfCurrentMonth = DateTime(_currentMonth.year, _currentMonth.month, 1, 0, 0, 0, 0);
+      final endOfCurrentMonth = DateTime(_currentMonth.year, _currentMonth.month, daysInCurrentMonth, 23, 59, 59, 999);
+
+      final monthCalendarLogs = await _doseLogRepository.getDoseLogsForDateRange(startOfCurrentMonth, endOfCurrentMonth);
+      for (final l in monthCalendarLogs) {
+        await l.medicine.load();
+        await l.reminderTime.load();
+      }
+
+      for (int dayNumber = 1; dayNumber <= daysInCurrentMonth; dayNumber++) {
+        final mDayDate = DateTime(_currentMonth.year, _currentMonth.month, dayNumber);
+        final isFuture = mDayDate.isAfter(todayEndOfDay);
+        final mDayActive = _doseScheduler.filterActiveMedicines(_medicines, mDayDate);
+        final mDayLogs = monthCalendarLogs
+            .where((l) =>
+                l.scheduledDateTime.year == mDayDate.year &&
+                l.scheduledDateTime.month == mDayDate.month &&
+                l.scheduledDateTime.day == mDayDate.day)
+            .toList();
+
+        final mDayItems = _timelineBuilder.buildTimeline(
+          activeMedicines: mDayActive,
+          doseLogs: mDayLogs,
+          date: mDayDate,
+        );
+
+        final mDayTotal = mDayItems.length;
+        final mDayTaken = _adherenceCalculator.countTaken(mDayItems);
+        final mDaySkipped = _adherenceCalculator.countSkipped(mDayItems);
+
+        _dailyDoseCounts[dayNumber] = isFuture ? 0 : mDayTotal;
+        if (mDayTotal > 0 && !isFuture) {
+          _dailyAdherenceRates[dayNumber] = _adherenceCalculator.calculateAdherenceRate(
+            total: mDayTotal,
+            taken: mDayTaken,
+            skipped: mDaySkipped,
+          );
+        } else {
+          _dailyAdherenceRates[dayNumber] = 0.0;
+        }
+      }
+
+      _calculateStreak();
 
       if (_localStorageService != null) {
         _userName = _localStorageService.getString('user_name') ?? 'Eleanor Vance';
@@ -203,28 +305,27 @@ class ReportsViewModel extends BaseViewModel {
         _contacts = await _emergencyContactRepository.getAllEmergencyContacts();
       }
 
-      log.i('@loadMonthlyReports: Processed ${_monthLogs.length} logs and $_totalScheduledCount scheduled doses for $_currentMonth');
+      log.i('@loadMonthlyReports: Processed ${_monthLogs.length} logs and $_totalScheduledCount scheduled doses for filter ${_selectedFilter.name} ($_startDate to $_endDate). Month heatmap loaded for $daysInCurrentMonth days.');
       setState(ViewState.idle);
     } catch (e, stackTrace) {
       _errorMessage = e.toString();
-      log.e('@loadMonthlyReports: Error loading monthly report', e, stackTrace);
+      log.e('@loadMonthlyReports: Error loading report', e, stackTrace);
       setState(ViewState.error);
     }
   }
 
-  void _calculateStreak(int daysInMonth) {
+  void _calculateStreak() {
     int maxStreak = 0;
     int currentStreak = 0;
     final now = DateTime.now();
 
-    for (int day = 1; day <= daysInMonth; day++) {
-      final dayDate = DateTime(_currentMonth.year, _currentMonth.month, day);
+    for (final dayDate in _filteredDays) {
       if (dayDate.isAfter(now)) {
         break;
       }
 
-      final count = _dailyDoseCounts[day] ?? 0;
-      final rate = _dailyAdherenceRates[day] ?? 0.0;
+      final count = _dailyDoseCounts[dayDate.day] ?? 0;
+      final rate = _dailyAdherenceRates[dayDate.day] ?? 0.0;
 
       if (count > 0) {
         if (rate >= 100.0) {
@@ -240,12 +341,12 @@ class ReportsViewModel extends BaseViewModel {
     _longestStreakDays = maxStreak;
   }
 
-  /// Pure Dart method constructing the comprehensive PDF Document for reporting & testing.
+  /// Pure Dart method constructing the comprehensive PDF Document reflecting the active filter.
   pw.Document generatePdfReport() {
     final pdf = pw.Document();
-    final monthStr = DateFormat('MMMM yyyy').format(_currentMonth);
     final now = DateTime.now();
     final dateStr = DateFormat('MMMM d, yyyy - hh:mm a').format(now);
+    final periodHeaderStr = '${_selectedFilter.label} ($filterDateRangeText)';
 
     pdf.addPage(
       pw.MultiPage(
@@ -271,7 +372,7 @@ class ReportsViewModel extends BaseViewModel {
                     ),
                     pw.SizedBox(height: 3),
                     pw.Text(
-                      'Monthly Adherence & Prescription Report - $monthStr',
+                      '${_selectedFilter.label} Adherence & Prescription Report - $filterDateRangeText',
                       style: const pw.TextStyle(
                         fontSize: 11,
                         color: PdfColors.grey700,
@@ -350,8 +451,12 @@ class ReportsViewModel extends BaseViewModel {
                       ),
                       pw.SizedBox(height: 2),
                       pw.Text(
-                        monthStr,
-                        style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold),
+                        _selectedFilter.label,
+                        style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, color: PdfColors.teal900),
+                      ),
+                      pw.Text(
+                        filterDateRangeText,
+                        style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey700),
                       ),
                     ],
                   ),
@@ -376,7 +481,7 @@ class ReportsViewModel extends BaseViewModel {
 
             // Adherence Highlights
             pw.Text(
-              'Monthly Adherence Highlights',
+              '${_selectedFilter.label} Adherence Highlights',
               style: pw.TextStyle(
                 fontSize: 14,
                 fontWeight: pw.FontWeight.bold,
@@ -487,7 +592,7 @@ class ReportsViewModel extends BaseViewModel {
 
             // Dose Logs Table
             pw.Text(
-              'Recorded Dose Logs ($monthStr)',
+              'Recorded Dose Logs ($periodHeaderStr)',
               style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: PdfColors.blue900),
             ),
             pw.SizedBox(height: 8),
@@ -584,8 +689,8 @@ class ReportsViewModel extends BaseViewModel {
       final doc = generatePdfReport();
       final bytes = await doc.save();
       final cleanName = _userName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
-      final monthTag = DateFormat('yyyyMM').format(_currentMonth);
-      final filename = 'MediAlert_Health_Report_${cleanName}_$monthTag.pdf';
+      final filterTag = _selectedFilter.name;
+      final filename = 'MediAlert_Health_Report_${cleanName}_$filterTag.pdf';
 
       await Printing.sharePdf(
         bytes: bytes,
@@ -610,8 +715,8 @@ class ReportsViewModel extends BaseViewModel {
     try {
       final doc = generatePdfReport();
       final cleanName = _userName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
-      final monthTag = DateFormat('yyyyMM').format(_currentMonth);
-      final filename = 'MediAlert_Health_Report_${cleanName}_$monthTag.pdf';
+      final filterTag = _selectedFilter.name;
+      final filename = 'MediAlert_Health_Report_${cleanName}_$filterTag.pdf';
 
       await Printing.layoutPdf(
         onLayout: (PdfPageFormat format) async => doc.save(),

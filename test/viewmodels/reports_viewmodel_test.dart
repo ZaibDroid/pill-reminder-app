@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import 'package:pill_reminder_app/core/enums/frequency_type.dart';
 import 'package:pill_reminder_app/core/enums/meal_type.dart';
 import 'package:pill_reminder_app/core/enums/medicine_status.dart';
+import 'package:pill_reminder_app/core/enums/report_filter.dart';
 import 'package:pill_reminder_app/core/models/dose_log.dart';
 import 'package:pill_reminder_app/core/models/medicine.dart';
 import 'package:pill_reminder_app/core/models/reminder_time.dart';
@@ -185,16 +186,48 @@ void main() {
       expect(vm.dailyDoseCounts[3], equals(0)); // Medication course ended
     });
 
-    test('PDF Document generates valid document with structured tables and stats', () async {
-      final month = DateTime(2026, 9, 1);
+    test('Filter switching between Last Week, Last Month, and All History updates ranges and state', () async {
+      final med = Medicine()
+        ..name = 'Atorvastatin'
+        ..dosageValue = 20
+        ..dosageUnit = 'mg'
+        ..frequency = FrequencyType.daily
+        ..mealType = MealType.beforeMeal
+        ..startDate = DateTime.now().subtract(const Duration(days: 40));
+      await medicineRepository.saveMedicine(med);
 
+      final vm = ReportsViewModel(
+        doseLogRepository: doseLogRepository,
+        medicineRepository: medicineRepository,
+      );
+
+      // Default filter is lastMonth
+      await vm.loadMonthlyReports();
+      expect(vm.selectedFilter, equals(ReportFilter.lastMonth));
+      expect(vm.filterPeriodTitle, equals('Last Month'));
+      expect(vm.filteredDays.length, equals(30));
+
+      // Switch to lastWeek
+      await vm.setFilter(ReportFilter.lastWeek);
+      expect(vm.selectedFilter, equals(ReportFilter.lastWeek));
+      expect(vm.filterPeriodTitle, equals('Last Week'));
+      expect(vm.filteredDays.length, equals(7));
+
+      // Switch to allHistory
+      await vm.setFilter(ReportFilter.allHistory);
+      expect(vm.selectedFilter, equals(ReportFilter.allHistory));
+      expect(vm.filterPeriodTitle, equals('All History'));
+      expect(vm.filteredDays.length, greaterThanOrEqualTo(30));
+    });
+
+    test('PDF Document generates valid document with structured tables and stats for active filter', () async {
       final med = Medicine()
         ..name = 'Aspirin'
         ..dosageValue = 81
         ..dosageUnit = 'mg'
         ..frequency = FrequencyType.daily
         ..mealType = MealType.afterMeal
-        ..startDate = DateTime(2026, 9, 1);
+        ..startDate = DateTime.now().subtract(const Duration(days: 3));
       await medicineRepository.saveMedicine(med);
 
       final rem = ReminderTime()
@@ -208,8 +241,8 @@ void main() {
 
       final log = DoseLog()
         ..status = MedicineStatus.taken
-        ..scheduledDateTime = DateTime(2026, 9, 1, 8, 0)
-        ..actualTakenDateTime = DateTime(2026, 9, 1, 8, 5);
+        ..scheduledDateTime = DateTime.now().subtract(const Duration(days: 1))
+        ..actualTakenDateTime = DateTime.now().subtract(const Duration(days: 1));
       log.medicine.value = med;
       log.reminderTime.value = rem;
       await doseLogRepository.saveDoseLog(log);
@@ -219,12 +252,11 @@ void main() {
         medicineRepository: medicineRepository,
       );
 
-      await vm.loadMonthlyReports(month: month);
+      await vm.setFilter(ReportFilter.lastWeek);
 
       final doc = vm.generatePdfReport();
       expect(doc, isNotNull);
 
-      // Verify that pdf document bytes can be generated cleanly in pure Dart
       final bytes = await doc.save();
       expect(bytes, isNotEmpty);
       expect(bytes.length, greaterThan(500));

@@ -351,21 +351,6 @@ class AlarmService {
     }
   }
 
-  /// Triggers an immediate test notification with sound and vibration to verify system alarms.
-  Future<void> testAlarm() async {
-    try {
-      log.i('@testAlarm: Triggering immediate test alarm notification');
-      await _notificationService.showNotification(
-        id: 999999,
-        title: 'MediAlert Alarm Test',
-        body: 'Test notification - Sound and vibration are configured and active!',
-        enableVibration: true,
-      );
-    } catch (e, stackTrace) {
-      log.e('@testAlarm: Error triggering test alarm', e, stackTrace);
-    }
-  }
-
   String? _lastTriggeredSlot;
 
   /// Checks if any active medication reminder matches the current minute right now.

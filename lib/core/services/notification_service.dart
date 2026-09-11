@@ -1,23 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../../app/locator.dart';
-import '../../app/routes.dart';
-import '../enums/medicine_status.dart';
-import '../models/dose_log.dart';
-import '../models/reminder_time.dart';
-import '../repositories/dose_log_repository.dart';
+import '../models/medicine.dart';
 import '../repositories/medicine_repository.dart';
 import '../utils/custom_logger.dart';
-import 'alarm_service.dart';
+import 'notifications/notification_action_handler.dart';
+import 'notifications/notification_channels.dart';
+import 'notifications/notification_timezone_helper.dart';
 import 'permission_service.dart';
 
 /// Offline-first notification service for MediAlert medication reminders.
-/// Handles local notification initialization, scheduling, cancellation, and permission checks.
+/// Coordinates notification initialization, scheduling, cancellation, and inventory alerts.
 class NotificationService {
   final log = CustomLogger(className: '@NotificationService');
 
@@ -27,10 +22,14 @@ class NotificationService {
   bool _isInitialized = false;
 
   /// High-priority notification channel ID for medication reminders.
-  static const String channelId = 'medialert_reminders';
-  static const String channelName = 'Medication Reminders';
-  static const String channelDescription =
-      'Notifications for scheduled medication doses and adherence reminders';
+  static const String channelId = NotificationChannels.reminderChannelId;
+  static const String channelName = NotificationChannels.reminderChannelName;
+  static const String channelDescription = NotificationChannels.reminderChannelDescription;
+
+  /// Standard notification channel ID for low-stock inventory refill alerts.
+  static const String lowStockChannelId = NotificationChannels.lowStockChannelId;
+  static const String lowStockChannelName = NotificationChannels.lowStockChannelName;
+  static const String lowStockChannelDescription = NotificationChannels.lowStockChannelDescription;
 
   NotificationService({
     FlutterLocalNotificationsPlugin? notificationsPlugin,
@@ -52,7 +51,6 @@ class NotificationService {
   PermissionService get permissionService => _permissionService;
 
   /// Initializes the local notification plugin, timezone database, and notification channels.
-  /// Optionally requests notification permissions via [PermissionService].
   Future<bool> init({
     bool requestPermission = false,
     void Function(NotificationResponse)? onNotificationTap,
@@ -65,76 +63,36 @@ class NotificationService {
     try {
       log.i('@init: Initializing offline-first NotificationService...');
 
-      // 1. Initialize timezone database and detect device native timezone
-      try {
-        tz.initializeTimeZones();
-        final timeZoneInfo = await FlutterTimezone.getLocalTimezone();
-        final timeZoneName = timeZoneInfo.identifier;
-        tz.setLocalLocation(tz.getLocation(timeZoneName));
-        log.i('@init: Local timezone set to native device location: $timeZoneName');
-      } catch (e) {
-        log.w('@init: Error detecting native timezone ($e), attempting fallback');
-        try {
-          final fallbackName = DateTime.now().timeZoneName;
-          if (tz.timeZoneDatabase.locations.containsKey(fallbackName)) {
-            tz.setLocalLocation(tz.getLocation(fallbackName));
-          }
-        } catch (_) {}
-      }
+      // 1. Initialize timezone
+      await NotificationTimezoneHelper.configureTimezone();
 
-      // 2. Setup Android initialization settings
-      const androidSettings =
-          AndroidInitializationSettings('@mipmap/ic_launcher');
-
-      // 3. Setup iOS/macOS (Darwin) initialization settings
-      // We manage permissions explicitly via PermissionService
-      const darwinSettings = DarwinInitializationSettings(
-        requestAlertPermission: false,
-        requestBadgePermission: false,
-        requestSoundPermission: false,
-      );
-
-      // 4. Setup Linux initialization settings
-      const linuxSettings =
-          LinuxInitializationSettings(defaultActionName: 'Open');
-
-      const initializationSettings = InitializationSettings(
-        android: androidSettings,
-        iOS: darwinSettings,
-        macOS: darwinSettings,
-        linux: linuxSettings,
-      );
-
-      // 5. Initialize the plugin
+      // 2. Initialize notification plugin
+      final initializationSettings = NotificationTimezoneHelper.buildInitializationSettings();
       final initialized = await _notificationsPlugin.initialize(
         initializationSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-          _handleNotificationResponse(response, onNotificationTap);
+        onDidReceiveNotificationResponse: (response) {
+          NotificationActionHandler.handleResponse(
+            response,
+            onNotificationTap: onNotificationTap,
+            onLowStockCheck: checkAndNotifyLowStock,
+          );
         },
       );
 
-      // 6. Create Android Notification Channel
+      // 3. Create native notification channels on Android
       if (defaultTargetPlatform == TargetPlatform.android) {
-        await _createAndroidNotificationChannel();
+        await NotificationChannels.createAndroidChannels(_notificationsPlugin);
       }
 
       _isInitialized = initialized ?? true;
       log.i('@init: NotificationService initialized successfully (status: $_isInitialized)');
 
-      // 7. Check if app was launched via notification tap
-      try {
-        final launchDetails = await _notificationsPlugin.getNotificationAppLaunchDetails();
-        if (launchDetails?.didNotificationLaunchApp == true &&
-            launchDetails?.notificationResponse != null) {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            _handleNotificationResponse(launchDetails!.notificationResponse!, onNotificationTap);
-          });
-        }
-      } catch (_) {}
+      // 4. Check if app was launched via notification tap
+      await _checkAppLaunchNotification(onNotificationTap);
 
-      // 8. Optionally handle permission request
+      // 5. Optionally request permissions
       if (requestPermission) {
-        log.i('@init: Requesting notification permissions as requested...');
+        log.i('@init: Requesting notification permissions...');
         await _permissionService.requestNotificationPermission();
       }
 
@@ -145,166 +103,7 @@ class NotificationService {
     }
   }
 
-  /// Handles user interaction with notifications and action buttons.
-  Future<void> _handleNotificationResponse(
-    NotificationResponse response, [
-    void Function(NotificationResponse)? onNotificationTap,
-  ]) async {
-    log.i('@_handleNotificationResponse: Received notification response: actionId=${response.actionId}, payload=${response.payload}');
-    onNotificationTap?.call(response);
-
-    final payload = response.payload;
-    if (payload == null || payload.isEmpty) return;
-
-    try {
-      final Map<String, dynamic> data = jsonDecode(payload);
-      final medicineId = data['medicineId'] as int?;
-
-      if (medicineId != null && locator.isRegistered<MedicineRepository>()) {
-        final medRepo = locator<MedicineRepository>();
-        final medicine = await medRepo.getMedicine(medicineId);
-        if (medicine != null) {
-          await medicine.reminders.load();
-
-          if (response.actionId == 'take_action') {
-            log.i('@_handleNotificationResponse: Quick action -> Take Dose');
-            if (locator.isRegistered<DoseLogRepository>()) {
-              final doseLog = DoseLog()
-                ..scheduledDateTime = DateTime.now()
-                ..actualTakenDateTime = DateTime.now()
-                ..status = MedicineStatus.taken;
-              doseLog.medicine.value = medicine;
-              await locator<DoseLogRepository>().saveDoseLog(doseLog);
-
-              if (medicine.currentStock > 0) {
-                medicine.currentStock -= 1;
-                await medRepo.updateMedicine(medicine);
-              }
-            }
-            return;
-          } else if (response.actionId == 'snooze_action') {
-            log.i('@_handleNotificationResponse: Quick action -> Snooze 10m');
-            if (locator.isRegistered<AlarmService>()) {
-              final reminder = medicine.reminders.isNotEmpty
-                  ? medicine.reminders.first
-                  : ReminderTime();
-              await locator<AlarmService>().snoozeAlarm(
-                medicine: medicine,
-                reminder: reminder,
-                durationMinutes: 10,
-              );
-            }
-            return;
-          } else if (response.actionId == 'skip_action') {
-            log.i('@_handleNotificationResponse: Quick action -> Skip Dose');
-            if (locator.isRegistered<DoseLogRepository>()) {
-              final doseLog = DoseLog()
-                ..scheduledDateTime = DateTime.now()
-                ..status = MedicineStatus.skipped;
-              doseLog.medicine.value = medicine;
-              await locator<DoseLogRepository>().saveDoseLog(doseLog);
-            }
-            return;
-          }
-
-          // Full-screen tap / alarm popup: Navigate directly to ActiveAlarmScreen!
-          AppRoutes.navigatorKey.currentState?.pushNamed(
-            AppRoutes.alarm,
-            arguments: medicine,
-          );
-        }
-      }
-    } catch (e, stackTrace) {
-      log.e('@_handleNotificationResponse: Error processing notification payload', e, stackTrace);
-    }
-  }
-
-  /// Creates the primary high-importance Android notification channel.
-  Future<void> _createAndroidNotificationChannel() async {
-    try {
-      final androidPlugin = _notificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>();
-
-      if (androidPlugin != null) {
-        final androidChannel = AndroidNotificationChannel(
-          channelId,
-          channelName,
-          description: channelDescription,
-          importance: Importance.max,
-          playSound: true,
-          enableVibration: true,
-          vibrationPattern: Int64List.fromList([0, 1000, 500, 1000]),
-          audioAttributesUsage: AudioAttributesUsage.alarm,
-        );
-
-        await androidPlugin.createNotificationChannel(androidChannel);
-        log.d('@_createAndroidNotificationChannel: Notification channel created ($channelId)');
-      }
-    } catch (e, stackTrace) {
-      log.e('@_createAndroidNotificationChannel: Error creating Android channel', e, stackTrace);
-    }
-  }
-
-  /// Returns the default [NotificationDetails] for medication reminders.
-  NotificationDetails _defaultNotificationDetails({
-    bool enableVibration = true,
-  }) {
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
-      channelName,
-      channelDescription: channelDescription,
-      importance: Importance.max,
-      priority: Priority.high,
-      playSound: true,
-      enableVibration: enableVibration,
-      vibrationPattern: enableVibration
-          ? Int64List.fromList([0, 1000, 500, 1000])
-          : null,
-      category: AndroidNotificationCategory.alarm,
-      audioAttributesUsage: AudioAttributesUsage.alarm,
-      fullScreenIntent: true,
-      visibility: NotificationVisibility.public,
-      icon: '@mipmap/ic_launcher',
-      largeIcon: const DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-      color: const Color(0xFF00685F),
-      actions: const <AndroidNotificationAction>[
-        AndroidNotificationAction(
-          'take_action',
-          'Take',
-          showsUserInterface: true,
-          cancelNotification: true,
-        ),
-        AndroidNotificationAction(
-          'snooze_action',
-          'Snooze (10m)',
-          showsUserInterface: false,
-          cancelNotification: true,
-        ),
-        AndroidNotificationAction(
-          'skip_action',
-          'Skip',
-          showsUserInterface: false,
-          cancelNotification: true,
-        ),
-      ],
-    );
-
-    const darwinDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-      interruptionLevel: InterruptionLevel.timeSensitive,
-    );
-
-    return NotificationDetails(
-      android: androidDetails,
-      iOS: darwinDetails,
-      macOS: darwinDetails,
-    );
-  }
-
-  /// Displays an immediate local notification.
+  /// Displays an immediate local notification (e.g. medication alarm).
   Future<void> showNotification({
     required int id,
     required String title,
@@ -313,12 +112,12 @@ class NotificationService {
     bool enableVibration = true,
   }) async {
     try {
-      log.i('@showNotification: Showing immediate notification [ID: $id] "$title"');
+      log.i('@showNotification: Showing notification [ID: $id] "$title"');
       await _notificationsPlugin.show(
         id,
         title,
         body,
-        _defaultNotificationDetails(enableVibration: enableVibration),
+        NotificationChannels.buildReminderDetails(enableVibration: enableVibration),
         payload: payload,
       );
       log.d('@showNotification: Notification [ID: $id] displayed successfully');
@@ -327,8 +126,79 @@ class NotificationService {
     }
   }
 
+  /// Displays an immediate low-stock alert notification (non-alarm).
+  /// Mentions the medicine name and current remaining stock quantity.
+  Future<void> showLowStockNotification({
+    required Medicine medicine,
+    bool enableVibration = true,
+  }) async {
+    try {
+      final stock = medicine.currentStock;
+      final unitStr = medicine.formFactor.isNotEmpty ? medicine.formFactor : 'dose';
+      final plural = stock == 1 ? unitStr : '${unitStr}s';
+
+      final title = 'Low Stock Alert: ${medicine.name}';
+      final body = stock <= 0
+          ? '${medicine.name} is out of stock (0 $plural left). Please refill your prescription.'
+          : '${medicine.name} is running low: only $stock $plural remaining. Please refill soon.';
+
+      final payload = jsonEncode({
+        'type': 'low_stock_alert',
+        'medicineId': medicine.id,
+      });
+
+      final notificationId = 500000 + medicine.id;
+      log.i('@showLowStockNotification: Showing alert for "${medicine.name}" ($stock $plural) [ID: $notificationId]');
+
+      await _notificationsPlugin.show(
+        notificationId,
+        title,
+        body,
+        NotificationChannels.buildLowStockDetails(enableVibration: enableVibration),
+        payload: payload,
+      );
+      log.d('@showLowStockNotification: Low stock alert displayed for "${medicine.name}"');
+    } catch (e, stackTrace) {
+      log.e('@showLowStockNotification: Failed to show low stock alert for "${medicine.name}"', e, stackTrace);
+    }
+  }
+
+  /// Checks if medicine stock is at or below threshold and triggers notification if enabled.
+  Future<void> checkAndNotifyLowStock(Medicine medicine) async {
+    try {
+      if (medicine.isRefillAlertEnabled && medicine.currentStock <= medicine.lowStockThreshold) {
+        log.i('@checkAndNotifyLowStock: "${medicine.name}" stock (${medicine.currentStock}) <= threshold (${medicine.lowStockThreshold}). Triggering alert.');
+        await showLowStockNotification(medicine: medicine);
+      }
+    } catch (e, stackTrace) {
+      log.e('@checkAndNotifyLowStock: Error checking low stock for "${medicine.name}"', e, stackTrace);
+    }
+  }
+
+  /// Checks all registered medicines and sends low-stock alerts for those at or below threshold.
+  Future<int> checkAllMedicinesForLowStock({MedicineRepository? medicineRepository}) async {
+    try {
+      final repo = medicineRepository ??
+          (locator.isRegistered<MedicineRepository>() ? locator<MedicineRepository>() : null);
+      if (repo == null) return 0;
+
+      final medicines = await repo.getAllMedicines();
+      int count = 0;
+      for (final med in medicines) {
+        if (med.isRefillAlertEnabled && med.currentStock <= med.lowStockThreshold) {
+          await showLowStockNotification(medicine: med);
+          count++;
+        }
+      }
+      log.i('@checkAllMedicinesForLowStock: Checked ${medicines.length} medicines, sent $count alert(s)');
+      return count;
+    } catch (e, stackTrace) {
+      log.e('@checkAllMedicinesForLowStock: Error checking medicines for low stock', e, stackTrace);
+      return 0;
+    }
+  }
+
   /// Schedules a one-time notification at an exact [scheduledDate].
-  /// Uses timezone-aware scheduling with [AndroidScheduleMode.exactAllowWhileIdle].
   Future<void> scheduleNotification({
     required int id,
     required String title,
@@ -338,16 +208,11 @@ class NotificationService {
     bool enableVibration = true,
   }) async {
     try {
-      log.i(
-        '@scheduleNotification: Scheduling notification [ID: $id] "$title" at $scheduledDate',
-      );
-
+      log.i('@scheduleNotification: Scheduling [ID: $id] "$title" at $scheduledDate');
       final tzDateTime = tz.TZDateTime.from(scheduledDate, tz.local);
 
       if (tzDateTime.isBefore(tz.TZDateTime.now(tz.local))) {
-        log.w(
-          '@scheduleNotification: Scheduled time $scheduledDate is in the past. Skipping schedule.',
-        );
+        log.w('@scheduleNotification: Time $scheduledDate is in the past. Skipping schedule.');
         return;
       }
 
@@ -356,16 +221,13 @@ class NotificationService {
         title,
         body,
         tzDateTime,
-        _defaultNotificationDetails(enableVibration: enableVibration),
+        NotificationChannels.buildReminderDetails(enableVibration: enableVibration),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         payload: payload,
       );
-
-      log.i(
-        '@scheduleNotification: Successfully scheduled notification [ID: $id] for $tzDateTime',
-      );
+      log.i('@scheduleNotification: Successfully scheduled [ID: $id] for $tzDateTime');
     } catch (e, stackTrace) {
-      log.e('@scheduleNotification: Failed to schedule notification [ID: $id]', e, stackTrace);
+      log.e('@scheduleNotification: Failed to schedule [ID: $id]', e, stackTrace);
     }
   }
 
@@ -380,61 +242,33 @@ class NotificationService {
     bool enableVibration = true,
   }) async {
     try {
-      log.i(
-        '@scheduleDailyNotification: Scheduling daily notification [ID: $id] "$title" at $hour:${minute.toString().padLeft(2, '0')}',
-      );
-
-      final scheduledTZDateTime = _nextInstanceOfTime(hour, minute);
+      log.i('@scheduleDailyNotification: Scheduling daily [ID: $id] "$title" at $hour:${minute.toString().padLeft(2, '0')}');
+      final scheduledTZDateTime = NotificationTimezoneHelper.nextInstanceOfTime(hour, minute);
 
       await _notificationsPlugin.zonedSchedule(
         id,
         title,
         body,
         scheduledTZDateTime,
-        _defaultNotificationDetails(enableVibration: enableVibration),
+        NotificationChannels.buildReminderDetails(enableVibration: enableVibration),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payload,
       );
-
-      log.i(
-        '@scheduleDailyNotification: Successfully scheduled daily notification [ID: $id] starting at $scheduledTZDateTime',
-      );
+      log.i('@scheduleDailyNotification: Scheduled daily [ID: $id] starting at $scheduledTZDateTime');
     } catch (e, stackTrace) {
-      log.e(
-        '@scheduleDailyNotification: Failed to schedule daily notification [ID: $id]',
-        e,
-        stackTrace,
-      );
+      log.e('@scheduleDailyNotification: Failed to schedule daily [ID: $id]', e, stackTrace);
     }
-  }
-
-  /// Helper to compute the next [tz.TZDateTime] for a given [hour] and [minute].
-  tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-    return scheduledDate;
   }
 
   /// Cancels a specific scheduled or active notification by [id].
   Future<void> cancelNotification(int id) async {
     try {
-      log.i('@cancelNotification: Cancelling notification [ID: $id]');
+      log.i('@cancelNotification: Cancelling [ID: $id]');
       await _notificationsPlugin.cancel(id);
       log.d('@cancelNotification: Notification [ID: $id] cancelled successfully');
     } catch (e, stackTrace) {
-      log.e('@cancelNotification: Failed to cancel notification [ID: $id]', e, stackTrace);
+      log.e('@cancelNotification: Failed to cancel [ID: $id]', e, stackTrace);
     }
   }
 
@@ -452,7 +286,6 @@ class NotificationService {
   /// Retrieves a list of all currently pending notification requests.
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
     try {
-      log.d('@getPendingNotifications: Fetching pending notifications...');
       final pending = await _notificationsPlugin.pendingNotificationRequests();
       log.d('@getPendingNotifications: Found ${pending.length} pending notification(s)');
       return pending;
@@ -465,7 +298,6 @@ class NotificationService {
   /// Retrieves a list of all currently active notifications shown in the status bar.
   Future<List<ActiveNotification>> getActiveNotifications() async {
     try {
-      log.d('@getActiveNotifications: Fetching active notifications...');
       final active = await _notificationsPlugin.getActiveNotifications();
       log.d('@getActiveNotifications: Found ${active.length} active notification(s)');
       return active;
@@ -473,5 +305,24 @@ class NotificationService {
       log.e('@getActiveNotifications: Failed to fetch active notifications', e, stackTrace);
       return [];
     }
+  }
+
+  /// Checks if app was launched via notification tap on cold boot.
+  Future<void> _checkAppLaunchNotification(
+    void Function(NotificationResponse)? onNotificationTap,
+  ) async {
+    try {
+      final launchDetails = await _notificationsPlugin.getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp == true &&
+          launchDetails?.notificationResponse != null) {
+        Future.delayed(const Duration(milliseconds: 500), () {
+          NotificationActionHandler.handleResponse(
+            launchDetails!.notificationResponse!,
+            onNotificationTap: onNotificationTap,
+            onLowStockCheck: checkAndNotifyLowStock,
+          );
+        });
+      }
+    } catch (_) {}
   }
 }

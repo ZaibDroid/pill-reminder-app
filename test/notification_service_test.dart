@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:pill_reminder_app/app/locator.dart';
+import 'package:pill_reminder_app/core/models/medicine.dart';
 import 'package:pill_reminder_app/core/services/notification_service.dart';
 import 'package:pill_reminder_app/core/services/permission_service.dart';
 
@@ -61,6 +63,7 @@ class FakeFlutterLocalNotificationsPlugin extends Fake
       'id': id,
       'title': title,
       'body': body,
+      'notificationDetails': notificationDetails,
       'payload': payload,
     });
   }
@@ -330,6 +333,102 @@ void main() {
       // Active notifications should return empty list on error
       final active = await notificationService.getActiveNotifications();
       expect(active, isEmpty);
+    });
+  });
+
+  group('NotificationService - Low Stock Notifications (Non-Alarm)', () {
+    test('showLowStockNotification dispatches notification with medicine name, stock quantity, and non-alarm channel', () async {
+      final medicine = Medicine()
+        ..id = 7
+        ..name = 'Metformin 500mg'
+        ..currentStock = 3
+        ..lowStockThreshold = 5
+        ..formFactor = 'tablet'
+        ..isRefillAlertEnabled = true;
+
+      await notificationService.showLowStockNotification(medicine: medicine);
+
+      expect(fakePlugin.calls, contains('show'));
+      expect(fakePlugin.shownNotifications, isNotEmpty);
+
+      final alert = fakePlugin.shownNotifications.first;
+      expect(alert['id'], 500000 + 7);
+      expect(alert['title'], contains('Metformin 500mg'));
+      expect(alert['body'], contains('3'));
+      expect(alert['body'], contains('Metformin 500mg'));
+
+      // Verify payload
+      final payloadMap = jsonDecode(alert['payload'] as String);
+      expect(payloadMap['type'], 'low_stock_alert');
+      expect(payloadMap['medicineId'], 7);
+
+      // Verify notification details are NOT an alarm (fullScreenIntent = false, category = reminder)
+      final details = alert['notificationDetails'] as NotificationDetails?;
+      expect(details, isNotNull);
+      expect(details!.android, isNotNull);
+      expect(details.android!.channelId, NotificationService.lowStockChannelId);
+      expect(details.android!.fullScreenIntent, isFalse);
+      expect(details.android!.category, AndroidNotificationCategory.reminder);
+    });
+
+    test('showLowStockNotification formats 0 remaining as out of stock', () async {
+      final medicine = Medicine()
+        ..id = 8
+        ..name = 'Aspirin'
+        ..currentStock = 0
+        ..lowStockThreshold = 5
+        ..formFactor = 'capsule'
+        ..isRefillAlertEnabled = true;
+
+      await notificationService.showLowStockNotification(medicine: medicine);
+
+      final alert = fakePlugin.shownNotifications.first;
+      expect(alert['body'], contains('out of stock'));
+      expect(alert['body'], contains('0'));
+    });
+
+    test('checkAndNotifyLowStock triggers notification when currentStock <= threshold and alert enabled', () async {
+      final lowMedicine = Medicine()
+        ..id = 12
+        ..name = 'Atorvastatin'
+        ..currentStock = 4
+        ..lowStockThreshold = 5
+        ..formFactor = 'tablet'
+        ..isRefillAlertEnabled = true;
+
+      await notificationService.checkAndNotifyLowStock(lowMedicine);
+
+      expect(fakePlugin.shownNotifications.length, 1);
+      expect(fakePlugin.shownNotifications.first['title'], contains('Atorvastatin'));
+      expect(fakePlugin.shownNotifications.first['body'], contains('4'));
+    });
+
+    test('checkAndNotifyLowStock does NOT trigger when currentStock > threshold', () async {
+      final normalMedicine = Medicine()
+        ..id = 13
+        ..name = 'Ibuprofen'
+        ..currentStock = 20
+        ..lowStockThreshold = 5
+        ..formFactor = 'tablet'
+        ..isRefillAlertEnabled = true;
+
+      await notificationService.checkAndNotifyLowStock(normalMedicine);
+
+      expect(fakePlugin.shownNotifications, isEmpty);
+    });
+
+    test('checkAndNotifyLowStock does NOT trigger when isRefillAlertEnabled is false', () async {
+      final disabledMedicine = Medicine()
+        ..id = 14
+        ..name = 'Lisinopril'
+        ..currentStock = 2
+        ..lowStockThreshold = 5
+        ..formFactor = 'tablet'
+        ..isRefillAlertEnabled = false;
+
+      await notificationService.checkAndNotifyLowStock(disabledMedicine);
+
+      expect(fakePlugin.shownNotifications, isEmpty);
     });
   });
 }

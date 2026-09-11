@@ -9,6 +9,7 @@ import '../../core/models/reminder_time.dart';
 import '../../core/repositories/medicine_repository.dart';
 import '../../core/repositories/reminder_repository.dart';
 import '../../core/services/alarm_service.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/services/permission_service.dart';
 import '../../core/utils/custom_logger.dart';
 import '../../core/view_model/base_view_model.dart';
@@ -19,6 +20,7 @@ class AddMedicineViewModel extends BaseViewModel {
   final MedicineRepository _medicineRepository;
   final ReminderRepository _reminderRepository;
   final AlarmService _alarmService;
+  final NotificationService? _notificationService;
   final PermissionService _permissionService;
   final ImagePicker _imagePicker = ImagePicker();
 
@@ -309,11 +311,16 @@ class AddMedicineViewModel extends BaseViewModel {
     MedicineRepository? medicineRepository,
     ReminderRepository? reminderRepository,
     AlarmService? alarmService,
+    NotificationService? notificationService,
     PermissionService? permissionService,
     Medicine? existingMedicine,
   })  : _medicineRepository = medicineRepository ?? locator<MedicineRepository>(),
         _reminderRepository = reminderRepository ?? locator<ReminderRepository>(),
         _alarmService = alarmService ?? locator<AlarmService>(),
+        _notificationService = notificationService ??
+            (locator.isRegistered<NotificationService>()
+                ? locator<NotificationService>()
+                : null),
         _permissionService = permissionService ?? locator<PermissionService>(),
         _editingMedicine = existingMedicine {
     if (existingMedicine != null) {
@@ -496,6 +503,11 @@ class AddMedicineViewModel extends BaseViewModel {
 
       // Schedule alarms for the reminders
       await _alarmService.scheduleAllRemindersForMedicine(med, createdReminders);
+
+      // Check and notify low stock if current stock is at or below threshold and refill alerts are enabled
+      if (med.isRefillAlertEnabled && med.currentStock <= med.lowStockThreshold) {
+        await _notificationService?.checkAndNotifyLowStock(med);
+      }
 
       log.i('@saveMedication: Successfully saved medication ${med.name} with ${reminderTimes.length} reminders');
       setState(ViewState.idle);

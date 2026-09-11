@@ -12,6 +12,7 @@ import '../../core/repositories/medicine_repository.dart';
 import '../../core/repositories/user_settings_repository.dart';
 import '../../core/services/alarm_service.dart';
 import '../../core/services/audio_alarm_service.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/utils/custom_logger.dart';
 import '../../core/view_model/base_view_model.dart';
 
@@ -22,6 +23,7 @@ class AlarmViewModel extends BaseViewModel {
   final DoseLogRepository _doseLogRepository;
   final AlarmService _alarmService;
   final AudioAlarmService _audioAlarmService;
+  final NotificationService? _notificationService;
   final EmergencyContactRepository _emergencyContactRepository;
 
   Medicine? medicine;
@@ -35,11 +37,16 @@ class AlarmViewModel extends BaseViewModel {
     DoseLogRepository? doseLogRepository,
     AlarmService? alarmService,
     AudioAlarmService? audioAlarmService,
+    NotificationService? notificationService,
     EmergencyContactRepository? emergencyContactRepository,
   })  : _medicineRepository = medicineRepository ?? locator<MedicineRepository>(),
         _doseLogRepository = doseLogRepository ?? locator<DoseLogRepository>(),
         _alarmService = alarmService ?? locator<AlarmService>(),
         _audioAlarmService = audioAlarmService ?? locator<AudioAlarmService>(),
+        _notificationService = notificationService ??
+            (locator.isRegistered<NotificationService>()
+                ? locator<NotificationService>()
+                : null),
         _emergencyContactRepository = emergencyContactRepository ?? locator<EmergencyContactRepository>();
 
   String? get errorMessage => _errorMessage;
@@ -122,6 +129,7 @@ class AlarmViewModel extends BaseViewModel {
       if (medicine!.currentStock > 0) {
         medicine!.currentStock -= 1;
         await _medicineRepository.updateMedicine(medicine!);
+        await _notificationService?.checkAndNotifyLowStock(medicine!);
       }
       notifyListeners();
     } catch (e, stackTrace) {

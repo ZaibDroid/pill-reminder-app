@@ -26,14 +26,20 @@ class MedicineDetailsScreen extends StatelessWidget {
   }
 }
 
-class _MedicineDetailsContent extends StatelessWidget {
+class _MedicineDetailsContent extends StatefulWidget {
   final Medicine medicine;
 
   const _MedicineDetailsContent({required this.medicine});
 
   @override
+  State<_MedicineDetailsContent> createState() => _MedicineDetailsContentState();
+}
+
+class _MedicineDetailsContentState extends State<_MedicineDetailsContent> {
+  @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MedicineViewModel>();
+    final medicine = widget.medicine;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -91,7 +97,12 @@ class _MedicineDetailsContent extends StatelessWidget {
           const SizedBox(height: 8),
           MedicineScheduleCard(medicine: medicine),
           const SizedBox(height: 8),
-          MedicineRefillCard(medicine: medicine),
+          MedicineRefillCard(
+            medicine: medicine,
+            onStockUpdated: () {
+              setState(() {});
+            },
+          ),
           if (medicine.prescriptionNotes != null &&
               medicine.prescriptionNotes!.isNotEmpty) ...[
             const SizedBox(height: 8),

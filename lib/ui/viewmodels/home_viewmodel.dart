@@ -12,6 +12,7 @@ import '../../core/models/timeline_dose_item.dart';
 import '../../core/repositories/dose_log_repository.dart';
 import '../../core/repositories/medicine_repository.dart';
 import '../../core/repositories/reminder_repository.dart';
+import '../../core/services/notification_service.dart';
 import '../../core/utils/custom_logger.dart';
 import '../../core/view_model/base_view_model.dart';
 
@@ -31,6 +32,7 @@ class HomeViewModel extends BaseViewModel {
   final MedicineRepository _medicineRepository;
   final DoseLogRepository _doseLogRepository;
   final ReminderRepository? _reminderRepository;
+  final NotificationService? _notificationService;
   final DoseScheduler _doseScheduler;
   final TimelineBuilder _timelineBuilder;
   final AdherenceCalculator _adherenceCalculator;
@@ -45,6 +47,7 @@ class HomeViewModel extends BaseViewModel {
     MedicineRepository? medicineRepository,
     DoseLogRepository? doseLogRepository,
     ReminderRepository? reminderRepository,
+    NotificationService? notificationService,
     DoseScheduler? doseScheduler,
     TimelineBuilder? timelineBuilder,
     AdherenceCalculator? adherenceCalculator,
@@ -53,6 +56,10 @@ class HomeViewModel extends BaseViewModel {
         _reminderRepository = reminderRepository ??
             (locator.isRegistered<ReminderRepository>()
                 ? locator<ReminderRepository>()
+                : null),
+        _notificationService = notificationService ??
+            (locator.isRegistered<NotificationService>()
+                ? locator<NotificationService>()
                 : null),
         _doseScheduler = doseScheduler ??
             (locator.isRegistered<DoseScheduler>()
@@ -226,6 +233,7 @@ class HomeViewModel extends BaseViewModel {
       if (item.medicine.currentStock > 0) {
         item.medicine.currentStock -= 1;
         await _medicineRepository.updateMedicine(item.medicine);
+        await _notificationService?.checkAndNotifyLowStock(item.medicine);
       }
 
       _updateLocalTimeline(item, updatedStatus: MedicineStatus.taken, updatedLog: logToSave);

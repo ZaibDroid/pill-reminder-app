@@ -18,6 +18,7 @@ import 'package:pill_reminder_app/ui/screens/reports/widgets/adherence_heatmap_c
 import 'package:pill_reminder_app/ui/screens/reports/widgets/adherence_metrics_grid.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/dose_distribution_chart.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/export_report_button.dart';
+import 'package:pill_reminder_app/ui/screens/reports/widgets/report_filter_selector.dart';
 import 'package:pill_reminder_app/ui/screens/reports/widgets/reports_header.dart';
 import 'package:pill_reminder_app/ui/viewmodels/reports_viewmodel.dart';
 
@@ -71,7 +72,7 @@ void main() {
   });
 
   group('ReportsScreen Integration Tests', () {
-    testWidgets('Renders all report sections and metrics', (tester) async {
+    testWidgets('Renders all report sections, filter selector, and metrics', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 2.0;
       addTearDown(() {
@@ -121,14 +122,39 @@ void main() {
       await tester.pumpWidget(_buildTestWrapper(ReportsScreen(viewModel: viewModel)));
       await tester.pumpAndSettle();
 
-      expect(find.byType(ReportsHeader, skipOffstage: false), findsOneWidget);
-      expect(find.byType(DoseDistributionChart, skipOffstage: false), findsOneWidget);
-      expect(find.byType(AdherenceMetricsGrid, skipOffstage: false), findsOneWidget);
-      expect(find.byType(AdherenceHeatmapCalendar, skipOffstage: false), findsOneWidget);
-      expect(find.byType(ExportReportButton, skipOffstage: false), findsOneWidget);
-      expect(find.text('Export Health Report (PDF)', skipOffstage: false), findsOneWidget);
-      expect(find.text('Overall Adherence', skipOffstage: false), findsOneWidget);
-      expect(find.text('Monthly Overview', skipOffstage: false), findsOneWidget);
+      expect(find.byType(ReportsHeader), findsOneWidget);
+      expect(find.byType(ReportFilterSelector), findsOneWidget);
+      expect(
+        find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('Last Week')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('Last Month')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('All History')),
+        findsOneWidget,
+      );
+      expect(find.byType(DoseDistributionChart), findsOneWidget);
+      expect(find.byType(AdherenceMetricsGrid), findsOneWidget);
+      expect(find.byType(AdherenceHeatmapCalendar), findsOneWidget);
+      expect(find.text('Overall Adherence'), findsOneWidget);
+      expect(find.text('Adherence Overview'), findsOneWidget);
+
+      // Scroll down to reveal export report buttons
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pumpAndSettle();
+      expect(find.byType(ExportReportButton), findsOneWidget);
+      expect(find.text('Export Health Report (PDF)'), findsOneWidget);
+
+      // Scroll back up and tap on Last Week filter
+      await tester.drag(find.byType(ListView), const Offset(0, 600));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('Last Week')),
+      );
+      await tester.pumpAndSettle();
     });
   });
 }

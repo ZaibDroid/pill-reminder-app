@@ -48,7 +48,7 @@ class Medicine {
 
   int lowStockThreshold = 5;
 
-  bool isRefillAlertEnabled = false;
+  bool isRefillAlertEnabled = true;
 
   DateTime createdAt = DateTime.now();
 
