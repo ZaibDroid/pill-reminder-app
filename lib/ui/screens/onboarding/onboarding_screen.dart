@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../app/locator.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_images.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/repositories/user_settings_repository.dart';
 import '../../custom_widgets/primary_button.dart';
@@ -20,22 +21,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final _pages = const [
     OnboardingPage(
-      icon: Icons.notifications_active,
+      imagePath: AppImages.onboarding1,
+      icon: Icons.notifications_active_rounded,
+      tag: 'Smart Reminders',
       title: 'Never Miss a Dose',
       description:
-          'Receive timely, prominent alerts directly to your device so your medication schedule is always on track.',
+          'Personalized, full-screen alarms and gentle notifications keep your medication routine on track every single day.',
+      highlights: ['Precise Alarm Schedules', 'Snooze & Grace Periods', 'Low Stock Refill Alerts'],
     ),
     OnboardingPage(
-      icon: Icons.medication,
+      imagePath: AppImages.onboarding2,
+      icon: Icons.medication_rounded,
+      tag: 'Medication Safety',
       title: 'Visual Identification',
       description:
-          'Clear images and exact dosage information ensure you are taking the right medication every single time.',
+          'Inspect pill photos, exact dosage values, and before/after meal guides so you always take the right medicine with total confidence.',
+      highlights: ['Pill Color & Shape Match', 'Dosage & Meal Guidelines', 'Pill Organizer View'],
     ),
     OnboardingPage(
-      icon: Icons.analytics,
+      imagePath: AppImages.onboarding3,
+      icon: Icons.insights_rounded,
+      tag: 'Health Insights',
       title: 'Track Your Health',
       description:
-          'Monitor your adherence over time with easy-to-read charts that help you and your care team stay informed.',
+          'Visualize adherence streaks, monthly calendar heatmaps, and export clinical PDF reports to share with your doctor or caregiver.',
+      highlights: ['Daily Adherence Streak', 'Monthly Health Heatmap', 'PDF Medical Export'],
     ),
   ];
 
