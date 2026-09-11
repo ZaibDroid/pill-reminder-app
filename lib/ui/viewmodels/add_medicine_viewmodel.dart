@@ -337,7 +337,9 @@ class AddMedicineViewModel extends BaseViewModel {
     _colorHex = med.colorHex;
     _mealType = med.mealType;
     _frequency = med.frequency;
-    _specificDaysOfWeek = List.from(med.specificDaysOfWeek);
+    _specificDaysOfWeek = List.from(
+      med.specificDaysOfWeek.isNotEmpty ? med.specificDaysOfWeek : [1, 2, 3, 4, 5, 6, 7],
+    );
     _intervalHours = med.intervalHours;
     _startDate = med.startDate;
     _endDate = med.endDate;
@@ -348,6 +350,41 @@ class AddMedicineViewModel extends BaseViewModel {
     _currentStock = med.currentStock;
     _lowStockThreshold = med.lowStockThreshold;
     _isRefillAlertEnabled = med.isRefillAlertEnabled;
+
+    if (med.reminders.isNotEmpty) {
+      _reminderTimes = med.reminders
+          .map((r) => TimeOfDay(hour: r.hour, minute: r.minute))
+          .toList();
+      _reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+      final firstReminder = med.reminders.first;
+      if (firstReminder.soundRingtone.isNotEmpty) {
+        _alarmSound = firstReminder.soundRingtone;
+      }
+      _isVibrationEnabled = firstReminder.isVibrationEnabled;
+    }
+  }
+
+  /// Asynchronously loads existing reminder times if lazy links weren't preloaded.
+  Future<void> initExistingReminders() async {
+    final med = _editingMedicine;
+    if (med == null) return;
+    try {
+      await med.reminders.load();
+      if (med.reminders.isNotEmpty) {
+        _reminderTimes = med.reminders
+            .map((r) => TimeOfDay(hour: r.hour, minute: r.minute))
+            .toList();
+        _reminderTimes.sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute));
+        final firstReminder = med.reminders.first;
+        if (firstReminder.soundRingtone.isNotEmpty) {
+          _alarmSound = firstReminder.soundRingtone;
+        }
+        _isVibrationEnabled = firstReminder.isVibrationEnabled;
+        notifyListeners();
+      }
+    } catch (e) {
+      log.d('@initExistingReminders: Could not load reminders: $e');
+    }
   }
 
   int get currentStep => _currentStep;
@@ -465,6 +502,16 @@ class AddMedicineViewModel extends BaseViewModel {
       med.updatedAt = DateTime.now();
 
       if (isEditing) {
+        // Cancel old alarms and remove stale reminder entities before saving updated ones
+        await med.reminders.load();
+        if (med.reminders.isNotEmpty) {
+          await _alarmService.cancelAlarmsForReminders(med.reminders.toList());
+          final oldReminderIds = med.reminders.map((r) => r.id).toList();
+          for (final oldId in oldReminderIds) {
+            await _reminderRepository.deleteReminderTime(oldId);
+          }
+          med.reminders.clear();
+        }
         await _medicineRepository.updateMedicine(med);
       } else {
         final medId = await _medicineRepository.saveMedicine(med);

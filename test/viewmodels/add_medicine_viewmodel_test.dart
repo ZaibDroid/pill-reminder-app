@@ -7,6 +7,7 @@ import 'package:pill_reminder_app/core/enums/frequency_type.dart';
 import 'package:pill_reminder_app/core/enums/meal_type.dart';
 import 'package:pill_reminder_app/core/enums/view_state.dart';
 import 'package:pill_reminder_app/core/models/medicine.dart';
+import 'package:pill_reminder_app/core/models/reminder_time.dart';
 import 'package:pill_reminder_app/core/repositories/medicine_repository.dart';
 import 'package:pill_reminder_app/core/repositories/reminder_repository.dart';
 import 'package:pill_reminder_app/core/services/alarm_service.dart';
@@ -280,6 +281,60 @@ void main() {
       expect(allMeds.length, equals(1));
       expect(allMeds.first.name, equals('Updated Name'));
       expect(allMeds.first.dosageValue, equals(15));
+    });
+
+    test('Editing existing medicine replaces old reminders with new times and does not duplicate', () async {
+      // 1. Seed existing medicine with 8:00 AM reminder
+      final med = Medicine()
+        ..name = 'Metformin'
+        ..dosageValue = 500
+        ..dosageUnit = 'mg'
+        ..frequency = FrequencyType.daily;
+      final medId = await medicineRepository.saveMedicine(med);
+      med.id = medId;
+
+      final initialReminder = ReminderTime()
+        ..hour = 8
+        ..minute = 0
+        ..isActive = true;
+      initialReminder.medicine.value = med;
+      await reminderRepository.saveReminderTime(initialReminder);
+      med.reminders.add(initialReminder);
+      await medicineRepository.updateMedicine(med);
+
+      // Verify initial state
+      var currentReminders = await reminderRepository.getAllReminderTimes();
+      expect(currentReminders.length, equals(1));
+      expect(currentReminders.first.hour, equals(8));
+
+      // 2. Open in edit mode
+      final editViewModel = AddMedicineViewModel(
+        medicineRepository: medicineRepository,
+        reminderRepository: reminderRepository,
+        alarmService: alarmService,
+        permissionService: mockPermissionService,
+        existingMedicine: med,
+      );
+
+      await editViewModel.initExistingReminders();
+      expect(editViewModel.reminderTimes.length, equals(1));
+      expect(editViewModel.reminderTimes.first.hour, equals(8));
+
+      // 3. Update reminder time from 8:00 AM to 14:30 (2:30 PM)
+      editViewModel.reminderTimes = [const TimeOfDay(hour: 14, minute: 30)];
+      final saved = await editViewModel.saveMedication();
+      expect(saved, isTrue);
+
+      // 4. Verify no duplicate medicines exist
+      final allMedicines = await medicineRepository.getAllMedicines();
+      expect(allMedicines.length, equals(1));
+      expect(allMedicines.first.id, equals(medId));
+
+      // 5. Verify reminders in database are replaced, not duplicated
+      final updatedReminders = await reminderRepository.getAllReminderTimes();
+      expect(updatedReminders.length, equals(1));
+      expect(updatedReminders.first.hour, equals(14));
+      expect(updatedReminders.first.minute, equals(30));
     });
 
     test('Weekday and interval selection helpers update state accurately', () {

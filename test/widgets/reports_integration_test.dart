@@ -151,9 +151,12 @@ void main() {
       // Scroll back up and tap on Last Week filter
       await tester.drag(find.byType(ListView), const Offset(0, 600));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('Last Week')),
-      );
+      await tester.runAsync(() async {
+        await tester.tap(
+          find.descendant(of: find.byType(ReportFilterSelector), matching: find.text('Last Week')),
+        );
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
       await tester.pumpAndSettle();
     });
   });

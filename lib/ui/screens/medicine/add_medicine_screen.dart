@@ -32,7 +32,7 @@ class AddMedicineScreen extends StatelessWidget {
       );
     }
     return ChangeNotifierProvider(
-      create: (_) => locator<AddMedicineViewModel>(param1: existingMedicine),
+      create: (_) => locator<AddMedicineViewModel>(param1: existingMedicine)..initExistingReminders(),
       child: const _AddMedicineContent(),
     );
   }
