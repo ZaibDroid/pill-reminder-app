@@ -5,6 +5,9 @@ import '../../../core/constants/app_images.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../../core/repositories/user_settings_repository.dart';
 
+import '../../../app/routes.dart';
+import '../../../core/services/alarm_service.dart';
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -16,45 +19,55 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
+    _scaleAnimation = Tween<double>(begin: 0.88, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
     _controller.forward();
-    _checkNextDestination();
+    _runStartupSequence();
   }
 
-  Future<void> _checkNextDestination() async {
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (!mounted) return;
+  Future<void> _runStartupSequence() async {
+    // Non-blocking background sync for active medication alarms
+    if (locator.isRegistered<AlarmService>()) {
+      locator<AlarmService>().rescheduleAllActiveAlarms().catchError((_) => 0);
+    }
+
+    String nextRoute = AppRoutes.home;
 
     try {
       if (locator.isRegistered<UserSettingsRepository>()) {
         final userSettingsRepo = locator<UserSettingsRepository>();
         final settings = await userSettingsRepo.getOrCreateSettings();
 
-        if (!mounted) return;
         if (settings.isFirstTimeUser) {
-          Navigator.of(context).pushReplacementNamed('/onboarding');
-          return;
+          nextRoute = AppRoutes.onboarding;
+        } else if (settings.pinHash != null && settings.pinHash!.isNotEmpty) {
+          nextRoute = AppRoutes.appLock;
+        } else {
+          nextRoute = AppRoutes.home;
         }
       }
     } catch (_) {
-      // Fallback gracefully to home if database is offline or not yet initialized
+      nextRoute = AppRoutes.home;
     }
 
-    if (mounted) {
-      Navigator.of(context).pushReplacementNamed('/home');
-    }
+    // Ensure smooth entrance animation completes gracefully before transitioning
+    await Future.delayed(const Duration(milliseconds: 1400));
+    if (!mounted || _hasNavigated) return;
+
+    _hasNavigated = true;
+    Navigator.of(context).pushReplacementNamed(nextRoute);
   }
 
   @override
@@ -65,8 +78,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Center(
         child: FadeTransition(
           opacity: _fadeAnimation,

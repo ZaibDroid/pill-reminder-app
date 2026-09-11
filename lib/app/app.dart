@@ -12,16 +12,16 @@ class PillReminderApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeService = locator<ThemeService>();
 
-    return ListenableBuilder(
-      listenable: themeService,
-      builder: (context, child) {
-        return ScreenUtilInit(
-          designSize: const Size(375, 812),
-          minTextAdapt: true,
-          splitScreenMode: true,
-          builder: (context, _) {
+    return ScreenUtilInit(
+      designSize: const Size(375, 812),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, _) {
+        return ListenableBuilder(
+          listenable: themeService,
+          builder: (context, child) {
             return MaterialApp(
-              title: 'Pill Reminder App',
+              title: 'MediAlert',
               navigatorKey: AppRoutes.navigatorKey,
               debugShowCheckedModeBanner: false,
               theme: AppTheme.lightTheme,

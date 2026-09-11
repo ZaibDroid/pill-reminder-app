@@ -32,6 +32,7 @@ class _MainShellState extends State<MainShell> {
   ReportsViewModel? _reportsViewModel;
   SettingsViewModel? _settingsViewModel;
   Timer? _foregroundAlarmCheckTimer;
+  bool _isAlarmShowing = false;
 
   HomeViewModel get _effectiveHomeViewModel =>
       _homeViewModel ??= (locator.isRegistered<HomeViewModel>() ? (locator<HomeViewModel>()..loadTodayTimeline()) : HomeViewModel());
@@ -55,14 +56,16 @@ class _MainShellState extends State<MainShell> {
 
   void _startForegroundAlarmMonitor() {
     _foregroundAlarmCheckTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
-      if (!mounted) return;
+      if (!mounted || _isAlarmShowing) return;
       if (locator.isRegistered<AlarmService>()) {
         final dueMed = await locator<AlarmService>().checkForDueMedicineNow();
-        if (dueMed != null && mounted) {
-          Navigator.of(context).pushNamed(
+        if (dueMed != null && mounted && !_isAlarmShowing) {
+          _isAlarmShowing = true;
+          await Navigator.of(context).pushNamed(
             AppRoutes.alarm,
             arguments: dueMed,
           );
+          _isAlarmShowing = false;
         }
       }
     });

@@ -26,28 +26,24 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        return MaterialPageRoute(
-          builder: (_) => const SplashScreen(),
-        );
+        return _buildFadeRoute(const SplashScreen(), settings);
 
       case onboarding:
-        return MaterialPageRoute(
-          builder: (_) => const OnboardingScreen(),
-        );
+        return _buildFadeRoute(const OnboardingScreen(), settings);
 
       case appLock:
-        return MaterialPageRoute(
-          builder: (ctx) => AppLockScreen(
+        return _buildFadeRoute(
+          AppLockScreen(
             onUnlockSuccess: () {
-              Navigator.of(ctx).pushReplacementNamed(home);
+              Navigator.of(navigatorKey.currentContext ?? AppRoutes.navigatorKey.currentState!.context)
+                  .pushReplacementNamed(home);
             },
           ),
+          settings,
         );
 
       case home:
-        return MaterialPageRoute(
-          builder: (_) => const MainShell(),
-        );
+        return _buildFadeRoute(const MainShell(), settings);
 
       case medicineList:
         return MaterialPageRoute(
@@ -100,5 +96,22 @@ class AppRoutes {
           ),
         );
     }
+  }
+
+  static PageRouteBuilder _buildFadeRoute(Widget page, RouteSettings settings) {
+    return PageRouteBuilder(
+      settings: settings,
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeInOut,
+          ),
+          child: child,
+        );
+      },
+      transitionDuration: const Duration(milliseconds: 350),
+    );
   }
 }
