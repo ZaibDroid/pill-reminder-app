@@ -43,23 +43,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       locator<AlarmService>().rescheduleAllActiveAlarms().catchError((_) => 0);
     }
 
-    String nextRoute = AppRoutes.home;
+    // Temporarily set to onboarding for visual testing and review as requested
+    String nextRoute = AppRoutes.onboarding;
 
     try {
       if (locator.isRegistered<UserSettingsRepository>()) {
         final userSettingsRepo = locator<UserSettingsRepository>();
-        final settings = await userSettingsRepo.getOrCreateSettings();
-
-        if (settings.isFirstTimeUser) {
-          nextRoute = AppRoutes.onboarding;
-        } else if (settings.pinHash != null && settings.pinHash!.isNotEmpty) {
-          nextRoute = AppRoutes.appLock;
-        } else {
-          nextRoute = AppRoutes.home;
-        }
+        await userSettingsRepo.getOrCreateSettings();
+        // Force onboarding route for testing; will revert to isFirstTimeUser check later
+        nextRoute = AppRoutes.onboarding;
       }
     } catch (_) {
-      nextRoute = AppRoutes.home;
+      nextRoute = AppRoutes.onboarding;
     }
 
     // Ensure smooth entrance animation completes gracefully before transitioning
